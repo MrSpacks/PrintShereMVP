@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MakerStatus {
+  available
+  busy
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  cancelled
+}
+
+enum UserRole {
+  customer
+  maker
+  admin
+}
+
+model User {
+  id           String   @id
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         UserRole @default(customer)
+  makerId      String?  @unique
+  maker        Maker?   @relation(fields: [makerId], references: [id], onDelete: SetNull)
+  orders       Order[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([role])
+}
+
+model Maker {
+  id               String           @id
+  name             String
+  address          String
+  latitude         Float
+  longitude        Float
+  rating           Float
+  pricePerGramCzk  Float
+  minOrderPriceCzk Int              @default(0)
+  printerTypes     String[]
+  status           MakerStatus      @default(available)
+  filaments        MakerFilament[]
+  orders           Order[]
+  user             User?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+/** Материал + цвет, которые мейкер добавляет через «+» в кабинете */
+model MakerFilament {
+  id          String @id @default(cuid())
+  makerId     String
+  maker       Maker  @relation(fields: [makerId], references: [id], onDelete: Cascade)
+  printerType String
+  material    String
+  color       String
+
+  @@unique([makerId, printerType, material, color])
+  @@index([makerId])
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  makerId           String
+  maker             Maker       @relation(fields: [makerId], references: [id], onDelete: Restrict)
+  customerId        String?
+  customer          User?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  fileName          String
+  weightGrams       Float
+  widthMm           Float
+  heightMm          Float
+  depthMm           Float
+  printCostCzk      Int
+  deliveryMethod    String?
+  deliveryPriceCzk  Int         @default(0)
+  zasilkovnaPointId String?
+  status            OrderStatus   @default(pending)
+  createdAt         DateTime    @default(now())
+
+  @@index([makerId])
+  @@index([customerId])
+  @@index([createdAt])
+}

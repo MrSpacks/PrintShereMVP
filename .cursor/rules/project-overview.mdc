@@ -1,0 +1,46 @@
+---
+description: PrintShere MVP — stack, layout, and key conventions
+alwaysApply: true
+---
+
+# PrintShere MVP
+
+P2P 3D printing marketplace. Monolithic **Next.js 14 App Router** + **TypeScript**, deploy target **Vercel**.
+
+## Stack
+
+- UI: Tailwind v3 + Shadcn-style components (`src/components/ui/`)
+- State: Zustand (`src/store/`)
+- DB: Prisma + Neon PostgreSQL
+- Auth: JWT in httpOnly cookie (`src/lib/auth/session.ts`)
+- Map: **Leaflet** + CartoDB Positron (no API keys). Do not reintroduce Mapbox.
+- 3D: Three.js / R3F — dynamic import, SSR off (`src/components/model/`)
+
+## Layout
+
+- Home `/`: split screen 40/60 — left model upload + price, right map + filters
+- Maker signup: `/become-maker` (minimal fields only)
+- Maker settings: `/dashboard` (profile, min order price, filaments via +)
+- Orders: `/orders` (role-based: customer / maker / admin)
+
+## Roles
+
+`customer` | `maker` | `admin`. Makers have linked `Maker` record via `user.makerId`.
+
+## Maker data model (important)
+
+- Workshop settings on `Maker`: address, lat/lng, pricePerGramCzk, minOrderPriceCzk, printerTypes, status
+- Materials are **not** arrays on Maker — use `MakerFilament` rows (material + color per printer type)
+- Address is geocoded via Nominatim on signup and profile save (`src/lib/geocoding/nominatim.ts`)
+
+## Env & scripts
+
+- Secrets in `.env.local` (gitignored). Copy from `.env.example`.
+- Prisma CLI uses `.env.local` via `dotenv-cli`: `npm run db:migrate`, `db:seed`, `db:studio`
+- Test password (seed): `test123456`
+
+## Code style
+
+- Minimize scope; match existing patterns in surrounding files
+- Types in `src/types/`, Prisma mappers in `src/lib/*/map-*.ts`
+- Prefer extending existing helpers over new abstractions

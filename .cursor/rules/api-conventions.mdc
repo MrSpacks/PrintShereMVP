@@ -1,0 +1,50 @@
+---
+description: API route patterns for PrintShere
+globs: src/app/api/**/*.ts
+alwaysApply: false
+---
+
+# API Routes
+
+## Structure
+
+- Route handlers in `src/app/api/**/route.ts`
+- Export named `GET`, `POST`, `PATCH`, `DELETE` as needed
+- Return `NextResponse.json()` with appropriate status codes
+
+## Auth
+
+- Read session: `getSession()` from `@/lib/auth/session`
+- Login/signup attach cookie via `attachSessionCookie(response, token)`
+- Maker-only routes: `requireMakerUser()` from `@/lib/maker/require-maker`
+  - Returns `null` → respond with `unauthorized()` (401)
+  - User must have `role === "maker"` and linked `maker`
+
+## Validation
+
+- Type-guard request body with `isXBody(body: unknown): body is X` functions
+- Trim strings; validate ranges server-side (don't trust client)
+- Geocode addresses before saving maker location
+
+## Prisma
+
+- Use shared client: `import { prisma } from "@/lib/prisma"`
+- Map DB records to API types via `mapPrisma*` helpers in `src/lib/`
+- Include relations explicitly (`filaments`, `maker`) when needed
+
+## Orders
+
+- Enforce `maker.status === "available"` and `minOrderPriceCzk` on create
+- Delivery: `pickup` (price 0) or `zasilkovna` (stub quote in `src/lib/delivery/zasilkovna.ts`)
+
+## Errors
+
+```typescript
+// ✅ Pattern
+try {
+  // ...
+} catch (error) {
+  console.error("[POST /api/...]", error);
+  return NextResponse.json({ error: "Human message" }, { status: 500 });
+}
+```

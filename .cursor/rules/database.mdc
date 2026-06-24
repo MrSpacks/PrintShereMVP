@@ -1,0 +1,40 @@
+---
+description: Prisma schema, migrations, and seed
+globs: prisma/**/*
+alwaysApply: false
+---
+
+# Database (Prisma + Neon)
+
+## Schema (`prisma/schema.prisma`)
+
+| Model | Purpose |
+|-------|---------|
+| `User` | Auth; `role` + optional `makerId` |
+| `Maker` | Workshop on map; pricing, status, printerTypes |
+| `MakerFilament` | Material + color per maker (`printerType`, unique combo) |
+| `Order` | Print job with dimensions, costs, delivery fields |
+
+## Migrations
+
+- Create: `npm run db:migrate` (loads `.env.local` automatically)
+- Do not use `db:push` for production-like changes unless prototyping
+- Custom SQL migrations live in `prisma/migrations/`
+
+## Seed (`prisma/seed.ts`)
+
+- 6 Prague makers with `MakerFilament` rows + 7 users
+- Makers: `elena@workshop.cz`, `vinohrady@prints.cz`, etc.
+- Run: `npm run db:seed`
+
+## After schema changes
+
+1. Edit `schema.prisma`
+2. `npm run db:migrate`
+3. Update `prisma/seed.ts` if seed data affected
+4. Update `src/types/` and `map-*.ts` mappers
+5. `npm run build` to verify types
+
+## Filament options
+
+Allowed materials/colors are validated in API against `src/lib/makers/filament-options.ts` (sourced from `capabilities.ts`). Keep DB values within these lists.

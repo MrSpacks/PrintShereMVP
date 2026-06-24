@@ -1,0 +1,280 @@
+.mapRoot {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  z-index: 0;
+}
+
+.mapContainer {
+  width: 100%;
+  height: 100%;
+  background: #f4f4f5;
+}
+
+/* ── Custom pin (DivIcon) ───────────────────────────── */
+
+.pinRoot {
+  background: transparent !important;
+  border: none !important;
+}
+
+.pinWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -100%);
+  cursor: pointer;
+  width: max-content;
+}
+
+.pinBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #e4e4e7;
+  background: #ffffff;
+  color: #18181b;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(24, 24, 27, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.pinWrapper:hover .pinBubble {
+  transform: scale(1.04);
+  border-color: #fdba74;
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.18);
+}
+
+.pinTip {
+  width: 10px;
+  height: 10px;
+  margin-top: -1px;
+  background: #ffffff;
+  border-right: 1px solid #e4e4e7;
+  border-bottom: 1px solid #e4e4e7;
+  transform: rotate(45deg);
+}
+
+.deliveryIcon {
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* ── Leaflet popup overrides ──────────────────────── */
+
+.mapRoot :global(.leaflet-popup-content-wrapper) {
+  border-radius: 14px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(24, 24, 27, 0.16);
+  border: 1px solid #e4e4e7;
+}
+
+.mapRoot :global(.leaflet-popup-content) {
+  margin: 0;
+  min-width: 260px;
+  max-width: 300px;
+  line-height: 1.4;
+}
+
+.mapRoot :global(.leaflet-popup-tip-container) {
+  display: none;
+}
+
+.mapRoot :global(.leaflet-popup-close-button) {
+  top: 10px !important;
+  right: 10px !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  font-size: 20px !important;
+  line-height: 28px !important;
+  color: #71717a !important;
+  border-radius: 8px;
+}
+
+.mapRoot :global(.leaflet-popup-close-button:hover) {
+  background: #f4f4f5;
+  color: #18181b !important;
+}
+
+/* ── Popup card content ───────────────────────────── */
+
+.popup {
+  padding: 16px;
+  font-family: inherit;
+  color: #18181b;
+}
+
+.popupHeader {
+  padding-right: 28px;
+}
+
+.popupTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.popupRating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #52525b;
+}
+
+.popupStar {
+  color: #f59e0b;
+  font-size: 13px;
+}
+
+.popupBody {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.popupRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.popupLabel {
+  color: #71717a;
+}
+
+.popupValue {
+  font-weight: 700;
+  color: #18181b;
+  text-align: right;
+}
+
+.popupDelivery {
+  font-size: 13px;
+  color: #3f3f46;
+}
+
+.deliveryBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: #f4f4f5;
+}
+
+.deliveryTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3f3f46;
+}
+
+.deliveryOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #3f3f46;
+  cursor: pointer;
+}
+
+.deliveryOption input {
+  margin-top: 2px;
+}
+
+.deliveryError {
+  margin: 0;
+  font-size: 11px;
+  color: #b91c1c;
+}
+
+.popupAddress {
+  margin: 0;
+  font-size: 12px;
+  color: #71717a;
+  line-height: 1.4;
+}
+
+.materials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.materialTag {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  font-size: 11px;
+  font-weight: 600;
+  color: #3f3f46;
+}
+
+.statusAvailable,
+.statusBusy {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.statusAvailable {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.statusBusy {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.orderButton {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #f97316;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.orderButton:hover:not(:disabled) {
+  background: #ea580c;
+}
+
+.orderButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Attribution (subtle) ─────────────────────────── */
+
+.mapRoot :global(.leaflet-control-attribution) {
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(4px);
+}
