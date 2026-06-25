@@ -11,11 +11,13 @@ import {
   AuthSubmitButton,
 } from "@/components/auth/auth-form";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useTranslations } from "@/i18n/locale-provider";
 import type { MakerSignupPayload } from "@/types/auth";
 
 export function BecomeMakerForm() {
   const router = useRouter();
   const { signupMaker } = useAuth();
+  const { t } = useTranslations();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -46,7 +48,7 @@ export function BecomeMakerForm() {
       const message =
         submitError instanceof Error
           ? submitError.message
-          : "Registration failed";
+          : t("becomeMaker.registrationFailed");
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -55,13 +57,13 @@ export function BecomeMakerForm() {
 
   return (
     <AuthCard
-      title="Become a Maker"
-      subtitle="Create your account and put your workshop on the map. Materials, prices and limits — in your dashboard."
+      title={t("becomeMaker.title")}
+      subtitle={t("becomeMaker.subtitle")}
       size="lg"
       footer={
         <>
-          Just want to print something?{" "}
-          <AuthLink href="/signup">Sign up as customer</AuthLink>
+          {t("becomeMaker.footer")}{" "}
+          <AuthLink href="/signup">{t("becomeMaker.signUpCustomer")}</AuthLink>
         </>
       }
     >
@@ -70,19 +72,24 @@ export function BecomeMakerForm() {
 
         <fieldset className="space-y-4">
           <legend className="text-sm font-semibold text-foreground">
-            Your account
+            {t("becomeMaker.yourAccount")}
           </legend>
-          <AuthField id="name" label="Full name" value={name} onChange={setName} />
+          <AuthField
+            id="name"
+            label={t("common.fullName")}
+            value={name}
+            onChange={setName}
+          />
           <AuthField
             id="email"
-            label="Email"
+            label={t("common.email")}
             type="email"
             value={email}
             onChange={setEmail}
           />
           <AuthField
             id="password"
-            label="Password"
+            label={t("common.password")}
             type="password"
             value={password}
             onChange={setPassword}
@@ -91,19 +98,19 @@ export function BecomeMakerForm() {
 
         <fieldset className="space-y-4">
           <legend className="text-sm font-semibold text-foreground">
-            Workshop
+            {t("becomeMaker.workshop")}
           </legend>
 
           <AuthField
             id="workshopName"
-            label="Workshop name"
+            label={t("becomeMaker.workshopName")}
             value={workshopName}
             onChange={setWorkshopName}
           />
 
           <div className="space-y-2">
             <label htmlFor="address" className="text-sm font-medium">
-              Full address
+              {t("becomeMaker.fullAddress")}
             </label>
             <textarea
               id="address"
@@ -111,19 +118,18 @@ export function BecomeMakerForm() {
               onChange={(event) => setAddress(event.target.value)}
               required
               rows={3}
-              placeholder="Street, city, postal code, country"
+              placeholder={t("becomeMaker.addressPlaceholder")}
               className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
             <p className="text-xs text-muted-foreground">
-              Used to place your pin on the map. You can change it later in the
-              dashboard.
+              {t("becomeMaker.addressHint")}
             </p>
           </div>
         </fieldset>
 
         <AuthSubmitButton
           isSubmitting={isSubmitting}
-          label="Register Workshop"
+          label={t("becomeMaker.registerWorkshop")}
         />
       </form>
     </AuthCard>

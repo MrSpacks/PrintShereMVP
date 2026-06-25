@@ -5,14 +5,17 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth/auth-provider";
 import { MakerDashboard } from "@/components/maker/maker-dashboard";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/i18n/locale-provider";
+import { hasMakerAccess } from "@/types/user";
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
+  const { t } = useTranslations();
 
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-        Loading…
+        {t("common.loading")}
       </div>
     );
   }
@@ -20,30 +23,29 @@ export default function DashboardPage() {
   if (!user) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">Maker dashboard</h1>
+        <h1 className="text-2xl font-semibold">{t("dashboard.loginTitle")}</h1>
         <p className="max-w-sm text-sm text-muted-foreground">
-          Log in with your maker account to manage workshop settings and
-          materials.
+          {t("dashboard.loginText")}
         </p>
         <Button variant="brand" asChild>
-          <Link href="/login">Log In</Link>
+          <Link href="/login">{t("auth.logIn")}</Link>
         </Button>
       </div>
     );
   }
 
-  if (user.role !== "maker") {
+  if (!hasMakerAccess(user)) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">Maker access only</h1>
+        <h1 className="text-2xl font-semibold">{t("dashboard.accessTitle")}</h1>
         <p className="max-w-sm text-sm text-muted-foreground">
-          This page is for registered workshops. Want to list your printer?{" "}
+          {t("dashboard.accessText")}{" "}
           <Link href="/become-maker" className="font-medium text-brand hover:underline">
-            Become a maker
+            {t("dashboard.becomeMakerLink")}
           </Link>
         </p>
         <Button variant="outline" asChild>
-          <Link href="/">Back to map</Link>
+          <Link href="/">{t("common.backToMap")}</Link>
         </Button>
       </div>
     );
@@ -53,10 +55,10 @@ export default function DashboardPage() {
     <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Workshop dashboard
+          {t("dashboard.title")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Update your profile, set a minimum order price, and manage plastics.
+          {t("dashboard.subtitle")}
         </p>
       </div>
 

@@ -1,13 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, LayoutDashboard, Package, User } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { LogOut, LayoutDashboard, Package, Scale, Shield, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/auth-provider";
+import { usePendingOrdersCount } from "@/hooks/use-pending-orders-count";
+import { useTranslations } from "@/i18n/locale-provider";
+import { hasMakerAccess, isModeratorRole, type UserRole } from "@/types/user";
+import { cn } from "@/lib/utils";
 
 export function HeaderAuth() {
   const { user, isLoading, logout } = useAuth();
+  const { t } = useTranslations();
+  const isMaker = user ? hasMakerAccess(user) : false;
+  const isModerator = user ? isModeratorRole(user.role) : false;
+  const isAdmin = user?.role === "admin";
+  const { count: pendingOrdersCount, refetch: refetchPendingCount } =
+    usePendingOrdersCount(Boolean(isMaker));
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (isMaker && pathname === "/orders") {
+      refetchPendingCount();
+    }
+  }, [isMaker, pathname, refetchPendingCount]);
 
   if (isLoading) {
     return (
@@ -19,42 +38,90 @@ export function HeaderAuth() {
     return (
       <>
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/login">Log In</Link>
+          <Link href="/login">{t("auth.logIn")}</Link>
         </Button>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/signup">Sign Up</Link>
+          <Link href="/signup">{t("auth.signUp")}</Link>
         </Button>
       </>
     );
   }
 
+  const roleLabel = t(`roles.${user.role as UserRole}`);
+
   return (
     <>
-      {user.role === "maker" && (
+      {isMaker && (
         <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
           <Link href="/dashboard" className="gap-1.5">
             <LayoutDashboard className="h-3.5 w-3.5" aria-hidden />
-            Dashboard
+            {t("auth.dashboard")}
+          </Link>
+        </Button>
+      )}
+
+      {isAdmin && (
+        <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+          <Link href="/admin" className="gap-1.5">
+            <Shield className="h-3.5 w-3.5" aria-hidden />
+            {t("auth.admin")}
+          </Link>
+        </Button>
+      )}
+
+      {isModerator && (
+        <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+          <Link href="/moderation" className="gap-1.5">
+            <Scale className="h-3.5 w-3.5" aria-hidden />
+            {t("auth.moderation")}
           </Link>
         </Button>
       )}
 
       <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
-        <Link href="/orders" className="gap-1.5">
+        <Link
+          href="/orders"
+          className={cn(
+            "relative gap-1.5",
+            isMaker && pendingOrdersCount > 0 && "pr-1"
+          )}
+          aria-label={
+            isMaker && pendingOrdersCount > 0
+              ? `${t("auth.orders")} (${pendingOrdersCount})`
+              : t("auth.orders")
+          }
+        >
           <Package className="h-3.5 w-3.5" aria-hidden />
-          Orders
+          {t("auth.orders")}
+          {isMaker && pendingOrdersCount > 0 && (
+            <span className="ml-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold leading-none text-brand-foreground">
+              {pendingOrdersCount > 99 ? "99+" : pendingOrdersCount}
+            </span>
+          )}
         </Link>
       </Button>
 
-      <div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
-        <User className="h-4 w-4" aria-hidden />
-        <span className="max-w-[140px] truncate font-medium text-foreground">
-          {user.name}
-        </span>
-        <span className="rounded-full bg-muted px-2 py-0.5 text-xs capitalize">
-          {user.role}
-        </span>
-      </div>
+      <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+        <Link href="/profile" className="gap-2">
+          {user.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.avatarUrl}
+              alt=""
+              className="h-6 w-6 rounded-full object-cover"
+            />
+          ) : (
+            <User className="h-3.5 w-3.5" aria-hidden />
+          )}
+          <span className="max-w-[120px] truncate font-medium text-foreground">
+            {user.name}
+          </span>
+        </Link>
+      </Button>
+
+      <span className="hidden rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground sm:inline">
+        {roleLabel}
+      </span>
 
       <Button
         variant="outline"
@@ -63,7 +130,7 @@ export function HeaderAuth() {
         className="gap-1.5"
       >
         <LogOut className="h-3.5 w-3.5" aria-hidden />
-        Log Out
+        {t("auth.logOut")}
       </Button>
     </>
   );

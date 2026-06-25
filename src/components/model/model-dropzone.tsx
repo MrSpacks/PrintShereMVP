@@ -4,6 +4,7 @@ import { Upload } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/i18n/locale-provider";
 import { ACCEPTED_MODEL_EXTENSIONS } from "@/lib/model/constants";
 import { isAcceptedModelFile } from "@/lib/model/parse-model-file";
 import { cn } from "@/lib/utils";
@@ -14,15 +15,12 @@ interface ModelDropzoneProps {
   className?: string;
 }
 
-/**
- * Дропзона для загрузки STL/OBJ.
- * Поддерживает drag-and-drop и выбор через диалог.
- */
 export function ModelDropzone({
   onFileSelect,
   isLoading = false,
   className,
 }: ModelDropzoneProps) {
+  const { t } = useTranslations();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -88,10 +86,10 @@ export function ModelDropzone({
         </div>
 
         <p className="text-center text-sm font-medium text-zinc-200">
-          {isLoading ? "Analyzing model…" : "Drop your 3D model here"}
+          {isLoading ? t("model.analyzing") : t("model.dropTitle")}
         </p>
         <p className="mt-1 text-center text-xs text-zinc-500">
-          STL or OBJ — up to 50 MB
+          {t("model.dropHint")}
         </p>
 
         <Button
@@ -105,7 +103,7 @@ export function ModelDropzone({
             inputRef.current?.click();
           }}
         >
-          Browse files
+          {t("model.browseFiles")}
         </Button>
       </div>
 

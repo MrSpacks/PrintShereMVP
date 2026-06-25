@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AuthError } from "@/components/auth/auth-form";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/i18n/locale-provider";
 import { PRINTER_TYPES } from "@/lib/makers/capabilities";
 import {
   getColorOptions,
@@ -61,8 +62,11 @@ function FilamentRow({
   onDelete: (id: string) => void;
   isDeleting: boolean;
 }) {
+  const { t } = useTranslations();
   const typeLabel =
-    filament.printerType === "fdm" ? "Plastic (FDM)" : "Resin (SLA/DLP)";
+    filament.printerType === "fdm"
+      ? t("printer.fdm")
+      : t("printer.resin");
 
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
@@ -80,7 +84,7 @@ function FilamentRow({
         disabled={isDeleting}
         onClick={() => onDelete(filament.id)}
         className="shrink-0 text-red-600 hover:bg-red-50 hover:text-red-700"
-        aria-label={`Remove ${filament.material} ${filament.color}`}
+        aria-label={`${t("common.remove")} ${filament.material} ${filament.color}`}
       >
         <Trash2 className="h-4 w-4" />
       </Button>
@@ -97,6 +101,7 @@ function AddFilamentPanel({
   onAdd: (printerType: PrinterType, material: string, color: string) => Promise<void>;
   onClose: () => void;
 }) {
+  const { t } = useTranslations();
   const defaultType = printerTypes[0] ?? "fdm";
   const [printerType, setPrinterType] = useState<PrinterType>(defaultType);
   const materials = useMemo(
@@ -132,7 +137,9 @@ function AddFilamentPanel({
       onClose();
     } catch (submitError) {
       setError(
-        submitError instanceof Error ? submitError.message : "Failed to add"
+        submitError instanceof Error
+          ? submitError.message
+          : t("dashboard.addFailed")
       );
     } finally {
       setIsSubmitting(false);
@@ -145,12 +152,12 @@ function AddFilamentPanel({
       className="space-y-3 rounded-lg border border-dashed border-brand/40 bg-brand/5 p-4"
     >
       <div className="flex items-center justify-between gap-2">
-        <FieldLabel>Add plastic / resin</FieldLabel>
+        <FieldLabel>{t("dashboard.addFilamentTitle")}</FieldLabel>
         <button
           type="button"
           onClick={onClose}
           className="rounded-md p-1 text-muted-foreground hover:bg-muted"
-          aria-label="Close"
+          aria-label={t("common.close")}
         >
           <X className="h-4 w-4" />
         </button>
@@ -160,7 +167,7 @@ function AddFilamentPanel({
 
       {printerTypes.length > 1 && (
         <div className="space-y-2">
-          <FieldLabel>Printer type</FieldLabel>
+          <FieldLabel>{t("dashboard.printerType")}</FieldLabel>
           <select
             value={printerType}
             onChange={(event) =>
@@ -168,21 +175,18 @@ function AddFilamentPanel({
             }
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
           >
-            {printerTypes.map((type) => {
-              const meta = PRINTER_TYPES.find((item) => item.id === type);
-              return (
-                <option key={type} value={type}>
-                  {meta?.label ?? type}
-                </option>
-              );
-            })}
+            {printerTypes.map((type) => (
+              <option key={type} value={type}>
+                {t(`printer.${type}`)}
+              </option>
+            ))}
           </select>
         </div>
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-2">
-          <FieldLabel>Material</FieldLabel>
+          <FieldLabel>{t("dashboard.material")}</FieldLabel>
           <select
             value={material}
             onChange={(event) => setMaterial(event.target.value)}
@@ -197,7 +201,7 @@ function AddFilamentPanel({
         </div>
 
         <div className="space-y-2">
-          <FieldLabel>Color</FieldLabel>
+          <FieldLabel>{t("dashboard.color")}</FieldLabel>
           <select
             value={color}
             onChange={(event) => setColor(event.target.value)}
@@ -213,13 +217,14 @@ function AddFilamentPanel({
       </div>
 
       <Button type="submit" variant="brand" size="sm" disabled={isSubmitting}>
-        {isSubmitting ? "Adding…" : "Add"}
+        {isSubmitting ? t("common.adding") : t("common.add")}
       </Button>
     </form>
   );
 }
 
 export function MakerDashboard() {
+  const { t } = useTranslations();
   const [profile, setProfile] = useState<MakerProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -260,22 +265,22 @@ export function MakerDashboard() {
       };
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Failed to load profile");
+        throw new Error(data.error ?? t("dashboard.loadFailed"));
       }
 
       if (!data.profile) {
-        throw new Error("Profile not found");
+        throw new Error(t("dashboard.profileNotFound"));
       }
 
       applyProfile(data.profile);
     } catch (error) {
       setLoadError(
-        error instanceof Error ? error.message : "Failed to load profile"
+        error instanceof Error ? error.message : t("dashboard.loadFailed")
       );
     } finally {
       setIsLoading(false);
     }
-  }, [applyProfile]);
+  }, [applyProfile, t]);
 
   useEffect(() => {
     void loadProfile();
@@ -284,7 +289,7 @@ export function MakerDashboard() {
   const togglePrinterType = (type: PrinterType) => {
     setPrinterTypes((current) => {
       if (current.includes(type)) {
-        return current.length === 1 ? current : current.filter((t) => t !== type);
+        return current.length === 1 ? current : current.filter((item) => item !== type);
       }
       return [...current, type];
     });
@@ -318,16 +323,18 @@ export function MakerDashboard() {
       };
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Save failed");
+        throw new Error(data.error ?? t("dashboard.saveFailed"));
       }
 
       if (data.profile) {
         applyProfile(data.profile);
       }
 
-      setSaveMessage("Workshop settings saved");
+      setSaveMessage(t("dashboard.settingsSaved"));
     } catch (error) {
-      setSaveError(error instanceof Error ? error.message : "Save failed");
+      setSaveError(
+        error instanceof Error ? error.message : t("dashboard.saveFailed")
+      );
     } finally {
       setIsSaving(false);
     }
@@ -350,7 +357,7 @@ export function MakerDashboard() {
     };
 
     if (!response.ok) {
-      throw new Error(data.error ?? "Failed to add filament");
+      throw new Error(data.error ?? t("dashboard.addFailed"));
     }
 
     if (data.filament && profile) {
@@ -375,7 +382,7 @@ export function MakerDashboard() {
 
       if (!response.ok) {
         const data = (await response.json()) as { error?: string };
-        throw new Error(data.error ?? "Delete failed");
+        throw new Error(data.error ?? t("dashboard.deleteFailed"));
       }
 
       if (profile) {
@@ -386,7 +393,7 @@ export function MakerDashboard() {
       }
     } catch (error) {
       setSaveError(
-        error instanceof Error ? error.message : "Failed to remove filament"
+        error instanceof Error ? error.message : t("dashboard.deleteFailed")
       );
     } finally {
       setDeletingId(null);
@@ -405,10 +412,10 @@ export function MakerDashboard() {
   if (loadError || !profile) {
     return (
       <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-sm text-red-700">
-        {loadError ?? "Could not load workshop profile"}
+        {loadError ?? t("dashboard.loadFailed")}
         <div className="mt-4">
           <Button variant="outline" size="sm" onClick={() => void loadProfile()}>
-            Retry
+            {t("common.retry")}
           </Button>
         </div>
       </div>
@@ -419,9 +426,9 @@ export function MakerDashboard() {
     <div className="space-y-8">
       <form onSubmit={(event) => void handleSave(event)} className="space-y-6">
         <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <h2 className="text-lg font-semibold">Workshop settings</h2>
+          <h2 className="text-lg font-semibold">{t("dashboard.settingsTitle")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Name, address on the map, pricing and availability.
+            {t("dashboard.settingsSubtitle")}
           </p>
 
           <div className="mt-6 space-y-4">
@@ -434,14 +441,14 @@ export function MakerDashboard() {
 
             <DashboardInput
               id="workshop-name"
-              label="Workshop name"
+              label={t("dashboard.workshopName")}
               value={name}
               onChange={setName}
             />
 
             <div className="space-y-2">
               <label htmlFor="workshop-address" className="text-sm font-medium">
-                Address
+                {t("dashboard.address")}
               </label>
               <textarea
                 id="workshop-address"
@@ -455,14 +462,14 @@ export function MakerDashboard() {
             <div className="grid gap-4 sm:grid-cols-2">
               <DashboardInput
                 id="price-per-gram"
-                label="Price per gram (CZK)"
+                label={t("dashboard.pricePerGram")}
                 type="number"
                 value={pricePerGramCzk}
                 onChange={setPricePerGramCzk}
               />
               <DashboardInput
                 id="min-order"
-                label="Minimum order price (CZK)"
+                label={t("dashboard.minOrderPrice")}
                 type="number"
                 value={minOrderPriceCzk}
                 onChange={setMinOrderPriceCzk}
@@ -470,7 +477,7 @@ export function MakerDashboard() {
             </div>
 
             <div className="space-y-2">
-              <FieldLabel>Printer types</FieldLabel>
+              <FieldLabel>{t("dashboard.printerTypes")}</FieldLabel>
               <div className="flex flex-wrap gap-2">
                 {PRINTER_TYPES.map((type) => {
                   const isSelected = printerTypes.includes(type.id);
@@ -486,7 +493,7 @@ export function MakerDashboard() {
                           : "border-input bg-background hover:bg-muted"
                       )}
                     >
-                      {type.label}
+                      {t(`printer.${type.id}`)}
                     </button>
                   );
                 })}
@@ -494,7 +501,7 @@ export function MakerDashboard() {
             </div>
 
             <div className="space-y-2">
-              <FieldLabel>Status on map</FieldLabel>
+              <FieldLabel>{t("dashboard.statusLabel")}</FieldLabel>
               <select
                 value={status}
                 onChange={(event) =>
@@ -502,15 +509,15 @@ export function MakerDashboard() {
                 }
                 className="flex h-10 w-full max-w-xs rounded-md border border-input bg-background px-3 text-sm"
               >
-                <option value="available">Available — accepting orders</option>
-                <option value="busy">Busy — hidden from new orders</option>
+                <option value="available">{t("dashboard.statusAvailable")}</option>
+                <option value="busy">{t("dashboard.statusBusy")}</option>
               </select>
             </div>
           </div>
 
           <div className="mt-6">
             <Button type="submit" variant="brand" disabled={isSaving}>
-              {isSaving ? "Saving…" : "Save settings"}
+              {isSaving ? t("common.saving") : t("dashboard.saveSettings")}
             </Button>
           </div>
         </section>
@@ -519,9 +526,9 @@ export function MakerDashboard() {
       <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold">Plastics &amp; resins</h2>
+            <h2 className="text-lg font-semibold">{t("dashboard.filamentsTitle")}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Materials shown on your map card. Pick material, then color.
+              {t("dashboard.filamentsSubtitle")}
             </p>
           </div>
 
@@ -534,7 +541,7 @@ export function MakerDashboard() {
               className="gap-1.5"
             >
               <Plus className="h-4 w-4" />
-              Add
+              {t("common.add")}
             </Button>
           )}
         </div>
@@ -550,7 +557,7 @@ export function MakerDashboard() {
 
           {profile.filaments.length === 0 && !showAddFilament && (
             <p className="rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
-              No materials yet. Click + to add your first plastic or resin.
+              {t("dashboard.noFilaments")}
             </p>
           )}
 

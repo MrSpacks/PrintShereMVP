@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
+import { hasMakerAccess } from "@/types/user";
 
 export async function requireMakerUser() {
   const session = await getSession();
@@ -16,7 +17,7 @@ export async function requireMakerUser() {
     },
   });
 
-  if (!user || user.role !== "maker" || !user.maker) {
+  if (!user || !hasMakerAccess(user) || !user.maker) {
     return null;
   }
 

@@ -12,10 +12,12 @@ import {
   AuthTestHint,
 } from "@/components/auth/auth-form";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useTranslations } from "@/i18n/locale-provider";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const { t } = useTranslations();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +34,9 @@ export default function LoginPage() {
       router.refresh();
     } catch (submitError) {
       const message =
-        submitError instanceof Error ? submitError.message : "Login failed";
+        submitError instanceof Error
+          ? submitError.message
+          : t("auth.loginFailed");
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -41,11 +45,12 @@ export default function LoginPage() {
 
   return (
     <AuthCard
-      title="Log In"
-      subtitle="Access your orders and continue printing in Prague."
+      title={t("auth.loginTitle")}
+      subtitle={t("auth.loginSubtitle")}
       footer={
         <>
-          Don&apos;t have an account? <AuthLink href="/signup">Sign up</AuthLink>
+          {t("auth.loginFooter")}{" "}
+          <AuthLink href="/signup">{t("auth.signUpLink")}</AuthLink>
         </>
       }
     >
@@ -54,7 +59,7 @@ export default function LoginPage() {
 
         <AuthField
           id="email"
-          label="Email"
+          label={t("common.email")}
           type="email"
           value={email}
           onChange={setEmail}
@@ -63,14 +68,14 @@ export default function LoginPage() {
 
         <AuthField
           id="password"
-          label="Password"
+          label={t("common.password")}
           type="password"
           value={password}
           onChange={setPassword}
           autoComplete="current-password"
         />
 
-        <AuthSubmitButton isSubmitting={isSubmitting} label="Log In" />
+        <AuthSubmitButton isSubmitting={isSubmitting} label={t("auth.logIn")} />
         <AuthTestHint />
       </form>
     </AuthCard>

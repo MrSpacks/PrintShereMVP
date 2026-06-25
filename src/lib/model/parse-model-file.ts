@@ -67,6 +67,7 @@ export async function parseModelFile(file: File): Promise<ModelData> {
     fileName: file.name,
     fileType,
     objectUrl,
+    sourceFile: file,
     stats,
   };
 }

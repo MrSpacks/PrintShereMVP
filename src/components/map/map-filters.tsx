@@ -6,33 +6,9 @@ import {
   PRINTER_TYPES,
   RESIN_MATERIAL_OPTIONS,
 } from "@/lib/makers/capabilities";
+import { useTranslations } from "@/i18n/locale-provider";
 import type { PrinterType } from "@/types/maker";
 import { cn } from "@/lib/utils";
-
-const DISTANCE_OPTIONS: Array<{ label: string; value: number | null }> = [
-  { label: "Any", value: null },
-  { label: "2 km", value: 2 },
-  { label: "5 km", value: 5 },
-  { label: "10 km", value: 10 },
-];
-
-const RATING_OPTIONS: Array<{ label: string; value: number | null }> = [
-  { label: "Any", value: null },
-  { label: "4.0+", value: 4.0 },
-  { label: "4.5+", value: 4.5 },
-];
-
-const MATERIAL_OPTIONS: Array<{ label: string; value: string }> = [
-  { label: "All materials", value: "all" },
-  ...FDM_MATERIAL_OPTIONS.map((material) => ({
-    label: material,
-    value: material,
-  })),
-  ...RESIN_MATERIAL_OPTIONS.map((material) => ({
-    label: material,
-    value: material,
-  })),
-];
 
 interface FilterSelectProps {
   label: string;
@@ -65,11 +41,45 @@ interface MapFiltersBarProps {
 }
 
 export function MapFiltersBar({ className }: MapFiltersBarProps) {
+  const { t } = useTranslations();
   const filters = useMapStore((state) => state.filters);
   const setMaxDistanceKm = useMapStore((state) => state.setMaxDistanceKm);
   const setMinRating = useMapStore((state) => state.setMinRating);
   const setMaterial = useMapStore((state) => state.setMaterial);
   const setPrinterType = useMapStore((state) => state.setPrinterType);
+
+  const distanceOptions = [
+    { label: t("filters.any"), value: "any" },
+    { label: "2 km", value: "2" },
+    { label: "5 km", value: "5" },
+    { label: "10 km", value: "10" },
+  ];
+
+  const ratingOptions = [
+    { label: t("filters.any"), value: "any" },
+    { label: "4.0+", value: "4" },
+    { label: "4.5+", value: "4.5" },
+  ];
+
+  const materialOptions = [
+    { label: t("filters.allMaterials"), value: "all" },
+    ...FDM_MATERIAL_OPTIONS.map((material) => ({
+      label: material,
+      value: material,
+    })),
+    ...RESIN_MATERIAL_OPTIONS.map((material) => ({
+      label: material,
+      value: material,
+    })),
+  ];
+
+  const printerOptions = [
+    { label: t("filters.allTypes"), value: "all" },
+    ...PRINTER_TYPES.map((type) => ({
+      label: t(`printer.${type.id}`),
+      value: type.id,
+    })),
+  ];
 
   return (
     <div
@@ -79,47 +89,35 @@ export function MapFiltersBar({ className }: MapFiltersBarProps) {
       )}
     >
       <FilterSelect
-        label="Distance"
+        label={t("filters.distance")}
         value={filters.maxDistanceKm?.toString() ?? "any"}
         onChange={(value) =>
           setMaxDistanceKm(value === "any" ? null : Number(value))
         }
-        options={DISTANCE_OPTIONS.map((option) => ({
-          label: option.label,
-          value: option.value?.toString() ?? "any",
-        }))}
+        options={distanceOptions}
       />
 
       <FilterSelect
-        label="Rating"
+        label={t("filters.rating")}
         value={filters.minRating?.toString() ?? "any"}
         onChange={(value) =>
           setMinRating(value === "any" ? null : Number(value))
         }
-        options={RATING_OPTIONS.map((option) => ({
-          label: option.label,
-          value: option.value?.toString() ?? "any",
-        }))}
+        options={ratingOptions}
       />
 
       <FilterSelect
-        label="Printer"
+        label={t("filters.printer")}
         value={filters.printerType}
         onChange={(value) => setPrinterType(value as PrinterType | "all")}
-        options={[
-          { label: "All types", value: "all" },
-          ...PRINTER_TYPES.map((type) => ({
-            label: type.label,
-            value: type.id,
-          })),
-        ]}
+        options={printerOptions}
       />
 
       <FilterSelect
-        label="Materials"
+        label={t("filters.materials")}
         value={filters.material}
         onChange={setMaterial}
-        options={MATERIAL_OPTIONS}
+        options={materialOptions}
       />
     </div>
   );

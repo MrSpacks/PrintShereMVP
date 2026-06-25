@@ -172,9 +172,16 @@ const SEED_USERS = [
   },
   {
     id: "user-admin",
-    email: "admin@printlocal.cz",
-    name: "Platform Admin",
+    email: "mr.spacks@seznam.cz",
+    name: "Admin",
     role: UserRole.admin,
+    makerId: null,
+  },
+  {
+    id: "user-moderator",
+    email: "moderator@printlocal.cz",
+    name: "Jan Moderátor",
+    role: UserRole.moderator,
     makerId: null,
   },
 ];

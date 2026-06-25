@@ -6,31 +6,37 @@ import { OrderCard, OrdersEmptyState } from "@/components/orders/order-card";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import { useOrders } from "@/hooks/use-orders";
+import { useTranslations } from "@/i18n/locale-provider";
 import type { UserRole } from "@/types/user";
-
-const PAGE_TITLES: Record<UserRole, { title: string; subtitle: string }> = {
-  customer: {
-    title: "My Orders",
-    subtitle: "Track your 3D print requests with local makers in Prague.",
-  },
-  maker: {
-    title: "Incoming Orders",
-    subtitle: "Print jobs placed with your workshop.",
-  },
-  admin: {
-    title: "All Orders",
-    subtitle: "Overview of every order on the platform.",
-  },
-};
 
 export default function OrdersPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const { orders, role, isLoading, error, refetch } = useOrders(Boolean(user));
+  const { t } = useTranslations();
+
+  const pageMeta: Record<UserRole, { title: string; subtitle: string }> = {
+    customer: {
+      title: t("orders.title"),
+      subtitle: t("orders.subtitleCustomer"),
+    },
+    maker: {
+      title: t("orders.titleMaker"),
+      subtitle: t("orders.subtitleMaker"),
+    },
+    admin: {
+      title: t("orders.titleAdmin"),
+      subtitle: t("orders.subtitleAdmin"),
+    },
+    moderator: {
+      title: t("orders.titleModerator"),
+      subtitle: t("orders.subtitleModerator"),
+    },
+  };
 
   if (isAuthLoading) {
     return (
       <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-        Loading…
+        {t("common.loading")}
       </div>
     );
   }
@@ -38,18 +44,18 @@ export default function OrdersPage() {
   if (!user) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">My Orders</h1>
+        <h1 className="text-2xl font-semibold">{t("orders.title")}</h1>
         <p className="max-w-sm text-sm text-muted-foreground">
-          Log in to see your print orders and track their status.
+          {t("orders.loginText")}
         </p>
         <Button variant="brand" asChild>
-          <Link href="/login">Log In</Link>
+          <Link href="/login">{t("auth.logIn")}</Link>
         </Button>
       </div>
     );
   }
 
-  const pageMeta = PAGE_TITLES[user.role];
+  const pageMetaForRole = pageMeta[user.role];
   const listRole = role ?? user.role;
 
   return (
@@ -57,15 +63,15 @@ export default function OrdersPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            {pageMeta.title}
+            {pageMetaForRole.title}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {pageMeta.subtitle}
+            {pageMetaForRole.subtitle}
           </p>
         </div>
 
         <Button variant="outline" size="sm" onClick={refetch}>
-          Refresh
+          {t("common.refresh")}
         </Button>
       </div>
 

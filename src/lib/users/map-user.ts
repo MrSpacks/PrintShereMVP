@@ -2,7 +2,7 @@ import type { User as PrismaUser } from "@prisma/client";
 
 import type { User, UserRole } from "@/types/user";
 
-const USER_ROLES = new Set<string>(["customer", "maker", "admin"]);
+const USER_ROLES = new Set<string>(["customer", "maker", "moderator", "admin"]);
 
 function toUserRole(role: string): UserRole {
   return USER_ROLES.has(role) ? (role as UserRole) : "customer";
@@ -14,6 +14,7 @@ export function mapPrismaUser(record: PrismaUser): User {
     id: record.id,
     email: record.email,
     name: record.name,
+    avatarUrl: record.avatarUrl,
     role: toUserRole(record.role),
     makerId: record.makerId,
     createdAt: record.createdAt.toISOString(),

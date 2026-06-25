@@ -8,6 +8,7 @@ import { ModelDropzone } from "@/components/model/model-dropzone";
 import { ModelMetadata } from "@/components/model/model-metadata";
 import { PriceFooter } from "@/components/model/price-footer";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/i18n/locale-provider";
 import { parseModelFile } from "@/lib/model/parse-model-file";
 import { useModelStore } from "@/store/model-store";
 import { cn } from "@/lib/utils";
@@ -17,13 +18,18 @@ const ModelViewer = dynamic(
     import("@/components/model/model-viewer").then((mod) => mod.ModelViewer),
   {
     ssr: false,
-    loading: () => (
-      <div className="flex h-full items-center justify-center text-sm text-zinc-500">
-        Loading 3D viewer…
-      </div>
-    ),
+    loading: () => <ModelViewerLoading />,
   }
 );
+
+function ModelViewerLoading() {
+  const { t } = useTranslations();
+  return (
+    <div className="flex h-full items-center justify-center text-sm text-zinc-500">
+      {t("model.loadingViewer")}
+    </div>
+  );
+}
 
 interface ModelPanelProps {
   className?: string;
@@ -35,6 +41,7 @@ const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
  * Левая панель: dropzone → Three.js viewer → метаданные → Total Price.
  */
 export function ModelPanel({ className }: ModelPanelProps) {
+  const { t } = useTranslations();
   const model = useModelStore((state) => state.model);
   const isParsing = useModelStore((state) => state.isParsing);
   const parseError = useModelStore((state) => state.parseError);
@@ -46,7 +53,7 @@ export function ModelPanel({ className }: ModelPanelProps) {
   const handleFileSelect = useCallback(
     async (file: File) => {
       if (file.size > MAX_FILE_SIZE_BYTES) {
-        setParseError("File is too large. Maximum size is 50 MB.");
+        setParseError(t("model.fileTooLarge"));
         return;
       }
 
@@ -58,13 +65,13 @@ export function ModelPanel({ className }: ModelPanelProps) {
         setModel(parsed);
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : "Failed to parse model.";
+          error instanceof Error ? error.message : t("model.parseFailed");
         setParseError(message);
       } finally {
         setParsing(false);
       }
     },
-    [setModel, setParseError, setParsing]
+    [setModel, setParseError, setParsing, t]
   );
 
   return (
@@ -89,7 +96,7 @@ export function ModelPanel({ className }: ModelPanelProps) {
                 size="icon"
                 className="h-8 w-8 border-zinc-600 bg-zinc-900/80 text-zinc-300 backdrop-blur hover:bg-zinc-800"
                 onClick={clearModel}
-                aria-label="Remove model"
+                aria-label={t("model.removeModel")}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -97,7 +104,7 @@ export function ModelPanel({ className }: ModelPanelProps) {
 
             <p className="pointer-events-none absolute bottom-3 left-3 flex items-center gap-1.5 text-xs text-zinc-500">
               <RotateCcw className="h-3 w-3" aria-hidden />
-              Drag to rotate
+              {t("model.dragToRotate")}
             </p>
           </>
         )}

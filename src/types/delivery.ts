@@ -5,6 +5,7 @@ export interface DeliveryChoice {
   method: DeliveryMethod;
   deliveryPriceCzk: number;
   zasilkovnaPointId?: string;
+  zasilkovnaPointLabel?: string;
 }
 
 export interface ZasilkovnaQuoteRequest {

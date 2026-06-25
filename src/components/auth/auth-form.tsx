@@ -1,6 +1,11 @@
+"use client";
+
+"use client";
+
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/i18n/locale-provider";
 import { cn } from "@/lib/utils";
 
 interface AuthFieldProps {
@@ -98,9 +103,11 @@ export function AuthError({ message }: AuthErrorProps) {
 }
 
 export function AuthTestHint() {
+  const { t } = useTranslations();
+
   return (
     <p className="mt-4 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-      Test account: <strong>anna@example.com</strong> /{" "}
+      {t("common.testAccount")} <strong>anna@example.com</strong> /{" "}
       <strong>test123456</strong>
     </p>
   );
@@ -127,9 +134,11 @@ export function AuthSubmitButton({
   isSubmitting: boolean;
   label: string;
 }) {
+  const { t } = useTranslations();
+
   return (
     <Button type="submit" variant="brand" className="w-full" disabled={isSubmitting}>
-      {isSubmitting ? "Please wait…" : label}
+      {isSubmitting ? t("common.pleaseWait") : label}
     </Button>
   );
 }

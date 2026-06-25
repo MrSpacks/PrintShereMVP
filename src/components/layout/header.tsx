@@ -3,25 +3,25 @@
 import Link from "next/link";
 import { Printer } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { HeaderAuth } from "@/components/auth/header-auth";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { MessageInbox } from "@/components/layout/message-inbox";
+import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/i18n/locale-provider";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { label: "Find Makers", href: "#find-makers" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "Support", href: "#support" },
+  { key: "header.howItWorks", href: "#how-it-works" },
+  { key: "header.support", href: "#support" },
 ] as const;
 
 interface HeaderProps {
   className?: string;
 }
 
-/**
- * Глобальная шапка приложения.
- * Содержит навигацию, CTA для мейкеров и кнопки авторизации.
- */
 export function Header({ className }: HeaderProps) {
+  const { t } = useTranslations();
+
   return (
     <header
       className={cn(
@@ -30,7 +30,6 @@ export function Header({ className }: HeaderProps) {
       )}
     >
       <div className="flex h-14 items-center justify-between gap-4 px-4 md:px-6">
-        {/* Логотип */}
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2 font-semibold tracking-tight text-foreground"
@@ -38,40 +37,40 @@ export function Header({ className }: HeaderProps) {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-brand-foreground">
             <Printer className="h-4 w-4" aria-hidden />
           </span>
-          <span className="hidden sm:inline">Print Local P2P</span>
+          <span className="hidden sm:inline">{t("header.brand")}</span>
         </Link>
 
-        {/* Центральная навигация — desktop */}
         <nav
           className="hidden items-center gap-1 md:flex"
-          aria-label="Main navigation"
+          aria-label={t("header.mainNav")}
         >
           {NAV_LINKS.map((link) => (
             <Button key={link.href} variant="ghost" size="sm" asChild>
-              <Link href={link.href}>{link.label}</Link>
+              <Link href={link.href}>{t(link.key)}</Link>
             </Button>
           ))}
         </nav>
 
-        {/* Действия справа */}
         <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+
           <Button
             variant="brand"
             size="sm"
             className="hidden sm:inline-flex"
             asChild
           >
-            <Link href="/become-maker">Become a Maker</Link>
+            <Link href="/become-maker">{t("header.becomeMaker")}</Link>
           </Button>
 
+          <MessageInbox />
           <HeaderAuth />
         </div>
       </div>
 
-      {/* Мобильная навигация */}
       <nav
         className="flex items-center gap-1 overflow-x-auto border-t border-border/40 px-4 py-2 md:hidden"
-        aria-label="Mobile navigation"
+        aria-label={t("header.mobileNav")}
       >
         {NAV_LINKS.map((link) => (
           <Button
@@ -81,11 +80,11 @@ export function Header({ className }: HeaderProps) {
             className="shrink-0"
             asChild
           >
-            <Link href={link.href}>{link.label}</Link>
+            <Link href={link.href}>{t(link.key)}</Link>
           </Button>
         ))}
         <Button variant="brand" size="sm" className="shrink-0" asChild>
-          <Link href="/become-maker">Become a Maker</Link>
+          <Link href="/become-maker">{t("header.becomeMaker")}</Link>
         </Button>
       </nav>
     </header>

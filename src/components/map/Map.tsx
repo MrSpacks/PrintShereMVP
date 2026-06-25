@@ -7,13 +7,18 @@ import {
   Marker,
   Popup,
   TileLayer,
+  useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 import { PRAGUE_CENTER } from "@/data/makers";
+import { MOCK_ZASILKOVNA_POINTS } from "@/data/zasilkovna-points";
+import { useAuth } from "@/components/auth/auth-provider";
+import { useTranslations } from "@/i18n/locale-provider";
 import { getMakerMaterialLabels } from "@/lib/makers/map-maker";
-import { getPinPriceDisplay, getPrintCostCzk } from "@/lib/map/pricing";
+import { getPrintCostCzk } from "@/lib/map/pricing";
 import { fetchZasilkovnaQuote } from "@/lib/orders/create-order";
+import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
 import type { DeliveryChoice, DeliveryMethod } from "@/types/delivery";
 import type { Maker } from "@/types/maker";
 
@@ -23,7 +28,10 @@ export interface MapProps {
   isModelLoaded: boolean;
   modelWeight: number;
   makers: Maker[];
-  onOrder: (maker: Maker, delivery: DeliveryChoice) => void | Promise<void>;
+  onOrder: (
+    maker: Maker,
+    delivery: DeliveryChoice
+  ) => boolean | void | Promise<boolean | void>;
   isSubmittingOrder?: boolean;
 }
 
@@ -47,7 +55,10 @@ interface MakerPopupContentProps {
   maker: Maker;
   isModelLoaded: boolean;
   modelWeight: number;
-  onOrder: (maker: Maker, delivery: DeliveryChoice) => void | Promise<void>;
+  onOrder: (
+    maker: Maker,
+    delivery: DeliveryChoice
+  ) => boolean | void | Promise<boolean | void>;
   isSubmittingOrder: boolean;
 }
 
@@ -58,22 +69,30 @@ function MakerPopupContent({
   onOrder,
   isSubmittingOrder,
 }: MakerPopupContentProps) {
+  const { t } = useTranslations();
+  const { user } = useAuth();
+  const map = useMap();
   const weightGrams = isModelLoaded && modelWeight > 0 ? modelWeight : null;
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
   const [deliveryPriceCzk, setDeliveryPriceCzk] = useState(0);
+  const [zasilkovnaPointId, setZasilkovnaPointId] = useState("");
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
 
-  const printCostCzk =
+  const makerPrintCzk =
     weightGrams !== null ? getPrintCostCzk(maker, weightGrams) : null;
+  const platformFeeCzk =
+    makerPrintCzk !== null ? calculatePlatformFeeCzk(makerPrintCzk) : 0;
+  const customerPrintCzk =
+    makerPrintCzk !== null ? makerPrintCzk + platformFeeCzk : null;
 
   const priceLabel =
-    printCostCzk !== null
-      ? `${printCostCzk} CZK`
-      : `${maker.pricePerGramCzk} CZK/g`;
+    customerPrintCzk !== null
+      ? `${customerPrintCzk} ${t("common.czk")}`
+      : t("common.czkPerGram", { price: maker.pricePerGramCzk });
 
   const totalCzk =
-    printCostCzk !== null ? printCostCzk + deliveryPriceCzk : null;
+    customerPrintCzk !== null ? customerPrintCzk + deliveryPriceCzk : null;
 
   useEffect(() => {
     if (deliveryMethod !== "zasilkovna" || weightGrams === null) {
@@ -95,7 +114,7 @@ function MakerPopupContent({
         if (!cancelled) {
           setDeliveryPriceCzk(0);
           setQuoteError(
-            error instanceof Error ? error.message : "Quote failed"
+            error instanceof Error ? error.message : t("map.quoteFailed")
           );
         }
       } finally {
@@ -108,19 +127,41 @@ function MakerPopupContent({
     return () => {
       cancelled = true;
     };
-  }, [deliveryMethod, maker.id, weightGrams]);
+  }, [deliveryMethod, maker.id, weightGrams, t]);
 
   const canOrder =
+    Boolean(user) &&
     weightGrams !== null &&
     maker.status === "available" &&
     !isSubmittingOrder &&
     !isLoadingQuote &&
-    (deliveryMethod === "pickup" || deliveryPriceCzk > 0) &&
-    (printCostCzk === null ||
+    (deliveryMethod === "pickup" ||
+      (deliveryPriceCzk > 0 && zasilkovnaPointId.length > 0)) &&
+    (makerPrintCzk === null ||
       maker.minOrderPriceCzk === 0 ||
-      printCostCzk >= maker.minOrderPriceCzk);
+      makerPrintCzk >= maker.minOrderPriceCzk);
 
   const materialLabels = getMakerMaterialLabels(maker);
+
+  const selectedPoint = MOCK_ZASILKOVNA_POINTS.find(
+    (point) => point.id === zasilkovnaPointId
+  );
+
+  const handleOrderClick = async () => {
+    const delivery: DeliveryChoice = {
+      method: deliveryMethod,
+      deliveryPriceCzk:
+        deliveryMethod === "zasilkovna" ? deliveryPriceCzk : 0,
+      zasilkovnaPointId:
+        deliveryMethod === "zasilkovna" ? zasilkovnaPointId : undefined,
+      zasilkovnaPointLabel: selectedPoint?.label,
+    };
+
+    const succeeded = await onOrder(maker, delivery);
+    if (succeeded) {
+      map.closePopup();
+    }
+  };
 
   return (
     <div className={styles.popup}>
@@ -136,25 +177,24 @@ function MakerPopupContent({
 
       <div className={styles.popupBody}>
         <div className={styles.popupRow}>
-          <span className={styles.popupLabel}>Print price</span>
+          <span className={styles.popupLabel}>{t("map.printPrice")}</span>
           <span className={styles.popupValue}>{priceLabel}</span>
         </div>
 
         {maker.minOrderPriceCzk > 0 && (
           <div className={styles.popupRow}>
-            <span className={styles.popupLabel}>Min. order</span>
+            <span className={styles.popupLabel}>{t("map.minOrder")}</span>
             <span className={styles.popupValue}>
-              {maker.minOrderPriceCzk} CZK
+              {maker.minOrderPriceCzk} {t("common.czk")}
             </span>
           </div>
         )}
 
-        {printCostCzk !== null &&
+        {makerPrintCzk !== null &&
           maker.minOrderPriceCzk > 0 &&
-          printCostCzk < maker.minOrderPriceCzk && (
+          makerPrintCzk < maker.minOrderPriceCzk && (
             <p className={styles.deliveryError}>
-              Print cost is below this maker&apos;s minimum ({maker.minOrderPriceCzk}{" "}
-              CZK)
+              {t("map.belowMinimum", { min: maker.minOrderPriceCzk })}
             </p>
           )}
 
@@ -163,7 +203,7 @@ function MakerPopupContent({
         <div className={styles.materials}>
           {maker.printerTypes.map((type) => (
             <span key={type} className={styles.materialTag}>
-              {type === "fdm" ? "Plastic" : "Resin"}
+              {type === "fdm" ? t("printer.plastic") : t("printer.resinShort")}
             </span>
           ))}
           {materialLabels.map((label) => (
@@ -175,7 +215,7 @@ function MakerPopupContent({
 
         {weightGrams !== null && (
           <div className={styles.deliveryBlock}>
-            <p className={styles.deliveryTitle}>Delivery</p>
+            <p className={styles.deliveryTitle}>{t("map.delivery")}</p>
 
             <label className={styles.deliveryOption}>
               <input
@@ -184,7 +224,7 @@ function MakerPopupContent({
                 checked={deliveryMethod === "pickup"}
                 onChange={() => setDeliveryMethod("pickup")}
               />
-              <span>Pickup at workshop — Free</span>
+              <span>{t("map.pickupFree")}</span>
             </label>
 
             <label className={styles.deliveryOption}>
@@ -195,25 +235,48 @@ function MakerPopupContent({
                 onChange={() => setDeliveryMethod("zasilkovna")}
               />
               <span>
-                Zásilkovna parcel
-                {isLoadingQuote && " — calculating…"}
+                {t("map.zasilkovna")}
+                {isLoadingQuote && ` — ${t("map.calculating")}`}
                 {!isLoadingQuote &&
                   deliveryMethod === "zasilkovna" &&
                   deliveryPriceCzk > 0 &&
-                  ` — ${deliveryPriceCzk} CZK`}
+                  ` — ${deliveryPriceCzk} ${t("common.czk")}`}
               </span>
             </label>
 
             {quoteError && (
               <p className={styles.deliveryError}>{quoteError}</p>
             )}
+
+            {deliveryMethod === "zasilkovna" && (
+              <div className={styles.pickupPointSelect}>
+                <label htmlFor={`pickup-${maker.id}`} className={styles.pickupLabel}>
+                  {t("map.pickupPoint")}
+                </label>
+                <select
+                  id={`pickup-${maker.id}`}
+                  value={zasilkovnaPointId}
+                  onChange={(event) => setZasilkovnaPointId(event.target.value)}
+                  className={styles.pickupSelect}
+                >
+                  <option value="">{t("map.selectPickupPoint")}</option>
+                  {MOCK_ZASILKOVNA_POINTS.map((point) => (
+                    <option key={point.id} value={point.id}>
+                      {point.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         )}
 
         {totalCzk !== null && (
           <div className={styles.popupRow}>
-            <span className={styles.popupLabel}>Total</span>
-            <span className={styles.popupValue}>{totalCzk} CZK</span>
+            <span className={styles.popupLabel}>{t("map.total")}</span>
+            <span className={styles.popupValue}>
+              {totalCzk} {t("common.czk")}
+            </span>
           </div>
         )}
 
@@ -224,7 +287,7 @@ function MakerPopupContent({
               : styles.statusBusy
           }
         >
-          {maker.status === "available" ? "Available" : "Busy"}
+          {maker.status === "available" ? t("map.available") : t("map.busy")}
         </span>
       </div>
 
@@ -232,23 +295,19 @@ function MakerPopupContent({
         type="button"
         className={styles.orderButton}
         disabled={!canOrder}
-        onClick={() =>
-          onOrder(maker, {
-            method: deliveryMethod,
-            deliveryPriceCzk:
-              deliveryMethod === "zasilkovna" ? deliveryPriceCzk : 0,
-          })
-        }
+        onClick={() => void handleOrderClick()}
       >
         {isSubmittingOrder
-          ? "Saving order…"
+          ? t("map.savingOrder")
           : isLoadingQuote
-            ? "Calculating delivery…"
+            ? t("map.calculatingDelivery")
+            : !user
+              ? t("map.loginToOrder")
             : !isModelLoaded || modelWeight <= 0
-              ? "Upload a model to order"
+              ? t("map.uploadToOrder")
               : maker.status === "available"
-                ? "Order Printing"
-                : "Currently busy"}
+                ? t("map.orderPrinting")
+                : t("map.currentlyBusy")}
       </button>
     </div>
   );
@@ -261,19 +320,24 @@ export function Map({
   onOrder,
   isSubmittingOrder = false,
 }: MapProps) {
+  const { t } = useTranslations();
   const weightGrams = isModelLoaded && modelWeight > 0 ? modelWeight : null;
 
   const getMakerPinIcon = useCallback(
     (maker: Maker) => {
-      const price = getPinPriceDisplay(maker, weightGrams);
       const pinLabel =
         weightGrams !== null
-          ? `${price.printCostCzk} CZK`
-          : price.label;
+          ? (() => {
+              const makerPrint = getPrintCostCzk(maker, weightGrams);
+              const customerPrint =
+                makerPrint + calculatePlatformFeeCzk(makerPrint);
+              return `${customerPrint} ${t("common.czk")}`;
+            })()
+          : t("common.czkPerGram", { price: maker.pricePerGramCzk });
 
       return createPinIcon(pinLabel);
     },
-    [weightGrams]
+    [weightGrams, t]
   );
 
   const center = useMemo(

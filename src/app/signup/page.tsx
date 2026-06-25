@@ -11,10 +11,12 @@ import {
   AuthSubmitButton,
 } from "@/components/auth/auth-form";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useTranslations } from "@/i18n/locale-provider";
 
 export default function SignupPage() {
   const router = useRouter();
   const { signup } = useAuth();
+  const { t } = useTranslations();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +34,9 @@ export default function SignupPage() {
       router.refresh();
     } catch (submitError) {
       const message =
-        submitError instanceof Error ? submitError.message : "Signup failed";
+        submitError instanceof Error
+          ? submitError.message
+          : t("auth.signupFailed");
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -41,11 +45,12 @@ export default function SignupPage() {
 
   return (
     <AuthCard
-      title="Sign Up"
-      subtitle="Create a customer account to order prints from local makers."
+      title={t("auth.signupTitle")}
+      subtitle={t("auth.signupSubtitle")}
       footer={
         <>
-          Already have an account? <AuthLink href="/login">Log in</AuthLink>
+          {t("auth.signupFooter")}{" "}
+          <AuthLink href="/login">{t("auth.loginLink")}</AuthLink>
         </>
       }
     >
@@ -54,7 +59,7 @@ export default function SignupPage() {
 
         <AuthField
           id="name"
-          label="Full name"
+          label={t("common.fullName")}
           value={name}
           onChange={setName}
           autoComplete="name"
@@ -62,7 +67,7 @@ export default function SignupPage() {
 
         <AuthField
           id="email"
-          label="Email"
+          label={t("common.email")}
           type="email"
           value={email}
           onChange={setEmail}
@@ -71,18 +76,19 @@ export default function SignupPage() {
 
         <AuthField
           id="password"
-          label="Password"
+          label={t("common.password")}
           type="password"
           value={password}
           onChange={setPassword}
           autoComplete="new-password"
         />
 
-        <p className="text-xs text-muted-foreground">
-          Password must be at least 8 characters.
-        </p>
+        <p className="text-xs text-muted-foreground">{t("auth.passwordHint")}</p>
 
-        <AuthSubmitButton isSubmitting={isSubmitting} label="Create Account" />
+        <AuthSubmitButton
+          isSubmitting={isSubmitting}
+          label={t("auth.createAccount")}
+        />
       </form>
     </AuthCard>
   );

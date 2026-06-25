@@ -23,5 +23,7 @@ export interface ModelData {
   fileType: ModelFileType;
   /** Blob URL для Three.js viewer */
   objectUrl: string;
+  /** Исходный файл для загрузки при создании заказа */
+  sourceFile: File;
   stats: ModelStats;
 }

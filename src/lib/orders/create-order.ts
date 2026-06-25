@@ -2,7 +2,6 @@ import type { CreateOrderPayload, OrderResponse } from "@/types/order";
 import type { DeliveryChoice } from "@/types/delivery";
 import type { ModelData } from "@/types/model";
 import type { Maker } from "@/types/maker";
-import { getPrintCostCzk } from "@/lib/map/pricing";
 
 export function buildOrderPayload(
   maker: Maker,
@@ -18,10 +17,9 @@ export function buildOrderPayload(
     widthMm: stats.dimensions.width,
     heightMm: stats.dimensions.height,
     depthMm: stats.dimensions.depth,
-    printCostCzk: getPrintCostCzk(maker, stats.weightGrams),
     deliveryMethod: delivery.method,
-    deliveryPriceCzk: delivery.deliveryPriceCzk,
     zasilkovnaPointId: delivery.zasilkovnaPointId,
+    zasilkovnaPointLabel: delivery.zasilkovnaPointLabel,
   };
 }
 
@@ -60,4 +58,24 @@ export async function createOrder(
   }
 
   return response.json() as Promise<OrderResponse>;
+}
+
+export async function uploadOrderModelFile(
+  orderId: string,
+  file: File
+): Promise<void> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`/api/orders/${orderId}/file`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as {
+      error?: string;
+    } | null;
+    throw new Error(body?.error ?? "Failed to upload model file");
+  }
 }
