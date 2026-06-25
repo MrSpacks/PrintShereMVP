@@ -11,8 +11,8 @@ import { useTranslations } from "@/i18n/locale-provider";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { key: "header.howItWorks", href: "#how-it-works" },
-  { key: "header.support", href: "#support" },
+  { key: "header.howItWorks", href: "/how-it-works" },
+  { key: "header.support", href: "/support" },
 ] as const;
 
 interface HeaderProps {

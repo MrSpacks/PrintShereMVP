@@ -379,4 +379,72 @@ export const enMessages = {
     roleLabel: "User role",
     selfRoleHint: "You cannot change your own role.",
   },
+  howItWorks: {
+    title: "How It Works",
+    subtitle:
+      "Print Local P2P connects customers with local 3D printers. Upload a model, pick a maker on the map, and track your order through delivery.",
+    customerTitle: "For customers",
+    makerTitle: "For makers",
+    footer: "Ready to start? Try the map or register your workshop.",
+    customer: {
+      step1Title: "Upload your model",
+      step1Text:
+        "Drop an STL or OBJ file — you'll see estimated weight, dimensions, and an indicative print price.",
+      step2Title: "Choose a maker on the map",
+      step2Text:
+        "Compare prices by weight, materials, and distance. Pins show ratings and delivery availability.",
+      step3Title: "Place your order",
+      step3Text:
+        "Pick workshop pickup or Zásilkovna delivery. Shipping is quoted once your model is loaded.",
+      step4Title: "Track status and chat",
+      step4Text:
+        "In the order detail you can follow print progress and message the maker.",
+      step5Title: "Confirm receipt and review",
+      step5Text:
+        "After delivery confirm receipt and leave a review. You can open a dispute if something is wrong.",
+    },
+    maker: {
+      step1Title: "Register your workshop",
+      step1Text:
+        "Enter your name and address — your workshop appears on the map in Prague and nearby.",
+      step2Title: "Set prices and materials",
+      step2Text:
+        "In the dashboard set price per gram, minimum order, printer types, and filaments.",
+      step3Title: "Accept orders",
+      step3Text:
+        "New jobs appear under Orders. Update status: printing, ready, shipped.",
+      step4Title: "Deliver and build reputation",
+      step4Text:
+        "Hand off the print or ship via Zásilkovna. Ratings show on your map pin.",
+    },
+  },
+  support: {
+    title: "Support",
+    subtitle:
+      "Questions about an order or the platform? Browse the FAQ or email us.",
+    contactTitle: "Contact",
+    contactText: "For order issues, disputes, or partnerships, reach us at:",
+    contactEmail: "podpora@printlocal.cz",
+    faqTitle: "Frequently asked questions",
+    faq1Question: "How do I pay for a print?",
+    faq1Answer:
+      "Stripe payments are coming soon. In the MVP, orders are created without automatic payment — you arrange handoff and payment with the maker.",
+    faq2Question: "What if the print is defective?",
+    faq2Answer:
+      "After delivery you can open a dispute with photos in the order detail. A moderator decides on refunds — the decision is stored; escrow payouts are not wired yet.",
+    faq3Question: "How do I become a maker?",
+    faq3Answer:
+      "Click Become a Maker, register your workshop, then add materials and prices in the dashboard. The same account can also order prints as a customer.",
+    faq4Question: "Where do I track my orders?",
+    faq4Answer:
+      "After logging in, go to Orders. Each job shows status, chat, and receipt confirmation.",
+    faq5Question: "Which files can I upload?",
+    faq5Answer:
+      "STL and OBJ are supported. The model is parsed in the browser — weight and size are estimates; the maker's settings determine the final price.",
+    linksTitle: "Useful links",
+    linksOrders: "order status and chat",
+    linksLogin: "account access",
+    linksMaker: "register a workshop on the map",
+    footer: "Didn't find an answer? Email us or return to the map.",
+  },
 } as const;

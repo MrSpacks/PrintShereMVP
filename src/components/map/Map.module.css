@@ -126,8 +126,6 @@
   margin: 0;
   min-width: 260px;
   max-width: 300px;
-  max-height: min(70vh, 460px);
-  overflow-y: auto;
   line-height: 1.4;
 }
 
@@ -155,41 +153,53 @@
 /* ── Popup card content ───────────────────────────── */
 
 .popup {
-  padding: 16px;
+  padding: 12px 12px 14px;
   font-family: inherit;
   color: #18181b;
 }
 
 .popupHeader {
-  padding-right: 28px;
+  padding-right: 24px;
 }
 
 .popupTitle {
   margin: 0;
-  font-size: 16px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 15px;
   font-weight: 700;
   color: #18181b;
 }
 
-.popupRating {
+.popupTitleText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popupTitleRating {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
-  gap: 4px;
-  margin-top: 6px;
-  font-size: 13px;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 600;
   color: #52525b;
 }
 
 .popupStar {
   color: #f59e0b;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .popupBody {
-  margin-top: 14px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .popupRow {
@@ -218,9 +228,9 @@
 .deliveryBlock {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px;
-  border-radius: 10px;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 8px;
   background: #f4f4f5;
 }
 
@@ -250,48 +260,53 @@
   color: #b91c1c;
 }
 
-.deliveryInfo {
-  margin: 0;
-  font-size: 12px;
-  color: #3f3f46;
-}
-
-.deliveryHint {
+.popupAddress {
   margin: 0;
   font-size: 11px;
   color: #71717a;
+  line-height: 1.35;
 }
 
-.popupAddress {
-  margin: 0;
-  font-size: 12px;
-  color: #71717a;
-  line-height: 1.4;
+.popupDistance {
+  color: #52525b;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .materials {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
 }
 
 .materialTag {
   display: inline-flex;
-  padding: 4px 8px;
+  padding: 3px 7px;
   border-radius: 999px;
   background: #f4f4f5;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #3f3f46;
+}
+
+.materialTagMuted {
+  display: inline-flex;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #fafafa;
+  font-size: 10px;
+  font-weight: 600;
+  color: #a1a1aa;
 }
 
 .statusAvailable,
 .statusBusy {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  align-self: flex-start;
+  padding: 3px 8px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -310,10 +325,10 @@
 .orderButton {
   display: block;
   width: 100%;
-  margin-top: 14px;
-  padding: 11px 14px;
+  margin-top: 10px;
+  padding: 10px 12px;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #f97316;
   color: #ffffff;
   font-size: 14px;
@@ -332,24 +347,16 @@
 }
 
 .pickupPointSelect {
-  margin-top: 10px;
-}
-
-.pickupLabel {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #52525b;
+  margin-top: 2px;
 }
 
 .pickupSelect {
   width: 100%;
   border: 1px solid #e4e4e7;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #fff;
-  padding: 8px 10px;
-  font-size: 12px;
+  padding: 6px 8px;
+  font-size: 11px;
   color: #18181b;
 }
 

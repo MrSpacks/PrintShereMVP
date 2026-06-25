@@ -377,6 +377,74 @@ export const csMessages = {
     roleLabel: "Role uživatele",
     selfRoleHint: "Vlastní roli nelze měnit.",
   },
+  howItWorks: {
+    title: "Jak to funguje",
+    subtitle:
+      "Print Local P2P propojuje zákazníky s místními 3D tiskaři. Nahrajte model, vyberte výrobce na mapě a sledujte objednávku až po doručení.",
+    customerTitle: "Pro zákazníky",
+    makerTitle: "Pro výrobce",
+    footer: "Připraveni začít? Vyzkoušejte mapu nebo zaregistrujte dílnu.",
+    customer: {
+      step1Title: "Nahrajte model",
+      step1Text:
+        "Přetáhněte STL nebo OBJ — uvidíte odhad váhy, rozměrů a orientační cenu tisku.",
+      step2Title: "Vyberte výrobce na mapě",
+      step2Text:
+        "Porovnejte ceny podle gramáže, materiálů a vzdálenosti. Na pinu uvidíte hodnocení a dostupnost dopravy.",
+      step3Title: "Objednejte tisk",
+      step3Text:
+        "Zvolte samovyzvednutí u dílny nebo doručení přes Zásilkovnu. Cena dopravy se dopočítá podle modelu.",
+      step4Title: "Sledujte stav a pište si",
+      step4Text:
+        "V detailu objednávky vidíte průběh tisku a můžete chatovat s výrobcem.",
+      step5Title: "Potvrďte převzetí a hodnoťte",
+      step5Text:
+        "Po doručení potvrďte převzetí a napište recenzi. Při problému lze otevřít spor.",
+    },
+    maker: {
+      step1Title: "Zaregistrujte dílnu",
+      step1Text:
+        "Vyplňte název a adresu — dílna se zobrazí na mapě v Praze a okolí.",
+      step2Title: "Nastavte ceny a materiály",
+      step2Text:
+        "V nástěnce zadáte cenu za gram, minimální objednávku, typy tiskáren a filamenty.",
+      step3Title: "Přijímejte objednávky",
+      step3Text:
+        "Nové zakázky uvidíte v sekci Objednávky. Aktualizujte stav: tisk, připraveno, odesláno.",
+      step4Title: "Doručte a budujte reputaci",
+      step4Text:
+        "Předejte výtisk zákazníkovi nebo odešlete přes Zásilkovnu. Hodnocení se zobrazí na mapě.",
+    },
+  },
+  support: {
+    title: "Podpora",
+    subtitle:
+      "Máte dotaz k objednávce nebo platformě? Projděte časté dotazy nebo nám napište.",
+    contactTitle: "Kontakt",
+    contactText: "Pro dotazy k objednávkám, sporům nebo spolupráci nás kontaktujte e-mailem:",
+    contactEmail: "podpora@printlocal.cz",
+    faqTitle: "Časté dotazy",
+    faq1Question: "Jak zaplatím za tisk?",
+    faq1Answer:
+      "Online platby přes Stripe zatím připravujeme. V MVP se objednávka vytvoří bez automatické platby — výrobce s vámi domluví předání a úhradu.",
+    faq2Question: "Co když je tisk vadný nebo neodpovídá?",
+    faq2Answer:
+      "V detailu objednávky můžete po doručení otevřít spor s fotografiemi. Moderátor rozhodne o vrácení peněz — rozhodnutí se uloží, platba z escrow zatím není napojená.",
+    faq3Question: "Jak se stát výrobcem?",
+    faq3Answer:
+      "Klikněte na „Stát se výrobcem“, zaregistrujte dílnu a v nástěnce doplňte materiály a ceny. Stejný účet může mít i roli zákazníka.",
+    faq4Question: "Kde sleduji své objednávky?",
+    faq4Answer:
+      "Po přihlášení přejděte do sekce Objednávky. U každé zakázky uvidíte stav, chat a možnost potvrdit převzetí.",
+    faq5Question: "Jaké soubory mohu nahrát?",
+    faq5Answer:
+      "Podporujeme STL a OBJ. Model se zpracuje v prohlížeči — váha a rozměry jsou orientační, finální cenu potvrdí výrobce podle svých nastavení.",
+    linksTitle: "Užitečné odkazy",
+    linksOrders: "stav objednávek a chat",
+    linksLogin: "přístup k účtu",
+    linksMaker: "registrace dílny na mapě",
+    footer: "Nenašli jste odpověď? Napište nám nebo se vraťte na mapu.",
+  },
 } as const;
 
 export type MessageTree = {

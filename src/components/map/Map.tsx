@@ -192,6 +192,25 @@ function MakerPopupContent({
       ? getMakerDistanceKm(maker, userLocation)
       : null;
 
+  const materialTags = [
+    ...maker.printerTypes.map((type) => ({
+      key: type,
+      label: type === "fdm" ? t("printer.plastic") : t("printer.resinShort"),
+    })),
+    ...materialLabels.map((label) => ({ key: label, label })),
+  ];
+  const visibleTags = materialTags.slice(0, 4);
+  const hiddenTagCount = materialTags.length - visibleTags.length;
+
+  const distanceLabel =
+    distanceKm !== null
+      ? distanceKm < 1
+        ? t("map.distanceMeters", {
+            meters: Math.round(distanceKm * 1000),
+          })
+        : t("map.distanceKm", { km: distanceKm.toFixed(1) })
+      : null;
+
   const selectedPoint = MOCK_ZASILKOVNA_POINTS.find(
     (point) => point.id === zasilkovnaPointId
   );
@@ -215,13 +234,15 @@ function MakerPopupContent({
   return (
     <div className={styles.popup}>
       <div className={styles.popupHeader}>
-        <h3 className={styles.popupTitle}>{maker.name}</h3>
-        <div className={styles.popupRating}>
-          <span className={styles.popupStar} aria-hidden>
-            ★
+        <h3 className={styles.popupTitle}>
+          <span className={styles.popupTitleText}>{maker.name}</span>
+          <span className={styles.popupTitleRating}>
+            <span className={styles.popupStar} aria-hidden>
+              ★
+            </span>
+            {maker.rating.toFixed(1)}
           </span>
-          <span>{maker.rating.toFixed(1)}</span>
-        </div>
+        </h3>
       </div>
 
       <div className={styles.popupBody}>
@@ -247,33 +268,79 @@ function MakerPopupContent({
             </p>
           )}
 
-        <p className={styles.popupAddress}>{maker.address}</p>
-
-        {distanceKm !== null && (
-          <div className={styles.popupRow}>
-            <span className={styles.popupLabel}>{t("map.distanceFromYou")}</span>
-            <span className={styles.popupValue}>
-              {distanceKm < 1
-                ? t("map.distanceMeters", {
-                    meters: Math.round(distanceKm * 1000),
-                  })
-                : t("map.distanceKm", { km: distanceKm.toFixed(1) })}
-            </span>
-          </div>
-        )}
+        <p className={styles.popupAddress}>
+          {maker.address}
+          {distanceLabel && (
+            <span className={styles.popupDistance}> · {distanceLabel}</span>
+          )}
+        </p>
 
         <div className={styles.materials}>
-          {maker.printerTypes.map((type) => (
-            <span key={type} className={styles.materialTag}>
-              {type === "fdm" ? t("printer.plastic") : t("printer.resinShort")}
+          {visibleTags.map((tag) => (
+            <span key={tag.key} className={styles.materialTag}>
+              {tag.label}
             </span>
           ))}
-          {materialLabels.map((label) => (
-            <span key={label} className={styles.materialTag}>
-              {label}
-            </span>
-          ))}
+          {hiddenTagCount > 0 && (
+            <span className={styles.materialTagMuted}>+{hiddenTagCount}</span>
+          )}
         </div>
+
+        {weightGrams !== null && (
+          <div className={styles.deliveryBlock}>
+            <p className={styles.deliveryTitle}>{t("map.delivery")}</p>
+
+            <label className={styles.deliveryOption}>
+              <input
+                type="radio"
+                name={`delivery-${maker.id}`}
+                checked={deliveryMethod === "pickup"}
+                onChange={() => setDeliveryMethod("pickup")}
+              />
+              <span>{t("map.pickupFree")}</span>
+            </label>
+
+            <label className={styles.deliveryOption}>
+              <input
+                type="radio"
+                name={`delivery-${maker.id}`}
+                checked={deliveryMethod === "zasilkovna"}
+                onChange={() => setDeliveryMethod("zasilkovna")}
+              />
+              <span>
+                {t("map.zasilkovna")}
+                {isLoadingQuote && ` — ${t("map.calculating")}`}
+                {!isLoadingQuote &&
+                  deliveryMethod === "zasilkovna" &&
+                  deliveryPriceCzk > 0 &&
+                  ` — ${deliveryPriceCzk} ${t("common.czk")}`}
+              </span>
+            </label>
+
+            {quoteError && (
+              <p className={styles.deliveryError}>{quoteError}</p>
+            )}
+
+            {deliveryMethod === "zasilkovna" && (
+              <div className={styles.pickupPointSelect}>
+                <select
+                  id={`pickup-${maker.id}`}
+                  value={zasilkovnaPointId}
+                  onChange={(event) => setZasilkovnaPointId(event.target.value)}
+                  className={styles.pickupSelect}
+                  aria-label={t("map.pickupPoint")}
+                >
+                  <option value="">{t("map.selectPickupPoint")}</option>
+                  {MOCK_ZASILKOVNA_POINTS.map((point) => (
+                    <option key={point.id} value={point.id}>
+                      {point.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+        )}
 
         {weightGrams !== null && totalCzk !== null && (
           <div className={styles.popupRow}>
@@ -283,75 +350,6 @@ function MakerPopupContent({
             </span>
           </div>
         )}
-
-        <div className={styles.deliveryBlock}>
-          <p className={styles.deliveryTitle}>{t("map.delivery")}</p>
-
-          {weightGrams === null ? (
-            <>
-              <p className={styles.deliveryInfo}>{t("map.pickupFree")}</p>
-              <p className={styles.deliveryInfo}>{t("map.zasilkovnaAvailable")}</p>
-              <p className={styles.deliveryHint}>{t("map.uploadForDeliveryQuote")}</p>
-            </>
-          ) : (
-            <>
-              <label className={styles.deliveryOption}>
-                <input
-                  type="radio"
-                  name={`delivery-${maker.id}`}
-                  checked={deliveryMethod === "pickup"}
-                  onChange={() => setDeliveryMethod("pickup")}
-                />
-                <span>{t("map.pickupFree")}</span>
-              </label>
-
-              <label className={styles.deliveryOption}>
-                <input
-                  type="radio"
-                  name={`delivery-${maker.id}`}
-                  checked={deliveryMethod === "zasilkovna"}
-                  onChange={() => setDeliveryMethod("zasilkovna")}
-                />
-                <span>
-                  {t("map.zasilkovna")}
-                  {isLoadingQuote && ` — ${t("map.calculating")}`}
-                  {!isLoadingQuote &&
-                    deliveryMethod === "zasilkovna" &&
-                    deliveryPriceCzk > 0 &&
-                    ` — ${deliveryPriceCzk} ${t("common.czk")}`}
-                </span>
-              </label>
-
-              {quoteError && (
-                <p className={styles.deliveryError}>{quoteError}</p>
-              )}
-
-              {deliveryMethod === "zasilkovna" && (
-                <div className={styles.pickupPointSelect}>
-                  <label
-                    htmlFor={`pickup-${maker.id}`}
-                    className={styles.pickupLabel}
-                  >
-                    {t("map.pickupPoint")}
-                  </label>
-                  <select
-                    id={`pickup-${maker.id}`}
-                    value={zasilkovnaPointId}
-                    onChange={(event) => setZasilkovnaPointId(event.target.value)}
-                    className={styles.pickupSelect}
-                  >
-                    <option value="">{t("map.selectPickupPoint")}</option>
-                    {MOCK_ZASILKOVNA_POINTS.map((point) => (
-                      <option key={point.id} value={point.id}>
-                        {point.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </>
-          )}
-        </div>
 
         <span
           className={
