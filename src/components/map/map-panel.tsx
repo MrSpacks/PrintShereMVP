@@ -2,13 +2,14 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { MapFiltersBar } from "@/components/map/map-filters";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useMakers } from "@/hooks/use-makers";
+import { useUserLocation } from "@/hooks/use-user-location";
 import { useTranslations } from "@/i18n/locale-provider";
-import { filterMakers } from "@/lib/map/filter-makers";
+import { filterMakers, sortMakersByDistance } from "@/lib/map/filter-makers";
 import {
   buildOrderPayload,
   createOrder,
@@ -52,6 +53,9 @@ export function MapPanel({ className }: MapPanelProps) {
   const { t } = useTranslations();
   const { user } = useAuth();
   const filters = useMapStore((state) => state.filters);
+  const userLocation = useMapStore((state) => state.userLocation);
+  const { requestLocation, locationStatus, isLocationSupported } =
+    useUserLocation();
   const model = useModelStore((state) => state.model);
   const setSelectedMaker = useModelStore((state) => state.setSelectedMaker);
 
@@ -59,10 +63,17 @@ export function MapPanel({ className }: MapPanelProps) {
   const [orderFeedback, setOrderFeedback] = useState<OrderFeedback | null>(null);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
 
-  const visibleMakers = useMemo(
-    () => filterMakers(makers, filters),
-    [makers, filters]
-  );
+  useEffect(() => {
+    if (isLocationSupported && locationStatus === "idle") {
+      requestLocation();
+    }
+  }, [isLocationSupported, locationStatus, requestLocation]);
+
+  const visibleMakers = useMemo(() => {
+    const filtered = filterMakers(makers, filters, userLocation);
+    if (!userLocation) return filtered;
+    return sortMakersByDistance(filtered, userLocation);
+  }, [makers, filters, userLocation]);
 
   const isModelLoaded = model !== null;
   const modelWeight = model?.stats.weightGrams ?? 0;
@@ -166,6 +177,7 @@ export function MapPanel({ className }: MapPanelProps) {
             isModelLoaded={isModelLoaded}
             modelWeight={modelWeight}
             makers={visibleMakers}
+            userLocation={userLocation}
             onOrder={handleOrder}
             isSubmittingOrder={isSubmittingOrder}
           />

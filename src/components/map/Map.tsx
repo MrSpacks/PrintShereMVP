@@ -16,11 +16,13 @@ import { MOCK_ZASILKOVNA_POINTS } from "@/data/zasilkovna-points";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
 import { getMakerMaterialLabels } from "@/lib/makers/map-maker";
+import { getMakerDistanceKm } from "@/lib/map/filter-makers";
 import { getPrintCostCzk } from "@/lib/map/pricing";
 import { fetchZasilkovnaQuote } from "@/lib/orders/create-order";
 import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
 import type { DeliveryChoice, DeliveryMethod } from "@/types/delivery";
 import type { Maker } from "@/types/maker";
+import type { UserLocation } from "@/types/map";
 
 import styles from "./Map.module.css";
 
@@ -28,6 +30,7 @@ export interface MapProps {
   isModelLoaded: boolean;
   modelWeight: number;
   makers: Maker[];
+  userLocation?: UserLocation | null;
   onOrder: (
     maker: Maker,
     delivery: DeliveryChoice
@@ -35,13 +38,53 @@ export interface MapProps {
   isSubmittingOrder?: boolean;
 }
 
-function createPinIcon(label: string): L.DivIcon {
+function createUserLocationIcon(): L.DivIcon {
+  return L.divIcon({
+    className: styles.userLocationRoot,
+    html: `<div class="${styles.userLocationDot}" aria-hidden="true"></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
+}
+
+function MapViewport({
+  center,
+  userLocation,
+}: {
+  center: [number, number];
+  userLocation?: UserLocation | null;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.setView(center, userLocation ? 13 : map.getZoom(), { animate: true });
+  }, [center, map, userLocation]);
+
+  return null;
+}
+
+function createPinIcon(
+  priceLabel: string,
+  rating: number,
+  deliveryTitle: string
+): L.DivIcon {
+  const ratingClass =
+    rating >= 4.5
+      ? styles.pinRatingHigh
+      : rating >= 4.0
+        ? styles.pinRatingMid
+        : styles.pinRatingLow;
+
   return L.divIcon({
     className: styles.pinRoot,
     html: `
       <div class="${styles.pinWrapper}">
         <div class="${styles.pinBubble}">
-          <span>${label}</span>
+          <span class="${styles.pinPrice}">${priceLabel}</span>
+          <span class="${styles.pinMeta}">
+            <span class="${styles.pinRating} ${ratingClass}">★ ${rating.toFixed(1)}</span>
+            <span class="${styles.deliveryIcon}" title="${deliveryTitle}" aria-hidden="true">🚗</span>
+          </span>
         </div>
         <div class="${styles.pinTip}"></div>
       </div>
@@ -55,6 +98,7 @@ interface MakerPopupContentProps {
   maker: Maker;
   isModelLoaded: boolean;
   modelWeight: number;
+  userLocation?: UserLocation | null;
   onOrder: (
     maker: Maker,
     delivery: DeliveryChoice
@@ -66,6 +110,7 @@ function MakerPopupContent({
   maker,
   isModelLoaded,
   modelWeight,
+  userLocation,
   onOrder,
   isSubmittingOrder,
 }: MakerPopupContentProps) {
@@ -142,6 +187,10 @@ function MakerPopupContent({
       makerPrintCzk >= maker.minOrderPriceCzk);
 
   const materialLabels = getMakerMaterialLabels(maker);
+  const distanceKm =
+    userLocation !== null && userLocation !== undefined
+      ? getMakerDistanceKm(maker, userLocation)
+      : null;
 
   const selectedPoint = MOCK_ZASILKOVNA_POINTS.find(
     (point) => point.id === zasilkovnaPointId
@@ -200,6 +249,19 @@ function MakerPopupContent({
 
         <p className={styles.popupAddress}>{maker.address}</p>
 
+        {distanceKm !== null && (
+          <div className={styles.popupRow}>
+            <span className={styles.popupLabel}>{t("map.distanceFromYou")}</span>
+            <span className={styles.popupValue}>
+              {distanceKm < 1
+                ? t("map.distanceMeters", {
+                    meters: Math.round(distanceKm * 1000),
+                  })
+                : t("map.distanceKm", { km: distanceKm.toFixed(1) })}
+            </span>
+          </div>
+        )}
+
         <div className={styles.materials}>
           {maker.printerTypes.map((type) => (
             <span key={type} className={styles.materialTag}>
@@ -213,65 +275,7 @@ function MakerPopupContent({
           ))}
         </div>
 
-        {weightGrams !== null && (
-          <div className={styles.deliveryBlock}>
-            <p className={styles.deliveryTitle}>{t("map.delivery")}</p>
-
-            <label className={styles.deliveryOption}>
-              <input
-                type="radio"
-                name={`delivery-${maker.id}`}
-                checked={deliveryMethod === "pickup"}
-                onChange={() => setDeliveryMethod("pickup")}
-              />
-              <span>{t("map.pickupFree")}</span>
-            </label>
-
-            <label className={styles.deliveryOption}>
-              <input
-                type="radio"
-                name={`delivery-${maker.id}`}
-                checked={deliveryMethod === "zasilkovna"}
-                onChange={() => setDeliveryMethod("zasilkovna")}
-              />
-              <span>
-                {t("map.zasilkovna")}
-                {isLoadingQuote && ` — ${t("map.calculating")}`}
-                {!isLoadingQuote &&
-                  deliveryMethod === "zasilkovna" &&
-                  deliveryPriceCzk > 0 &&
-                  ` — ${deliveryPriceCzk} ${t("common.czk")}`}
-              </span>
-            </label>
-
-            {quoteError && (
-              <p className={styles.deliveryError}>{quoteError}</p>
-            )}
-
-            {deliveryMethod === "zasilkovna" && (
-              <div className={styles.pickupPointSelect}>
-                <label htmlFor={`pickup-${maker.id}`} className={styles.pickupLabel}>
-                  {t("map.pickupPoint")}
-                </label>
-                <select
-                  id={`pickup-${maker.id}`}
-                  value={zasilkovnaPointId}
-                  onChange={(event) => setZasilkovnaPointId(event.target.value)}
-                  className={styles.pickupSelect}
-                >
-                  <option value="">{t("map.selectPickupPoint")}</option>
-                  {MOCK_ZASILKOVNA_POINTS.map((point) => (
-                    <option key={point.id} value={point.id}>
-                      {point.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
-        )}
-
-        {totalCzk !== null && (
+        {weightGrams !== null && totalCzk !== null && (
           <div className={styles.popupRow}>
             <span className={styles.popupLabel}>{t("map.total")}</span>
             <span className={styles.popupValue}>
@@ -279,6 +283,75 @@ function MakerPopupContent({
             </span>
           </div>
         )}
+
+        <div className={styles.deliveryBlock}>
+          <p className={styles.deliveryTitle}>{t("map.delivery")}</p>
+
+          {weightGrams === null ? (
+            <>
+              <p className={styles.deliveryInfo}>{t("map.pickupFree")}</p>
+              <p className={styles.deliveryInfo}>{t("map.zasilkovnaAvailable")}</p>
+              <p className={styles.deliveryHint}>{t("map.uploadForDeliveryQuote")}</p>
+            </>
+          ) : (
+            <>
+              <label className={styles.deliveryOption}>
+                <input
+                  type="radio"
+                  name={`delivery-${maker.id}`}
+                  checked={deliveryMethod === "pickup"}
+                  onChange={() => setDeliveryMethod("pickup")}
+                />
+                <span>{t("map.pickupFree")}</span>
+              </label>
+
+              <label className={styles.deliveryOption}>
+                <input
+                  type="radio"
+                  name={`delivery-${maker.id}`}
+                  checked={deliveryMethod === "zasilkovna"}
+                  onChange={() => setDeliveryMethod("zasilkovna")}
+                />
+                <span>
+                  {t("map.zasilkovna")}
+                  {isLoadingQuote && ` — ${t("map.calculating")}`}
+                  {!isLoadingQuote &&
+                    deliveryMethod === "zasilkovna" &&
+                    deliveryPriceCzk > 0 &&
+                    ` — ${deliveryPriceCzk} ${t("common.czk")}`}
+                </span>
+              </label>
+
+              {quoteError && (
+                <p className={styles.deliveryError}>{quoteError}</p>
+              )}
+
+              {deliveryMethod === "zasilkovna" && (
+                <div className={styles.pickupPointSelect}>
+                  <label
+                    htmlFor={`pickup-${maker.id}`}
+                    className={styles.pickupLabel}
+                  >
+                    {t("map.pickupPoint")}
+                  </label>
+                  <select
+                    id={`pickup-${maker.id}`}
+                    value={zasilkovnaPointId}
+                    onChange={(event) => setZasilkovnaPointId(event.target.value)}
+                    className={styles.pickupSelect}
+                  >
+                    <option value="">{t("map.selectPickupPoint")}</option>
+                    {MOCK_ZASILKOVNA_POINTS.map((point) => (
+                      <option key={point.id} value={point.id}>
+                        {point.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
         <span
           className={
@@ -317,6 +390,7 @@ export function Map({
   isModelLoaded,
   modelWeight,
   makers,
+  userLocation = null,
   onOrder,
   isSubmittingOrder = false,
 }: MapProps) {
@@ -335,15 +409,20 @@ export function Map({
             })()
           : t("common.czkPerGram", { price: maker.pricePerGramCzk });
 
-      return createPinIcon(pinLabel);
+      return createPinIcon(pinLabel, maker.rating, t("map.deliveryAvailable"));
     },
     [weightGrams, t]
   );
 
   const center = useMemo(
-    () => [PRAGUE_CENTER.latitude, PRAGUE_CENTER.longitude] as [number, number],
-    []
+    () =>
+      userLocation
+        ? ([userLocation.latitude, userLocation.longitude] as [number, number])
+        : ([PRAGUE_CENTER.latitude, PRAGUE_CENTER.longitude] as [number, number]),
+    [userLocation]
   );
+
+  const userLocationIcon = useMemo(() => createUserLocationIcon(), []);
 
   return (
     <div className={styles.mapRoot}>
@@ -353,12 +432,22 @@ export function Map({
         scrollWheelZoom
         className={styles.mapContainer}
       >
+        <MapViewport center={center} userLocation={userLocation} />
+
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
           subdomains="abcd"
           maxZoom={20}
         />
+
+        {userLocation && (
+          <Marker
+            position={[userLocation.latitude, userLocation.longitude]}
+            icon={userLocationIcon}
+            zIndexOffset={1000}
+          />
+        )}
 
         {makers.map((maker) => (
           <Marker
@@ -371,6 +460,7 @@ export function Map({
                 maker={maker}
                 isModelLoaded={isModelLoaded}
                 modelWeight={modelWeight}
+                userLocation={userLocation}
                 onOrder={onOrder}
                 isSubmittingOrder={isSubmittingOrder}
               />

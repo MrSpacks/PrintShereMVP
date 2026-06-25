@@ -1,5 +1,8 @@
 "use client";
 
+import { MapPin } from "lucide-react";
+
+import { useUserLocation } from "@/hooks/use-user-location";
 import { useMapStore } from "@/store/map-store";
 import {
   FDM_MATERIAL_OPTIONS,
@@ -47,6 +50,41 @@ export function MapFiltersBar({ className }: MapFiltersBarProps) {
   const setMinRating = useMapStore((state) => state.setMinRating);
   const setMaterial = useMapStore((state) => state.setMaterial);
   const setPrinterType = useMapStore((state) => state.setPrinterType);
+  const {
+    userLocation,
+    locationStatus,
+    locationError,
+    requestLocation,
+    clearLocation,
+    isLocationSupported,
+  } = useUserLocation();
+
+  const handleDistanceChange = (value: string) => {
+    const nextDistance = value === "any" ? null : Number(value);
+    setMaxDistanceKm(nextDistance);
+
+    if (nextDistance !== null && !userLocation && isLocationSupported) {
+      requestLocation();
+    }
+  };
+
+  const locationButtonLabel =
+    locationStatus === "loading"
+      ? t("map.locationLoading")
+      : locationStatus === "granted"
+        ? t("map.locationActive")
+        : locationStatus === "denied"
+          ? t("map.locationDenied")
+          : t("map.useMyLocation");
+
+  const locationHint =
+    locationStatus === "denied"
+      ? t("map.locationDeniedHint")
+      : locationStatus === "error"
+        ? t(`map.locationError.${locationError ?? "unknown"}`)
+        : locationStatus === "granted"
+          ? t("map.locationActiveHint")
+          : t("map.locationHint");
 
   const distanceOptions = [
     { label: t("filters.any"), value: "any" },
@@ -88,12 +126,30 @@ export function MapFiltersBar({ className }: MapFiltersBarProps) {
         className
       )}
     >
+      <button
+        type="button"
+        onClick={() =>
+          locationStatus === "granted" ? clearLocation() : requestLocation()
+        }
+        disabled={!isLocationSupported || locationStatus === "loading"}
+        className={cn(
+          "inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+          locationStatus === "granted"
+            ? "border-brand bg-brand/10 text-brand"
+            : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
+        )}
+        title={locationHint}
+      >
+        <MapPin className="h-3.5 w-3.5" aria-hidden />
+        <span className="max-w-[140px] truncate sm:max-w-none">
+          {locationButtonLabel}
+        </span>
+      </button>
+
       <FilterSelect
         label={t("filters.distance")}
         value={filters.maxDistanceKm?.toString() ?? "any"}
-        onChange={(value) =>
-          setMaxDistanceKm(value === "any" ? null : Number(value))
-        }
+        onChange={handleDistanceChange}
         options={distanceOptions}
       />
 
