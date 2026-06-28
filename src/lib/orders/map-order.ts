@@ -5,6 +5,7 @@ import {
   getCustomerPrintCzk,
   getCustomerTotalCzk,
 } from "@/lib/orders/order-pricing";
+import { toOrderFileDownloadUrl } from "@/lib/orders/order-file-paths";
 import type { OrderResponse, OrderStatus, PrintQuality } from "@/types/order";
 import type { DeliveryMethod } from "@/types/delivery";
 
@@ -63,7 +64,7 @@ export function mapOrder(order: OrderWithRelations): OrderResponse {
     customerId: order.customerId,
     customerName: order.customer?.name ?? null,
     fileName: order.fileName,
-    fileUrl: order.fileUrl,
+    fileUrl: order.fileUrl ? toOrderFileDownloadUrl(order.id) : null,
     weightGrams: order.weightGrams,
     widthMm: order.widthMm,
     heightMm: order.heightMm,

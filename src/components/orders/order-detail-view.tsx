@@ -350,7 +350,7 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
           <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-border/60 pt-4 text-sm">
             {order.fileUrl ? (
               <a
-                href={order.fileUrl}
+                href={`/api/orders/${order.id}/file`}
                 className="font-medium text-brand hover:underline"
               >
                 {t("orderDetail.downloadModel")}

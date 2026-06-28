@@ -2,6 +2,7 @@ import type { CreateOrderPayload, OrderResponse } from "@/types/order";
 import type { DeliveryChoice } from "@/types/delivery";
 import type { ModelData } from "@/types/model";
 import type { Maker } from "@/types/maker";
+import { getOrderBlobPathname } from "@/lib/orders/order-file-paths";
 
 export function buildOrderPayload(
   maker: Maker,
@@ -64,6 +65,32 @@ export async function uploadOrderModelFile(
   orderId: string,
   file: File
 ): Promise<void> {
+  const modeResponse = await fetch("/api/orders/upload-mode");
+  const modeData = (await modeResponse.json()) as { mode?: string };
+
+  if (modeData.mode === "blob-client") {
+    const { upload } = await import("@vercel/blob/client");
+    const blob = await upload(getOrderBlobPathname(orderId, file.name), file, {
+      access: "private",
+      handleUploadUrl: `/api/orders/${orderId}/file/upload`,
+    });
+
+    const confirmResponse = await fetch(`/api/orders/${orderId}/file`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileUrl: blob.url }),
+    });
+
+    if (!confirmResponse.ok) {
+      const body = (await confirmResponse.json().catch(() => null)) as {
+        error?: string;
+      } | null;
+      throw new Error(body?.error ?? "Failed to confirm model upload");
+    }
+
+    return;
+  }
+
   const formData = new FormData();
   formData.append("file", file);
 

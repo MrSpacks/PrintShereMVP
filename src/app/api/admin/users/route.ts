@@ -1,22 +1,47 @@
 import { NextResponse } from "next/server";
 
 import {
+  buildAdminUsersOrderBy,
+  buildAdminUsersWhere,
+  parseAdminUsersQuery,
+} from "@/lib/admin/list-users";
+import {
   adminUnauthorized,
   requireAdminUser,
 } from "@/lib/admin/require-admin";
 import { mapPrismaUser } from "@/lib/users/map-user";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const admin = await requireAdminUser();
     if (!admin) return adminUnauthorized();
 
-    const records = await prisma.user.findMany({
-      orderBy: [{ role: "asc" }, { name: "asc" }],
-    });
+    const query = parseAdminUsersQuery(new URL(request.url).searchParams);
+    const where = buildAdminUsersWhere(query);
+    const orderBy = buildAdminUsersOrderBy(query);
+    const skip = (query.page - 1) * query.pageSize;
 
-    return NextResponse.json({ users: records.map(mapPrismaUser) });
+    const [total, records] = await prisma.$transaction([
+      prisma.user.count({ where }),
+      prisma.user.findMany({
+        where,
+        orderBy,
+        skip,
+        take: query.pageSize,
+      }),
+    ]);
+
+    const totalPages = Math.max(1, Math.ceil(total / query.pageSize));
+    const page = total === 0 ? 1 : Math.min(query.page, totalPages);
+
+    return NextResponse.json({
+      users: records.map(mapPrismaUser),
+      total,
+      page,
+      pageSize: query.pageSize,
+      totalPages,
+    });
   } catch (error) {
     console.error("[GET /api/admin/users]", error);
     return NextResponse.json(
