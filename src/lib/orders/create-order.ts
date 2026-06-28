@@ -63,14 +63,16 @@ export async function createOrder(
 
 export async function uploadOrderModelFile(
   orderId: string,
-  file: File
+  file: File,
+  orderFileName?: string
 ): Promise<void> {
   const modeResponse = await fetch("/api/orders/upload-mode");
   const modeData = (await modeResponse.json()) as { mode?: string };
+  const blobFileName = orderFileName ?? file.name;
 
   if (modeData.mode === "blob-client") {
     const { upload } = await import("@vercel/blob/client");
-    const pathname = getOrderBlobPathname(orderId, file.name);
+    const pathname = getOrderBlobPathname(orderId, blobFileName);
 
     let blob;
     try {

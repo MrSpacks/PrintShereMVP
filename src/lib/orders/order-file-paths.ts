@@ -6,6 +6,22 @@ export function getOrderBlobPathname(orderId: string, fileName: string): string 
   return `orders/${orderId}/${sanitizeOrderFileName(fileName)}`;
 }
 
+export function pathnameMatchesOrderFile(
+  orderId: string,
+  pathname: string,
+  orderFileName: string
+): boolean {
+  if (!isAllowedOrderBlobPathname(orderId, pathname)) {
+    return false;
+  }
+
+  const expected = getOrderBlobPathname(orderId, orderFileName);
+  if (pathname === expected) return true;
+
+  const uploadedBase = pathname.slice(`orders/${orderId}/`.length);
+  return uploadedBase === sanitizeOrderFileName(orderFileName);
+}
+
 export function toOrderFileDownloadUrl(orderId: string): string {
   return `/api/orders/${orderId}/file`;
 }

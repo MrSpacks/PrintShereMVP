@@ -14,6 +14,7 @@ export {
   getOrderBlobPathname,
   isAllowedOrderBlobPathname,
   isVercelBlobUrl,
+  pathnameMatchesOrderFile,
   toOrderFileDownloadUrl,
 } from "@/lib/orders/order-file-paths";
 

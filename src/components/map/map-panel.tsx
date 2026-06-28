@@ -97,7 +97,7 @@ export function MapPanel({ className }: MapPanelProps) {
         const order = await createOrder(payload);
 
         if (model.sourceFile) {
-          await uploadOrderModelFile(order.id, model.sourceFile);
+          await uploadOrderModelFile(order.id, model.sourceFile, model.fileName);
         }
 
         setSelectedMaker({

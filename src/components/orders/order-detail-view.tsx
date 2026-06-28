@@ -207,7 +207,7 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
     setIsUploadingFile(true);
     setFileMessage(null);
     try {
-      await uploadOrderModelFile(orderId, file);
+      await uploadOrderModelFile(orderId, file, order?.fileName);
       await loadOrder();
       setFileMessage(t("orderDetail.uploadSuccess"));
     } catch (uploadError) {
