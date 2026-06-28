@@ -29,6 +29,7 @@ export async function GET(request: Request) {
         orderBy,
         skip,
         take: query.pageSize,
+        include: { _count: { select: { ownedMakers: true } } },
       }),
     ]);
 

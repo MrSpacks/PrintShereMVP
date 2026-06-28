@@ -7,6 +7,7 @@ import { Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
+import { isModeratorUser } from "@/types/user";
 import type { DisputeSummary } from "@/types/dispute";
 
 interface DisputeListItem extends DisputeSummary {
@@ -54,7 +55,7 @@ export function ModerationDashboard() {
     );
   }
 
-  if (!user || (user.role !== "moderator" && user.role !== "admin")) {
+  if (!user || !isModeratorUser(user)) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
         <Scale className="h-10 w-10 text-muted-foreground" />

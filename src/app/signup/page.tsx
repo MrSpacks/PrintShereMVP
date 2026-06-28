@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 import {
   AuthCard,
@@ -12,9 +12,11 @@ import {
 } from "@/components/auth/auth-form";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
+import { buildAuthPath, getSafeRedirectPath } from "@/lib/auth/safe-redirect";
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { signup } = useAuth();
   const { t } = useTranslations();
   const [name, setName] = useState("");
@@ -23,6 +25,8 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const redirectTo = getSafeRedirectPath(searchParams.get("next"));
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
@@ -30,7 +34,7 @@ export default function SignupPage() {
 
     try {
       await signup(name, email, password);
-      router.push("/");
+      router.push(redirectTo);
       router.refresh();
     } catch (submitError) {
       const message =
@@ -50,7 +54,9 @@ export default function SignupPage() {
       footer={
         <>
           {t("auth.signupFooter")}{" "}
-          <AuthLink href="/login">{t("auth.loginLink")}</AuthLink>
+          <AuthLink href={buildAuthPath("/login", redirectTo)}>
+            {t("auth.loginLink")}
+          </AuthLink>
         </>
       }
     >
@@ -91,5 +97,21 @@ export default function SignupPage() {
         />
       </form>
     </AuthCard>
+  );
+}
+
+export default function SignupPage() {
+  const { t } = useTranslations();
+
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+          {t("common.loading")}
+        </div>
+      }
+    >
+      <SignupForm />
+    </Suspense>
   );
 }

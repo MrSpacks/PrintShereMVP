@@ -4,11 +4,10 @@ import { geocodeAddress } from "@/lib/geocoding/nominatim";
 import { mapPrismaMakerProfile } from "@/lib/makers/map-maker";
 import { requireMakerUser, unauthorized } from "@/lib/maker/require-maker";
 import { prisma } from "@/lib/prisma";
-import type { UpdateMakerProfilePayload } from "@/types/maker";
-import type { PrinterType } from "@/types/maker";
+import type { UpdateMakerProfilePayload, PrinterType } from "@/types/maker";
 
 const PRINTER_TYPES = new Set<string>(["fdm", "resin"]);
-const STATUSES = new Set<string>(["available", "busy"]);
+const STATUSES = new Set<string>(["available", "busy", "hidden"]);
 
 function isUpdateBody(body: unknown): body is UpdateMakerProfilePayload {
   if (!body || typeof body !== "object") return false;
@@ -96,6 +95,7 @@ export async function PATCH(request: Request) {
       },
       include: {
         filaments: { orderBy: [{ printerType: "asc" }, { material: "asc" }] },
+        printers: { orderBy: { createdAt: "asc" } },
       },
     });
 

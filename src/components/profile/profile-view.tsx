@@ -13,11 +13,11 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { AvatarPicker } from "@/components/profile/avatar-picker";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
-import { hasMakerAccess, type User, type UserRole } from "@/types/user";
+import { getUserCapabilityLabels, hasMakerAccess, type User } from "@/types/user";
 
 export function ProfileView() {
   const router = useRouter();
-  const { user, isLoading, refetch } = useAuth();
+  const { user, isLoading, refetch, logout } = useAuth();
   const { t } = useTranslations();
 
   const [name, setName] = useState("");
@@ -28,7 +28,9 @@ export function ProfileView() {
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [deletePassword, setDeletePassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [initialAddress, setInitialAddress] = useState("");
 
   useEffect(() => {
@@ -151,7 +153,9 @@ export function ProfileView() {
     }
   };
 
-  const roleLabel = t(`roles.${user.role as UserRole}`);
+  const capabilityLabels = getUserCapabilityLabels(user)
+    .map((label) => t(`roles.${label}`))
+    .join(" · ");
   const isMaker = hasMakerAccess(user);
   const addressChanged = address.trim() !== initialAddress.trim();
 
@@ -189,7 +193,7 @@ export function ProfileView() {
         <div className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
           {t("profile.roleLabel")}:{" "}
           <span className="font-medium capitalize text-foreground">
-            {roleLabel}
+            {capabilityLabels}
           </span>
         </div>
 
@@ -269,6 +273,59 @@ export function ProfileView() {
           label={t("profile.save")}
         />
       </form>
+
+      <section className="mt-8 rounded-xl border border-red-200 bg-red-50/50 p-6">
+        <h2 className="text-lg font-semibold text-red-900">
+          {t("profile.deleteAccountTitle")}
+        </h2>
+        <p className="mt-1 text-sm text-red-800">{t("profile.deleteAccountText")}</p>
+        <div className="mt-4 space-y-3">
+          <AuthField
+            id="delete-password"
+            label={t("profile.deletePassword")}
+            type="password"
+            value={deletePassword}
+            onChange={setDeletePassword}
+            autoComplete="current-password"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isDeleting || deletePassword.length === 0}
+            className="border-red-300 text-red-700 hover:bg-red-100"
+            onClick={() => void (async () => {
+              if (!window.confirm(t("profile.deleteConfirm"))) return;
+              setIsDeleting(true);
+              setError(null);
+              try {
+                const response = await fetch("/api/profile/account", {
+                  method: "DELETE",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ password: deletePassword }),
+                });
+                const data = (await response.json()) as {
+                  error?: string;
+                  refundedOrders?: number;
+                };
+                if (!response.ok) throw new Error(data.error ?? "Failed");
+                await logout();
+                router.push("/");
+                router.refresh();
+              } catch (deleteError) {
+                setError(
+                  deleteError instanceof Error
+                    ? deleteError.message
+                    : t("profile.deleteFailed")
+                );
+              } finally {
+                setIsDeleting(false);
+              }
+            })()}
+          >
+            {isDeleting ? t("common.loading") : t("profile.deleteAccount")}
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }

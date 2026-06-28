@@ -15,32 +15,11 @@ export const FDM_MATERIAL_OPTIONS = [
   "ASA",
 ] as const;
 
-export const FDM_COLOR_OPTIONS = [
-  "Black",
-  "White",
-  "Gray",
-  "Red",
-  "Blue",
-  "Green",
-  "Yellow",
-  "Orange",
-  "Transparent",
-] as const;
-
 export const RESIN_MATERIAL_OPTIONS = [
   "Standard Resin",
   "Tough Resin",
   "Flexible Resin",
   "Water-Washable",
-] as const;
-
-export const RESIN_COLOR_OPTIONS = [
-  "Black",
-  "White",
-  "Gray",
-  "Clear",
-  "Red",
-  "Blue",
 ] as const;
 
 export const DEFAULT_NEW_MAKER_RATING = 5;

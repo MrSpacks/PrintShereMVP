@@ -11,8 +11,10 @@ import {
   AuthSubmitButton,
 } from "@/components/auth/auth-form";
 import { useAuth } from "@/components/auth/auth-provider";
+import { PrinterPicker } from "@/components/maker/printer-picker";
 import { useTranslations } from "@/i18n/locale-provider";
 import type { MakerSignupPayload } from "@/types/auth";
+import type { WorkshopPrinterInput } from "@/types/maker";
 
 export function BecomeMakerForm() {
   const router = useRouter();
@@ -24,6 +26,7 @@ export function BecomeMakerForm() {
   const [password, setPassword] = useState("");
   const [workshopName, setWorkshopName] = useState("");
   const [address, setAddress] = useState("");
+  const [printers, setPrinters] = useState<WorkshopPrinterInput[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -38,6 +41,7 @@ export function BecomeMakerForm() {
       password,
       workshopName,
       address,
+      printers,
     };
 
     try {
@@ -124,6 +128,14 @@ export function BecomeMakerForm() {
             <p className="text-xs text-muted-foreground">
               {t("becomeMaker.addressHint")}
             </p>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm font-medium">{t("workshop.printersTitle")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("workshop.printersHint")}
+            </p>
+            <PrinterPicker printers={printers} onChange={setPrinters} />
           </div>
         </fieldset>
 

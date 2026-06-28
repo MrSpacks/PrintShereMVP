@@ -62,8 +62,15 @@ export function buildAdminUsersWhere(
 ): Prisma.UserWhereInput {
   const where: Prisma.UserWhereInput = {};
 
-  if (query.role) {
-    where.role = query.role;
+  if (query.role === "moderator") {
+    where.staffRole = "moderator";
+  } else if (query.role === "admin") {
+    where.staffRole = "admin";
+  } else if (query.role === "maker") {
+    where.ownedMakers = { some: {} };
+  } else if (query.role === "customer") {
+    where.staffRole = null;
+    where.ownedMakers = { none: {} };
   }
 
   if (query.q) {

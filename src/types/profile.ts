@@ -1,6 +1,21 @@
-import type { User } from "@/types/user";
+import type { User, UserRole } from "@/types/user";
 
 export interface ProfileResponse {
   user: User;
   address: string;
+}
+
+export interface PublicUserProfile {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string | null;
+  role: UserRole;
+  makerId: string | null;
+  createdAt: string;
+  blockedUntil: string | null;
+  isBlocked: boolean;
+  address: string | null;
+  orderCount: number;
+  canManage: boolean;
 }

@@ -1,6 +1,14 @@
 export type PrinterType = "fdm" | "resin";
 
-export type MakerStatus = "available" | "busy";
+export type MakerStatus = "available" | "busy" | "hidden";
+
+export interface MakerPrinter {
+  id: string;
+  technology: PrinterType;
+  modelKey: string | null;
+  modelLabel: string;
+  isCustom: boolean;
+}
 
 export interface MakerFilament {
   id: string;
@@ -19,12 +27,20 @@ export interface Maker {
   pricePerGramCzk: number;
   minOrderPriceCzk: number;
   printerTypes: PrinterType[];
+  printers: MakerPrinter[];
   filaments: MakerFilament[];
   status: MakerStatus;
 }
 
 export interface MakerProfile extends Maker {
   updatedAt: string;
+}
+
+export interface MakerWorkshopSummary {
+  id: string;
+  name: string;
+  status: MakerStatus;
+  isActive: boolean;
 }
 
 export interface MapFilters {
@@ -47,6 +63,18 @@ export interface UpdateMakerProfilePayload {
   minOrderPriceCzk: number;
   printerTypes: PrinterType[];
   status: MakerStatus;
+}
+
+export interface WorkshopPrinterInput {
+  technology: PrinterType;
+  modelKey: string;
+  customModelLabel?: string;
+}
+
+export interface CreateWorkshopPayload {
+  workshopName: string;
+  address: string;
+  printers: WorkshopPrinterInput[];
 }
 
 export interface AddFilamentPayload {

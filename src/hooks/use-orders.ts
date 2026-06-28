@@ -3,24 +3,27 @@
 import { useCallback, useEffect, useState } from "react";
 
 import type { OrderResponse } from "@/types/order";
-import type { UserRole } from "@/types/user";
+import type { OrdersListView } from "@/types/user";
 
 interface OrdersApiResponse {
   orders: OrderResponse[];
-  role: UserRole;
+  view: OrdersListView;
 }
 
 interface UseOrdersResult {
   orders: OrderResponse[];
-  role: UserRole | null;
+  view: OrdersListView | null;
   isLoading: boolean;
   error: string | null;
   refetch: () => void;
 }
 
-export function useOrders(enabled: boolean): UseOrdersResult {
+export function useOrders(
+  enabled: boolean,
+  listView: OrdersListView = "customer"
+): UseOrdersResult {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
-  const [role, setRole] = useState<UserRole | null>(null);
+  const [view, setView] = useState<OrdersListView | null>(null);
   const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
@@ -42,7 +45,7 @@ export function useOrders(enabled: boolean): UseOrdersResult {
       setError(null);
 
       try {
-        const response = await fetch("/api/orders");
+        const response = await fetch(`/api/orders?view=${listView}`);
 
         if (response.status === 401) {
           throw new Error("Please log in to view orders");
@@ -56,7 +59,7 @@ export function useOrders(enabled: boolean): UseOrdersResult {
 
         if (!cancelled) {
           setOrders(data.orders);
-          setRole(data.role);
+          setView(data.view);
         }
       } catch (loadError) {
         if (!cancelled) {
@@ -66,7 +69,7 @@ export function useOrders(enabled: boolean): UseOrdersResult {
               : "Failed to load orders";
           setError(message);
           setOrders([]);
-          setRole(null);
+          setView(null);
         }
       } finally {
         if (!cancelled) {
@@ -80,7 +83,7 @@ export function useOrders(enabled: boolean): UseOrdersResult {
     return () => {
       cancelled = true;
     };
-  }, [enabled, tick]);
+  }, [enabled, listView, tick]);
 
-  return { orders, role, isLoading, error, refetch };
+  return { orders, view, isLoading, error, refetch };
 }

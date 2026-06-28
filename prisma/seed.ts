@@ -1,4 +1,4 @@
-import { PrismaClient, MakerStatus, UserRole } from "@prisma/client";
+import { PrismaClient, MakerStatus, StaffRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -13,6 +13,7 @@ interface SeedFilament {
 
 interface SeedMaker {
   id: string;
+  ownerUserId: string;
   name: string;
   address: string;
   latitude: number;
@@ -28,6 +29,7 @@ interface SeedMaker {
 const SEED_MAKERS: SeedMaker[] = [
   {
     id: "maker-elena",
+    ownerUserId: "user-elena",
     name: "Elena's Workshop",
     address: "Pařížská 12, 110 00 Prague 1, Czechia",
     latitude: 50.0875,
@@ -45,6 +47,7 @@ const SEED_MAKERS: SeedMaker[] = [
   },
   {
     id: "maker-vinohrady",
+    ownerUserId: "user-vinohrady",
     name: "Vinohrady Prints",
     address: "Korunní 42, 120 00 Prague 2, Czechia",
     latitude: 50.0755,
@@ -64,6 +67,7 @@ const SEED_MAKERS: SeedMaker[] = [
   },
   {
     id: "maker-smichov",
+    ownerUserId: "user-smichov",
     name: "Smíchov FabLab",
     address: "Plzeňská 8, 150 00 Prague 5, Czechia",
     latitude: 50.0736,
@@ -80,6 +84,7 @@ const SEED_MAKERS: SeedMaker[] = [
   },
   {
     id: "maker-karlin",
+    ownerUserId: "user-admin",
     name: "Karlín 3D Studio",
     address: "Pernerova 32, 186 00 Prague 8, Czechia",
     latitude: 50.0923,
@@ -97,6 +102,7 @@ const SEED_MAKERS: SeedMaker[] = [
   },
   {
     id: "maker-dejvice",
+    ownerUserId: "user-admin",
     name: "Dejvice Makerspace",
     address: "Thákurova 9, 160 00 Prague 6, Czechia",
     latitude: 50.0998,
@@ -105,11 +111,12 @@ const SEED_MAKERS: SeedMaker[] = [
     pricePerGramCzk: 4.5,
     minOrderPriceCzk: 100,
     printerTypes: ["fdm"],
-    status: MakerStatus.available,
+    status: MakerStatus.hidden,
     filaments: [{ printerType: "fdm", material: "PLA", color: "Black" }],
   },
   {
     id: "maker-zizkov",
+    ownerUserId: "user-admin",
     name: "Žižkov Rapid Print",
     address: "Seifertova 47, 130 00 Prague 3, Czechia",
     latitude: 50.0833,
@@ -132,56 +139,63 @@ const SEED_USERS = [
     id: "user-anna",
     email: "anna@example.com",
     name: "Anna Novák",
-    role: UserRole.customer,
+    staffRole: null as StaffRole | null,
     makerId: null,
   },
   {
     id: "user-petr",
     email: "petr@example.com",
     name: "Petr Svoboda",
-    role: UserRole.customer,
+    staffRole: null,
     makerId: null,
   },
   {
     id: "user-marie",
     email: "marie@example.com",
     name: "Marie Dvořáková",
-    role: UserRole.customer,
+    staffRole: null,
     makerId: null,
   },
   {
     id: "user-elena",
     email: "elena@workshop.cz",
     name: "Elena Kovářová",
-    role: UserRole.maker,
+    staffRole: null,
     makerId: "maker-elena",
   },
   {
     id: "user-vinohrady",
     email: "vinohrady@prints.cz",
     name: "Tomáš Horák",
-    role: UserRole.maker,
+    staffRole: null,
     makerId: "maker-vinohrady",
   },
   {
     id: "user-smichov",
     email: "smichov@fablab.cz",
     name: "Jakub Malý",
-    role: UserRole.maker,
+    staffRole: null,
     makerId: "maker-smichov",
   },
   {
     id: "user-admin",
     email: "mr.spacks@seznam.cz",
     name: "Admin",
-    role: UserRole.admin,
-    makerId: null,
+    staffRole: StaffRole.admin,
+    makerId: "maker-karlin",
   },
   {
     id: "user-moderator",
     email: "moderator@printlocal.cz",
     name: "Jan Moderátor",
-    role: UserRole.moderator,
+    staffRole: StaffRole.moderator,
+    makerId: null,
+  },
+  {
+    id: "user-archive",
+    email: "archive@printlocal.internal",
+    name: "Archived workshops",
+    staffRole: null,
     makerId: null,
   },
 ];
@@ -197,6 +211,7 @@ async function seedMakers() {
     });
 
     await prisma.makerFilament.deleteMany({ where: { makerId: maker.id } });
+    await prisma.makerPrinter.deleteMany({ where: { makerId: maker.id } });
 
     if (filaments.length > 0) {
       await prisma.makerFilament.createMany({
@@ -206,6 +221,18 @@ async function seedMakers() {
           material: filament.material,
           color: filament.color,
         })),
+      });
+    }
+
+    for (const technology of maker.printerTypes) {
+      await prisma.makerPrinter.create({
+        data: {
+          makerId: maker.id,
+          technology,
+          modelKey: technology === "fdm" ? "generic-fdm" : "generic-resin",
+          modelLabel: technology === "fdm" ? "FDM printer" : "Resin printer",
+          isCustom: false,
+        },
       });
     }
   }
@@ -218,7 +245,8 @@ async function seedUsers(passwordHash: string) {
     const data = {
       email: user.email,
       name: user.name,
-      role: user.role,
+      role: "customer" as const,
+      staffRole: user.staffRole,
       makerId: user.makerId,
       passwordHash,
     };

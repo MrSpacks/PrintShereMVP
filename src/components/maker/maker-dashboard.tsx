@@ -5,16 +5,23 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AuthError } from "@/components/auth/auth-form";
 import { Button } from "@/components/ui/button";
+import { WorkshopToolbar } from "@/components/maker/workshop-toolbar";
+import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
 import { PRINTER_TYPES } from "@/lib/makers/capabilities";
 import {
   getColorOptions,
   getMaterialOptions,
 } from "@/lib/makers/filament-options";
+import {
+  FilamentColorPicker,
+  FilamentColorSwatch,
+} from "@/components/maker/filament-color-picker";
 import type {
   MakerFilament,
   MakerProfile,
   MakerStatus,
+  MakerWorkshopSummary,
   PrinterType,
   UpdateMakerProfilePayload,
 } from "@/types/maker";
@@ -70,12 +77,15 @@ function FilamentRow({
 
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
-      <div className="min-w-0 text-sm">
-        <span className="font-medium">{filament.material}</span>
-        <span className="text-muted-foreground"> · {filament.color}</span>
-        <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-          {typeLabel}
-        </span>
+      <div className="flex min-w-0 items-center gap-2.5 text-sm">
+        <FilamentColorSwatch colorId={filament.color} size="md" />
+        <div className="min-w-0">
+          <span className="font-medium">{filament.material}</span>
+          <span className="text-muted-foreground"> · {filament.color}</span>
+          <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            {typeLabel}
+          </span>
+        </div>
       </div>
       <Button
         type="button"
@@ -200,19 +210,19 @@ function AddFilamentPanel({
           </select>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 sm:col-span-2">
           <FieldLabel>{t("dashboard.color")}</FieldLabel>
-          <select
+          <FilamentColorPicker
+            printerType={printerType}
             value={color}
-            onChange={(event) => setColor(event.target.value)}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-          >
-            {colors.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+            onChange={setColor}
+            groupLabels={{
+              solid: t("filamentColor.groupSolid"),
+              gradient: t("filamentColor.groupGradient"),
+              multicolor: t("filamentColor.groupMulticolor"),
+              transparent: t("filamentColor.groupTransparent"),
+            }}
+          />
         </div>
       </div>
 
@@ -225,6 +235,8 @@ function AddFilamentPanel({
 
 export function MakerDashboard() {
   const { t } = useTranslations();
+  const { user } = useAuth();
+  const [workshops, setWorkshops] = useState<MakerWorkshopSummary[]>([]);
   const [profile, setProfile] = useState<MakerProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -251,6 +263,15 @@ export function MakerDashboard() {
     setMinOrderPriceCzk(String(next.minOrderPriceCzk));
     setPrinterTypes(next.printerTypes);
     setStatus(next.status);
+  }, []);
+
+  const loadWorkshops = useCallback(async () => {
+    const response = await fetch("/api/maker/workshops");
+    if (!response.ok) return;
+    const data = (await response.json()) as {
+      workshops?: MakerWorkshopSummary[];
+    };
+    setWorkshops(data.workshops ?? []);
   }, []);
 
   const loadProfile = useCallback(async () => {
@@ -283,8 +304,9 @@ export function MakerDashboard() {
   }, [applyProfile, t]);
 
   useEffect(() => {
+    void loadWorkshops();
     void loadProfile();
-  }, [loadProfile]);
+  }, [loadProfile, loadWorkshops]);
 
   const togglePrinterType = (type: PrinterType) => {
     setPrinterTypes((current) => {
@@ -424,6 +446,23 @@ export function MakerDashboard() {
 
   return (
     <div className="space-y-8">
+      <WorkshopToolbar
+        workshops={workshops}
+        activeMakerId={user?.makerId ?? null}
+        onSwitch={async () => {
+          await loadWorkshops();
+          await loadProfile();
+        }}
+        onCreated={async () => {
+          await loadWorkshops();
+          await loadProfile();
+        }}
+        onDeleted={async () => {
+          await loadWorkshops();
+          await loadProfile();
+        }}
+      />
+
       <form onSubmit={(event) => void handleSave(event)} className="space-y-6">
         <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-semibold">{t("dashboard.settingsTitle")}</h2>
@@ -511,8 +550,34 @@ export function MakerDashboard() {
               >
                 <option value="available">{t("dashboard.statusAvailable")}</option>
                 <option value="busy">{t("dashboard.statusBusy")}</option>
+                <option value="hidden">{t("dashboard.statusHidden")}</option>
               </select>
             </div>
+
+            {profile.printers.length > 0 && (
+              <div className="space-y-2">
+                <FieldLabel>{t("workshop.registeredPrinters")}</FieldLabel>
+                <ul className="space-y-2">
+                  {profile.printers.map((printer) => (
+                    <li
+                      key={printer.id}
+                      className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm"
+                    >
+                      <span className="font-medium">{printer.modelLabel}</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {t(`printer.${printer.technology}`)}
+                      </span>
+                      {printer.isCustom && (
+                        <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                          {t("workshop.customBadge")}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           <div className="mt-6">

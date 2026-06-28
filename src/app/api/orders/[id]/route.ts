@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { mapOrder, ORDER_DETAIL_INCLUDE } from "@/lib/orders/map-order";
+import {
+  mapOrderForViewer,
+  ORDER_DETAIL_INCLUDE,
+} from "@/lib/orders/map-order";
 import {
   calculatePlatformFeeCzk,
   getCustomerTotalCzk,
@@ -49,7 +52,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
   if (!full) return notFound();
 
   return NextResponse.json({
-    order: mapOrder(full),
+    order: mapOrderForViewer(full, access.viewerRole),
     viewerRole: access.viewerRole,
   });
 }
@@ -163,7 +166,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     });
 
     return NextResponse.json({
-      order: mapOrder(updated),
+      order: mapOrderForViewer(updated, access.viewerRole),
     });
   } catch (error) {
     console.error("[PATCH /api/orders/[id]]", error);

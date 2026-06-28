@@ -10,6 +10,12 @@ datasource db {
 enum MakerStatus {
   available
   busy
+  hidden
+}
+
+enum StaffRole {
+  moderator
+  admin
 }
 
 enum OrderStatus {
@@ -50,15 +56,18 @@ enum DisputeResolution {
 }
 
 model User {
-  id           String   @id
-  email        String   @unique
+  id           String     @id
+  email        String     @unique
   name         String
   avatarUrl    String?
   address      String?
   passwordHash String
-  role         UserRole @default(customer)
-  makerId      String?  @unique
-  maker        Maker?   @relation(fields: [makerId], references: [id], onDelete: SetNull)
+  role         UserRole   @default(customer)
+  staffRole    StaffRole?
+  makerId      String?    @unique
+  blockedUntil DateTime?
+  maker        Maker?     @relation("ActiveWorkshop", fields: [makerId], references: [id], onDelete: SetNull)
+  ownedMakers  Maker[]    @relation("MakerOwner")
   orders        Order[]
   orderMessages OrderMessage[]
   orderReadReceipts OrderReadReceipt[]
@@ -69,10 +78,13 @@ model User {
   updatedAt    DateTime @updatedAt
 
   @@index([role])
+  @@index([staffRole])
 }
 
 model Maker {
   id               String           @id
+  ownerUserId      String
+  owner            User             @relation("MakerOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
   name             String
   address          String
   latitude         Float
@@ -83,10 +95,27 @@ model Maker {
   printerTypes     String[]
   status           MakerStatus      @default(available)
   filaments        MakerFilament[]
+  printers         MakerPrinter[]
   orders           Order[]
-  user             User?
+  activeForUser    User?            @relation("ActiveWorkshop")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
+
+  @@index([ownerUserId])
+}
+
+/** Принтер в мастерской — из каталога или своя модель */
+model MakerPrinter {
+  id         String   @id @default(cuid())
+  makerId    String
+  maker      Maker    @relation(fields: [makerId], references: [id], onDelete: Cascade)
+  technology String
+  modelKey   String?
+  modelLabel String
+  isCustom   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([makerId])
 }
 
 /** Материал + цвет, которые мейкер добавляет через «+» в кабинете */

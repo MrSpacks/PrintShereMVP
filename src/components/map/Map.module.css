@@ -46,6 +46,100 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
+.pinBubbleOwn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #fdba74;
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.15);
+}
+
+.pinTipOwn {
+  width: 10px;
+  height: 10px;
+  margin-top: -1px;
+  background: #fff7ed;
+  border-right: 1px solid #fdba74;
+  border-bottom: 1px solid #fdba74;
+  transform: rotate(45deg);
+}
+
+.ownWorkshopBadge {
+  margin-top: 4px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.pinBubbleHidden {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #d4d4d8;
+  background: #e4e4e7;
+  color: #71717a;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.pinTipHidden {
+  width: 10px;
+  height: 10px;
+  margin-top: -1px;
+  background: #e4e4e7;
+  border-right: 1px solid #d4d4d8;
+  border-bottom: 1px solid #d4d4d8;
+  transform: rotate(45deg);
+}
+
+.pinBubbleBusy {
+  composes: pinBubble;
+  border-color: #fdba74;
+  background: #fff7ed;
+  color: #c2410c;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.15);
+}
+
+.pinTipBusy {
+  width: 10px;
+  height: 10px;
+  margin-top: -1px;
+  background: #fff7ed;
+  border-right: 1px solid #fdba74;
+  border-bottom: 1px solid #fdba74;
+  transform: rotate(45deg);
+}
+
+.pinBubbleBusy .pinPrice {
+  color: #c2410c;
+}
+
+.pinWrapper:hover .pinBubbleBusy {
+  transform: scale(1.04);
+  border-color: #fb923c;
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.22);
+}
+
 .pinPrice {
   font-size: 12px;
   font-weight: 700;
@@ -281,12 +375,18 @@
 
 .materialTag {
   display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 3px 7px;
   border-radius: 999px;
   background: #f4f4f5;
   font-size: 10px;
   font-weight: 600;
   color: #3f3f46;
+}
+
+.materialTagSwatch {
+  margin-right: -1px;
 }
 
 .materialTagMuted {
@@ -300,7 +400,8 @@
 }
 
 .statusAvailable,
-.statusBusy {
+.statusBusy,
+.statusHidden {
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
@@ -320,6 +421,11 @@
 .statusBusy {
   background: #fffbeb;
   color: #b45309;
+}
+
+.statusHidden {
+  background: #f4f4f5;
+  color: #71717a;
 }
 
 .orderButton {

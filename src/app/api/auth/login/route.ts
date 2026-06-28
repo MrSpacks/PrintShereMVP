@@ -6,6 +6,9 @@ import {
 } from "@/lib/auth/session";
 import { isValidEmail, verifyPassword } from "@/lib/auth/password";
 import { mapPrismaUser } from "@/lib/users/map-user";
+import {
+  isUserCurrentlyBlocked,
+} from "@/lib/users/user-block";
 import { prisma } from "@/lib/prisma";
 
 interface LoginBody {
@@ -36,13 +39,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        _count: { select: { ownedMakers: true } },
+        ownedMakers: { select: { id: true } },
+      },
+    });
 
     if (!user || !(await verifyPassword(body.password, user.passwordHash))) {
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }
       );
+    }
+
+    if (isUserCurrentlyBlocked(user.blockedUntil)) {
+      return NextResponse.json({ error: "ACCOUNT_BLOCKED" }, { status: 403 });
+    }
+
+    if (user.blockedUntil && user.blockedUntil <= new Date()) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { blockedUntil: null },
+      });
     }
 
     const token = await createSessionToken({

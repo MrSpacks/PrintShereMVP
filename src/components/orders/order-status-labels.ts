@@ -7,11 +7,11 @@ export const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
   paid: "bg-emerald-50 text-emerald-700",
   printing: "bg-blue-50 text-blue-700",
   shipped: "bg-indigo-50 text-indigo-700",
-  delivered: "bg-teal-50 text-teal-700",
-  completed: "bg-zinc-100 text-zinc-700",
+  delivered: "bg-emerald-50 text-emerald-700",
+  completed: "bg-emerald-50 text-emerald-700",
   disputed: "bg-red-50 text-red-700",
   refunded: "bg-orange-50 text-orange-700",
-  cancelled: "bg-zinc-100 text-zinc-600",
+  cancelled: "bg-red-50 text-red-700",
 };
 
 export const ORDER_STATUS_KEYS: Record<OrderStatus, string> = {

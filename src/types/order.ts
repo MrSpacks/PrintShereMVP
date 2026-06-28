@@ -51,12 +51,16 @@ export interface OrderResponse {
   heightMm: number;
   depthMm: number;
   printCostCzk: number;
-  platformFeeCzk: number;
-  customerPrintCzk: number;
-  customerTotalCzk: number;
+  /** Omitted for maker viewers — platform commission is not disclosed */
+  platformFeeCzk?: number;
+  /** Omitted for maker viewers */
+  customerPrintCzk?: number;
+  /** Omitted for maker viewers */
+  customerTotalCzk?: number;
   printQuality: PrintQuality;
   deliveryMethod: DeliveryMethod | null;
-  deliveryPriceCzk: number;
+  /** Omitted for maker viewers — delivery is paid by the customer */
+  deliveryPriceCzk?: number;
   zasilkovnaPointId: string | null;
   zasilkovnaPointLabel: string | null;
   status: OrderStatus;

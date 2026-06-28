@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import L from "leaflet";
 import {
   MapContainer,
@@ -13,16 +14,19 @@ import "leaflet/dist/leaflet.css";
 
 import { PRAGUE_CENTER } from "@/data/makers";
 import { MOCK_ZASILKOVNA_POINTS } from "@/data/zasilkovna-points";
+import { FilamentColorSwatch } from "@/components/maker/filament-color-picker";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
-import { getMakerMaterialLabels } from "@/lib/makers/map-maker";
 import { getMakerDistanceKm } from "@/lib/map/filter-makers";
 import { getPrintCostCzk } from "@/lib/map/pricing";
 import { fetchZasilkovnaQuote } from "@/lib/orders/create-order";
+import { savePendingOrderCheckout } from "@/lib/orders/pending-order-checkout";
+import { buildAuthPath } from "@/lib/auth/safe-redirect";
 import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
 import type { DeliveryChoice, DeliveryMethod } from "@/types/delivery";
 import type { Maker } from "@/types/maker";
 import type { UserLocation } from "@/types/map";
+import { isOwnWorkshop } from "@/types/user";
 
 import styles from "./Map.module.css";
 
@@ -66,7 +70,8 @@ function MapViewport({
 function createPinIcon(
   priceLabel: string,
   rating: number,
-  deliveryTitle: string
+  deliveryTitle: string,
+  variant: "default" | "hidden" | "busy" | "own" = "default"
 ): L.DivIcon {
   const ratingClass =
     rating >= 4.5
@@ -75,18 +80,41 @@ function createPinIcon(
         ? styles.pinRatingMid
         : styles.pinRatingLow;
 
+  const bubbleClass =
+    variant === "own"
+      ? styles.pinBubbleOwn
+      : variant === "hidden"
+        ? styles.pinBubbleHidden
+        : variant === "busy"
+          ? `${styles.pinBubble} ${styles.pinBubbleBusy}`
+          : styles.pinBubble;
+
+  const tipClass =
+    variant === "hidden"
+      ? styles.pinTipHidden
+      : variant === "own"
+        ? styles.pinTipOwn
+        : variant === "busy"
+          ? styles.pinTipBusy
+          : styles.pinTip;
+
+  const metaIcon =
+    variant === "default"
+      ? `<span class="${styles.deliveryIcon}" title="${deliveryTitle}" aria-hidden="true">🚗</span>`
+      : "";
+
   return L.divIcon({
     className: styles.pinRoot,
     html: `
       <div class="${styles.pinWrapper}">
-        <div class="${styles.pinBubble}">
+        <div class="${bubbleClass}">
           <span class="${styles.pinPrice}">${priceLabel}</span>
           <span class="${styles.pinMeta}">
             <span class="${styles.pinRating} ${ratingClass}">★ ${rating.toFixed(1)}</span>
-            <span class="${styles.deliveryIcon}" title="${deliveryTitle}" aria-hidden="true">🚗</span>
+            ${metaIcon}
           </span>
         </div>
-        <div class="${styles.pinTip}"></div>
+        <div class="${tipClass}"></div>
       </div>
     `,
     iconSize: [0, 0],
@@ -116,6 +144,7 @@ function MakerPopupContent({
 }: MakerPopupContentProps) {
   const { t } = useTranslations();
   const { user } = useAuth();
+  const router = useRouter();
   const map = useMap();
   const weightGrams = isModelLoaded && modelWeight > 0 ? modelWeight : null;
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
@@ -174,8 +203,10 @@ function MakerPopupContent({
     };
   }, [deliveryMethod, maker.id, weightGrams, t]);
 
-  const canOrder =
-    Boolean(user) &&
+  const isOwn = user ? isOwnWorkshop(user, maker.id) : false;
+
+  const orderReady =
+    !isOwn &&
     weightGrams !== null &&
     maker.status === "available" &&
     !isSubmittingOrder &&
@@ -186,7 +217,9 @@ function MakerPopupContent({
       maker.minOrderPriceCzk === 0 ||
       makerPrintCzk >= maker.minOrderPriceCzk);
 
-  const materialLabels = getMakerMaterialLabels(maker);
+  const canPlaceOrder = orderReady && Boolean(user);
+  const canContinueToAuth = orderReady && !user;
+
   const distanceKm =
     userLocation !== null && userLocation !== undefined
       ? getMakerDistanceKm(maker, userLocation)
@@ -196,8 +229,13 @@ function MakerPopupContent({
     ...maker.printerTypes.map((type) => ({
       key: type,
       label: type === "fdm" ? t("printer.plastic") : t("printer.resinShort"),
+      colorId: null as string | null,
     })),
-    ...materialLabels.map((label) => ({ key: label, label })),
+    ...maker.filaments.map((filament) => ({
+      key: filament.id,
+      label: `${filament.material} · ${filament.color}`,
+      colorId: filament.color,
+    })),
   ];
   const visibleTags = materialTags.slice(0, 4);
   const hiddenTagCount = materialTags.length - visibleTags.length;
@@ -224,6 +262,18 @@ function MakerPopupContent({
         deliveryMethod === "zasilkovna" ? zasilkovnaPointId : undefined,
       zasilkovnaPointLabel: selectedPoint?.label,
     };
+
+    if (!user) {
+      savePendingOrderCheckout({
+        makerId: maker.id,
+        deliveryMethod: delivery.method,
+        deliveryPriceCzk: delivery.deliveryPriceCzk,
+        zasilkovnaPointId: delivery.zasilkovnaPointId,
+        zasilkovnaPointLabel: delivery.zasilkovnaPointLabel,
+      });
+      router.push(buildAuthPath("/login", "/"));
+      return;
+    }
 
     const succeeded = await onOrder(maker, delivery);
     if (succeeded) {
@@ -275,9 +325,20 @@ function MakerPopupContent({
           )}
         </p>
 
+        {isOwn && (
+          <p className={styles.ownWorkshopBadge}>{t("map.ownWorkshop")}</p>
+        )}
+
         <div className={styles.materials}>
           {visibleTags.map((tag) => (
             <span key={tag.key} className={styles.materialTag}>
+              {tag.colorId ? (
+                <FilamentColorSwatch
+                  colorId={tag.colorId}
+                  size="sm"
+                  className={styles.materialTagSwatch}
+                />
+              ) : null}
               {tag.label}
             </span>
           ))}
@@ -286,7 +347,7 @@ function MakerPopupContent({
           )}
         </div>
 
-        {weightGrams !== null && (
+        {weightGrams !== null && !isOwn && (
           <div className={styles.deliveryBlock}>
             <p className={styles.deliveryTitle}>{t("map.delivery")}</p>
 
@@ -355,30 +416,40 @@ function MakerPopupContent({
           className={
             maker.status === "available"
               ? styles.statusAvailable
-              : styles.statusBusy
+              : maker.status === "hidden"
+                ? styles.statusHidden
+                : styles.statusBusy
           }
         >
-          {maker.status === "available" ? t("map.available") : t("map.busy")}
+          {maker.status === "available"
+            ? t("map.available")
+            : maker.status === "hidden"
+              ? t("map.paused")
+              : t("map.busy")}
         </span>
       </div>
 
       <button
         type="button"
         className={styles.orderButton}
-        disabled={!canOrder}
+        disabled={!canPlaceOrder && !canContinueToAuth}
         onClick={() => void handleOrderClick()}
       >
-        {isSubmittingOrder
-          ? t("map.savingOrder")
-          : isLoadingQuote
-            ? t("map.calculatingDelivery")
-            : !user
-              ? t("map.loginToOrder")
-            : !isModelLoaded || modelWeight <= 0
-              ? t("map.uploadToOrder")
-              : maker.status === "available"
-                ? t("map.orderPrinting")
-                : t("map.currentlyBusy")}
+        {isOwn
+          ? t("map.ownWorkshop")
+          : isSubmittingOrder
+            ? t("map.savingOrder")
+            : isLoadingQuote
+              ? t("map.calculatingDelivery")
+              : !isModelLoaded || modelWeight <= 0
+                ? t("map.uploadToOrder")
+                : !user && canContinueToAuth
+                  ? t("map.loginToOrder")
+                  : maker.status === "available"
+                    ? t("map.orderPrinting")
+                    : maker.status === "hidden"
+                      ? t("map.paused")
+                      : t("map.currentlyBusy")}
       </button>
     </div>
   );
@@ -393,23 +464,45 @@ export function Map({
   isSubmittingOrder = false,
 }: MapProps) {
   const { t } = useTranslations();
+  const { user } = useAuth();
   const weightGrams = isModelLoaded && modelWeight > 0 ? modelWeight : null;
 
   const getMakerPinIcon = useCallback(
     (maker: Maker) => {
-      const pinLabel =
-        weightGrams !== null
-          ? (() => {
-              const makerPrint = getPrintCostCzk(maker, weightGrams);
-              const customerPrint =
-                makerPrint + calculatePlatformFeeCzk(makerPrint);
-              return `${customerPrint} ${t("common.czk")}`;
-            })()
-          : t("common.czkPerGram", { price: maker.pricePerGramCzk });
+      const isOwn = user ? isOwnWorkshop(user, maker.id) : false;
+      const isHidden = maker.status === "hidden";
+      const isBusy = maker.status === "busy";
+      const pinLabel = isOwn
+        ? t("map.ownWorkshopShort")
+        : isHidden
+          ? t("map.paused")
+          : isBusy
+            ? t("map.busyShort")
+            : weightGrams !== null
+              ? (() => {
+                  const makerPrint = getPrintCostCzk(maker, weightGrams);
+                  const customerPrint =
+                    makerPrint + calculatePlatformFeeCzk(makerPrint);
+                  return `${customerPrint} ${t("common.czk")}`;
+                })()
+              : t("common.czkPerGram", { price: maker.pricePerGramCzk });
 
-      return createPinIcon(pinLabel, maker.rating, t("map.deliveryAvailable"));
+      const variant = isOwn
+        ? "own"
+        : isHidden
+          ? "hidden"
+          : isBusy
+            ? "busy"
+            : "default";
+
+      return createPinIcon(
+        pinLabel,
+        maker.rating,
+        t("map.deliveryAvailable"),
+        variant
+      );
     },
-    [weightGrams, t]
+    [weightGrams, t, user]
   );
 
   const center = useMemo(

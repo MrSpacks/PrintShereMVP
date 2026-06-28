@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Package } from "lucide-react";
+import { ArrowLeft, Download, Package, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AuthError } from "@/components/auth/auth-form";
@@ -13,7 +13,8 @@ import { OrderCustomerActions } from "@/components/orders/order-customer-actions
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 import { getIntlLocale } from "@/i18n/translate";
-import { getOrderTotalCzk } from "@/lib/orders/map-order";
+import { getMakerPayoutCzk } from "@/lib/orders/map-order";
+import { uploadOrderModelFile } from "@/lib/orders/create-order";
 import { canEditOrderTerms } from "@/lib/orders/order-workflow";
 import type {
   OrderAction,
@@ -55,6 +56,9 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
 
   const [chatInput, setChatInput] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [fileMessage, setFileMessage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const loadOrder = useCallback(async () => {
@@ -199,6 +203,24 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
     }
   };
 
+  const handleUploadModel = async (file: File) => {
+    setIsUploadingFile(true);
+    setFileMessage(null);
+    try {
+      await uploadOrderModelFile(orderId, file);
+      await loadOrder();
+      setFileMessage(t("orderDetail.uploadSuccess"));
+    } catch (uploadError) {
+      setFileMessage(
+        uploadError instanceof Error
+          ? uploadError.message
+          : t("orderDetail.uploadFailed")
+      );
+    } finally {
+      setIsUploadingFile(false);
+    }
+  };
+
   const handleSendMessage = async (event: React.FormEvent) => {
     event.preventDefault();
     const body = chatInput.trim();
@@ -253,9 +275,13 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
 
   const isMaker = viewerRole === "maker";
   const isCustomer = viewerRole === "customer";
+  const isStaff =
+    viewerRole === "admin" || viewerRole === "moderator";
   const canEditTerms = canEditOrderTerms(order.status);
-  const total = getOrderTotalCzk(order);
-  const displayPrintCzk = isMaker ? order.printCostCzk : order.customerPrintCzk;
+  const customerTotal = order.customerTotalCzk ?? order.printCostCzk;
+  const displayPrintCzk = isMaker
+    ? getMakerPayoutCzk(order)
+    : (order.customerPrintCzk ?? order.printCostCzk);
   const formattedDate = new Intl.DateTimeFormat(getIntlLocale(locale), {
     dateStyle: "medium",
     timeStyle: "short",
@@ -268,12 +294,18 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
   return (
     <div className="space-y-6">
       <Link
-        href="/orders"
+        href={isStaff ? "/admin/orders" : "/orders"}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        {t("orderDetail.back")}
+        {isStaff ? t("orderDetail.backToAdmin") : t("orderDetail.back")}
       </Link>
+
+      {isStaff && (
+        <p className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+          {t("orderDetail.staffReadOnly")}
+        </p>
+      )}
 
       <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -306,7 +338,12 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
           </span>
         </div>
 
-        <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+        <dl
+          className={cn(
+            "mt-4 grid grid-cols-2 gap-3 text-sm",
+            isMaker ? "sm:grid-cols-3" : "sm:grid-cols-4"
+          )}
+        >
           <div>
             <dt className="text-xs text-muted-foreground">{t("orderDetail.dimensions")}</dt>
             <dd className="font-medium">
@@ -314,11 +351,27 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">{t("orders.deliveryLabel")}</dt>
+            <dt className="text-xs text-muted-foreground">
+              {isMaker ? t("orders.deliveryMethod") : t("orders.deliveryLabel")}
+            </dt>
             <dd className="font-medium">
-              {order.deliveryMethod === "zasilkovna" ? (
+              {isMaker ? (
+                order.deliveryMethod === "zasilkovna" ? (
+                  <span>
+                    {t("map.zasilkovna")}
+                    {order.zasilkovnaPointLabel && (
+                      <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                        {order.zasilkovnaPointLabel}
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  t("orders.pickup")
+                )
+              ) : order.deliveryMethod === "zasilkovna" ? (
                 <span>
-                  Zásilkovna {order.deliveryPriceCzk} {t("common.czk")}
+                  {t("map.zasilkovna")} {order.deliveryPriceCzk ?? 0}{" "}
+                  {t("common.czk")}
                   {order.zasilkovnaPointLabel && (
                     <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
                       {order.zasilkovnaPointLabel}
@@ -334,36 +387,74 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
             <dt className="text-xs text-muted-foreground">
               {isMaker ? t("orderDetail.makerPrint") : t("orders.print")}
             </dt>
-            <dd className="font-medium">
+            <dd className={cn("font-medium", isMaker && "font-semibold text-brand")}>
               {displayPrintCzk} {t("common.czk")}
             </dd>
           </div>
-          <div>
-            <dt className="text-xs text-muted-foreground">{t("orders.total")}</dt>
-            <dd className="font-semibold text-brand">
-              {total} {t("common.czk")}
-            </dd>
-          </div>
+          {!isMaker && (
+            <div>
+              <dt className="text-xs text-muted-foreground">{t("orders.total")}</dt>
+              <dd className="font-semibold text-brand">
+                {customerTotal} {t("common.czk")}
+              </dd>
+            </div>
+          )}
         </dl>
 
-        {isMaker && (
-          <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-border/60 pt-4 text-sm">
+        {(isMaker || isCustomer || isStaff) && (
+          <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4">
+            <h2 className="text-sm font-semibold">{t("orderDetail.modelFileTitle")}</h2>
+            {fileMessage && (
+              <p className="mt-2 text-sm text-muted-foreground">{fileMessage}</p>
+            )}
             {order.fileUrl ? (
-              <a
-                href={`/api/orders/${order.id}/file`}
-                className="font-medium text-brand hover:underline"
-              >
-                {t("orderDetail.downloadModel")}
-              </a>
+              <Button variant="brand" size="sm" className="mt-3 gap-2" asChild>
+                <a href={`/api/orders/${order.id}/file`} download={order.fileName}>
+                  <Download className="h-4 w-4" aria-hidden />
+                  {t("orderDetail.downloadModel")}
+                </a>
+              </Button>
+            ) : isCustomer ? (
+              <div className="mt-3 space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  {t("orderDetail.fileMissingCustomer")}
+                </p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".stl,.obj"
+                  className="hidden"
+                  disabled={isUploadingFile}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void handleUploadModel(file);
+                    event.target.value = "";
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="brand"
+                  size="sm"
+                  className="gap-2"
+                  disabled={isUploadingFile}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="h-4 w-4" aria-hidden />
+                  {isUploadingFile
+                    ? t("common.loading")
+                    : t("orderDetail.uploadModel")}
+                </Button>
+              </div>
             ) : (
-              <span className="text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground">
                 {t("orderDetail.fileMissing")}
-              </span>
+              </p>
             )}
           </div>
         )}
       </div>
 
+      {!isStaff && (
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
           <h2 className="text-base font-semibold">{t("orderDetail.termsTitle")}</h2>
@@ -397,7 +488,8 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
               </div>
               <div className="space-y-2">
                 <label htmlFor="price" className="text-sm font-medium">
-                  {t("orders.print")} ({t("common.czk")})
+                  {isMaker ? t("orderDetail.makerPrint") : t("orders.print")} (
+                  {t("common.czk")})
                 </label>
                 <input
                   id="price"
@@ -595,6 +687,7 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
           </form>
         </section>
       </div>
+      )}
 
       {isCustomer && (
         <OrderCustomerActions

@@ -8,6 +8,7 @@ import {
 import { toOrderFileDownloadUrl } from "@/lib/orders/order-file-paths";
 import type { OrderResponse, OrderStatus, PrintQuality } from "@/types/order";
 import type { DeliveryMethod } from "@/types/delivery";
+import type { UserRole } from "@/types/user";
 
 const ORDER_STATUSES = new Set<string>([
   "pending",
@@ -93,8 +94,36 @@ export function mapOrder(order: OrderWithRelations): OrderResponse {
   };
 }
 
-export function getOrderTotalCzk(order: OrderResponse): number {
-  return order.customerTotalCzk;
+export function getMakerPayoutCzk(order: Pick<OrderResponse, "printCostCzk">): number {
+  return order.printCostCzk;
+}
+
+export function getOrderTotalCzk(
+  order: OrderResponse,
+  viewerRole?: UserRole
+): number {
+  if (viewerRole === "maker") {
+    return getMakerPayoutCzk(order);
+  }
+  return order.customerTotalCzk ?? order.printCostCzk;
+}
+
+export function mapOrderForViewer(
+  order: OrderWithRelations,
+  viewerRole: UserRole
+): OrderResponse {
+  const mapped = mapOrder(order);
+  if (viewerRole !== "maker") return mapped;
+
+  const {
+    platformFeeCzk: _platformFeeCzk,
+    customerTotalCzk: _customerTotalCzk,
+    customerPrintCzk: _customerPrintCzk,
+    deliveryPriceCzk: _deliveryPriceCzk,
+    ...makerSafe
+  } = mapped;
+
+  return makerSafe;
 }
 
 export const ORDER_DETAIL_INCLUDE = {

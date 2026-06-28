@@ -7,7 +7,11 @@ import {
   ORDER_STATUS_KEYS,
   ORDER_STATUS_STYLES,
 } from "@/components/orders/order-status-labels";
-import { getOrderTotalCzk } from "@/lib/orders/map-order";
+import { getMakerPayoutCzk } from "@/lib/orders/map-order";
+import {
+  formatCustomerDeliveryLabel,
+  formatMakerDeliveryLabel,
+} from "@/lib/orders/format-order-delivery";
 import { useTranslations } from "@/i18n/locale-provider";
 import type { OrderResponse } from "@/types/order";
 import { cn } from "@/lib/utils";
@@ -21,9 +25,24 @@ interface OrderCardProps {
 
 export function OrderCard({ order, view }: OrderCardProps) {
   const { t } = useTranslations();
-  const total = getOrderTotalCzk(order);
-  const printLabel =
-    view === "maker" ? order.printCostCzk : order.customerPrintCzk;
+  const isMaker = view === "maker";
+  const payout = isMaker
+    ? getMakerPayoutCzk(order)
+    : (order.customerTotalCzk ?? order.printCostCzk);
+  const printLabel = isMaker ? order.printCostCzk : order.customerPrintCzk;
+  const printHeading = isMaker ? t("orderDetail.makerPrint") : t("orders.print");
+
+  const deliveryLabels = {
+    pickup: t("orders.pickup"),
+    zasilkovna: t("map.zasilkovna"),
+    czk: t("common.czk"),
+  };
+  const deliveryLabel = isMaker
+    ? formatMakerDeliveryLabel(order, deliveryLabels)
+    : formatCustomerDeliveryLabel(order, deliveryLabels);
+  const deliveryHeading = isMaker
+    ? t("orders.deliveryMethod")
+    : t("orders.deliveryLabel");
 
   return (
     <Link
@@ -56,33 +75,34 @@ export function OrderCard({ order, view }: OrderCardProps) {
           </span>
         </div>
 
-        <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-4">
+        <dl
+          className={cn(
+            "mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm",
+            isMaker ? "sm:grid-cols-3" : "sm:grid-cols-4"
+          )}
+        >
           <div>
             <dt className="text-xs text-muted-foreground">{t("orders.weight")}</dt>
             <dd className="font-medium">{order.weightGrams}g</dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">{t("orders.print")}</dt>
+            <dt className="text-xs text-muted-foreground">{printHeading}</dt>
             <dd className="font-medium">
               {printLabel} {t("common.czk")}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">
-              {t("orders.deliveryLabel")}
-            </dt>
-            <dd className="font-medium">
-              {order.deliveryMethod === "zasilkovna"
-                ? `Zásilkovna ${order.deliveryPriceCzk} ${t("common.czk")}`
-                : t("orders.pickup")}
-            </dd>
+            <dt className="text-xs text-muted-foreground">{deliveryHeading}</dt>
+            <dd className="font-medium">{deliveryLabel}</dd>
           </div>
-          <div>
-            <dt className="text-xs text-muted-foreground">{t("orders.total")}</dt>
-            <dd className="font-semibold text-brand">
-              {total} {t("common.czk")}
-            </dd>
-          </div>
+          {!isMaker && (
+            <div>
+              <dt className="text-xs text-muted-foreground">{t("orders.total")}</dt>
+              <dd className="font-semibold text-brand">
+                {payout} {t("common.czk")}
+              </dd>
+            </div>
+          )}
         </dl>
 
         <p className="mt-3 text-xs font-medium text-brand">

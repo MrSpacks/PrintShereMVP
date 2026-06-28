@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
-import { hasMakerAccess, isAdminRole, type UserRole } from "@/types/user";
+import {
+  hasMakerAccess,
+  isAdminUser,
+  isModeratorUser,
+  type UserRole,
+} from "@/types/user";
 
 type OrderWithCustomer = {
   id: string;
@@ -12,12 +17,21 @@ type OrderWithCustomer = {
   maker: { id: string; name: string };
 };
 
+async function userOwnsMaker(userId: string, makerId: string): Promise<boolean> {
+  const maker = await prisma.maker.findFirst({
+    where: { id: makerId, ownerUserId: userId },
+    select: { id: true },
+  });
+  return Boolean(maker);
+}
+
 export async function getOrderAccess(orderId: string) {
   const session = await getSession();
   if (!session) return null;
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
+    include: { _count: { select: { ownedMakers: true } } },
   });
 
   if (!user) return null;
@@ -32,6 +46,14 @@ export async function getOrderAccess(orderId: string) {
 
   if (!order) return null;
 
+  if (hasMakerAccess(user) && (await userOwnsMaker(user.id, order.makerId))) {
+    return {
+      user,
+      order: order as OrderWithCustomer,
+      viewerRole: "maker" as UserRole,
+    };
+  }
+
   if (order.customerId === user.id) {
     return {
       user,
@@ -40,19 +62,19 @@ export async function getOrderAccess(orderId: string) {
     };
   }
 
-  if (hasMakerAccess(user) && user.makerId === order.makerId) {
-    return {
-      user,
-      order: order as OrderWithCustomer,
-      viewerRole: "maker" as UserRole,
-    };
-  }
-
-  if (isAdminRole(user.role)) {
+  if (isAdminUser(user)) {
     return {
       user,
       order: order as OrderWithCustomer,
       viewerRole: "admin" as UserRole,
+    };
+  }
+
+  if (isModeratorUser(user)) {
+    return {
+      user,
+      order: order as OrderWithCustomer,
+      viewerRole: "moderator" as UserRole,
     };
   }
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 import {
   AuthCard,
@@ -13,15 +13,19 @@ import {
 } from "@/components/auth/auth-form";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
+import { buildAuthPath, getSafeRedirectPath } from "@/lib/auth/safe-redirect";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const { t } = useTranslations();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const redirectTo = getSafeRedirectPath(searchParams.get("next"));
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -30,13 +34,17 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push("/");
+      router.push(redirectTo);
       router.refresh();
     } catch (submitError) {
-      const message =
+      const rawMessage =
         submitError instanceof Error
           ? submitError.message
           : t("auth.loginFailed");
+      const message =
+        rawMessage === "ACCOUNT_BLOCKED"
+          ? t("auth.accountBlocked")
+          : rawMessage;
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -50,7 +58,9 @@ export default function LoginPage() {
       footer={
         <>
           {t("auth.loginFooter")}{" "}
-          <AuthLink href="/signup">{t("auth.signUpLink")}</AuthLink>
+          <AuthLink href={buildAuthPath("/signup", redirectTo)}>
+            {t("auth.signUpLink")}
+          </AuthLink>
         </>
       }
     >
@@ -79,5 +89,21 @@ export default function LoginPage() {
         <AuthTestHint />
       </form>
     </AuthCard>
+  );
+}
+
+export default function LoginPage() {
+  const { t } = useTranslations();
+
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+          {t("common.loading")}
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

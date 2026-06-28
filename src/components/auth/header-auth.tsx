@@ -9,15 +9,15 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/auth-provider";
 import { usePendingOrdersCount } from "@/hooks/use-pending-orders-count";
 import { useTranslations } from "@/i18n/locale-provider";
-import { hasMakerAccess, isModeratorRole, type UserRole } from "@/types/user";
+import { hasMakerAccess, isAdminUser, isModeratorUser } from "@/types/user";
 import { cn } from "@/lib/utils";
 
 export function HeaderAuth() {
   const { user, isLoading, logout } = useAuth();
   const { t } = useTranslations();
   const isMaker = user ? hasMakerAccess(user) : false;
-  const isModerator = user ? isModeratorRole(user.role) : false;
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user ? isAdminUser(user) : false;
+  const isModerator = user ? isModeratorUser(user) : false;
   const { count: pendingOrdersCount, refetch: refetchPendingCount } =
     usePendingOrdersCount(Boolean(isMaker));
   const pathname = usePathname();
@@ -47,7 +47,13 @@ export function HeaderAuth() {
     );
   }
 
-  const roleLabel = t(`roles.${user.role as UserRole}`);
+  const capabilityLabels = user
+    ? [
+        t("roles.customer"),
+        ...(isMaker ? [t("roles.maker")] : []),
+        ...(user.staffRole ? [t(`roles.${user.staffRole}`)] : []),
+      ].join(" · ")
+    : "";
 
   return (
     <>
@@ -119,8 +125,8 @@ export function HeaderAuth() {
         </Link>
       </Button>
 
-      <span className="hidden rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground sm:inline">
-        {roleLabel}
+      <span className="hidden rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground sm:inline">
+        {capabilityLabels}
       </span>
 
       <Button

@@ -1,13 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth/session";
-import { mapOrder } from "@/lib/orders/map-order";
+import { mapOrder, mapOrderForViewer } from "@/lib/orders/map-order";
 import { calculateOrderPricing } from "@/lib/orders/order-pricing";
 import { prisma } from "@/lib/prisma";
 import { MOCK_ZASILKOVNA_POINTS } from "@/data/zasilkovna-points";
 import type { CreateOrderPayload } from "@/types/order";
 import type { DeliveryMethod } from "@/types/delivery";
-import { getOrdersViewRole } from "@/types/user";
+import {
+  canAccessOrdersListView,
+  parseOrdersListView,
+  type OrdersListView,
+} from "@/types/user";
 
 const DELIVERY_METHODS = new Set<string>(["pickup", "zasilkovna"]);
 const MOCK_POINT_IDS = new Set(MOCK_ZASILKOVNA_POINTS.map((point) => point.id));
@@ -34,7 +38,7 @@ function isValidOrderPayload(body: unknown): body is CreateOrderPayload {
   );
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
 
@@ -44,21 +48,31 @@ export async function GET() {
 
     const user = await prisma.user.findUnique({
       where: { id: session.userId },
+      include: { _count: { select: { ownedMakers: true } } },
     });
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let where = {};
-    const viewRole = getOrdersViewRole(user);
+    const workshopCount = user._count.ownedMakers;
+    const userAccess = { makerId: user.makerId, workshopCount };
+    const requestedView = parseOrdersListView(
+      request.nextUrl.searchParams.get("view")
+    );
+    const listView: OrdersListView =
+      requestedView && canAccessOrdersListView(userAccess, requestedView)
+        ? requestedView
+        : "customer";
 
-    if (viewRole === "customer") {
+    let where = {};
+
+    if (listView === "customer") {
       where = { customerId: user.id };
-    } else if (viewRole === "maker") {
+    } else {
       const makerId = user.makerId;
       if (!makerId) {
-        return NextResponse.json({ orders: [], role: viewRole });
+        return NextResponse.json({ orders: [], view: listView });
       }
       where = { makerId };
     }
@@ -69,9 +83,11 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
+    const viewerRole = listView === "maker" ? "maker" : "customer";
+
     return NextResponse.json({
-      orders: orders.map((order) => mapOrder(order)),
-      role: viewRole,
+      orders: orders.map((order) => mapOrderForViewer(order, viewerRole)),
+      view: listView,
     });
   } catch (error) {
     console.error("[GET /api/orders]", error);
@@ -107,6 +123,13 @@ export async function POST(request: Request) {
 
     if (!maker) {
       return NextResponse.json({ error: "Maker not found" }, { status: 404 });
+    }
+
+    if (maker.ownerUserId === session.userId) {
+      return NextResponse.json(
+        { error: "Cannot order from your own workshop" },
+        { status: 409 }
+      );
     }
 
     if (maker.status !== "available") {

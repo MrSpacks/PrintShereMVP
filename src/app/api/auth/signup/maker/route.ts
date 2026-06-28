@@ -1,6 +1,5 @@
 import { randomUUID } from "crypto";
 
-import { MakerStatus, UserRole } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import {
@@ -12,8 +11,11 @@ import {
   isValidEmail,
   isValidPassword,
 } from "@/lib/auth/password";
-import { geocodeAddress } from "@/lib/geocoding/nominatim";
-import { DEFAULT_NEW_MAKER_RATING } from "@/lib/makers/capabilities";
+import { createWorkshopForUser } from "@/lib/makers/create-workshop";
+import {
+  parseWorkshopPrinters,
+  validateWorkshopPrinters,
+} from "@/lib/makers/validate-printers";
 import { mapPrismaUser } from "@/lib/users/map-user";
 import { prisma } from "@/lib/prisma";
 import type { MakerSignupPayload } from "@/types/auth";
@@ -26,13 +28,13 @@ function isMakerSignupBody(body: unknown): body is MakerSignupPayload {
     typeof payload.email === "string" &&
     typeof payload.password === "string" &&
     typeof payload.workshopName === "string" &&
-    typeof payload.address === "string"
+    typeof payload.address === "string" &&
+    Array.isArray(payload.printers)
   );
 }
 
 /**
- * Простая регистрация мейкера: аккаунт + мастерская на карте.
- * Материалы, цены и лимиты настраиваются в личном кабинете.
+ * Регистрация мейкера: аккаунт + первая мастерская с принтерами.
  */
 export async function POST(request: Request) {
   try {
@@ -46,6 +48,7 @@ export async function POST(request: Request) {
     const email = body.email.trim().toLowerCase();
     const workshopName = body.workshopName.trim();
     const address = body.address.trim();
+    const printers = parseWorkshopPrinters(body.printers);
 
     if (name.length < 2 || workshopName.length < 2) {
       return NextResponse.json(
@@ -61,6 +64,18 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!printers) {
+      return NextResponse.json(
+        { error: "Add at least one printer with technology" },
+        { status: 400 }
+      );
+    }
+
+    const printerError = validateWorkshopPrinters(printers);
+    if (printerError) {
+      return NextResponse.json({ error: printerError }, { status: 400 });
+    }
+
     if (!isValidEmail(email)) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
@@ -69,14 +84,6 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters" },
         { status: 400 }
-      );
-    }
-
-    const location = await geocodeAddress(address);
-    if (!location) {
-      return NextResponse.json(
-        { error: "Could not locate this address. Check spelling." },
-        { status: 422 }
       );
     }
 
@@ -89,34 +96,28 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await hashPassword(body.password);
-    const makerId = `maker-${randomUUID()}`;
     const userId = `user-${randomUUID()}`;
 
     const user = await prisma.$transaction(async (tx) => {
-      await tx.maker.create({
-        data: {
-          id: makerId,
-          name: workshopName,
-          address: location.displayName,
-          latitude: location.latitude,
-          longitude: location.longitude,
-          rating: DEFAULT_NEW_MAKER_RATING,
-          pricePerGramCzk: 5,
-          minOrderPriceCzk: 0,
-          printerTypes: ["fdm"],
-          status: MakerStatus.available,
-        },
-      });
-
-      return tx.user.create({
+      const created = await tx.user.create({
         data: {
           id: userId,
           name,
           email,
           passwordHash,
-          role: UserRole.maker,
-          makerId,
         },
+      });
+
+      await createWorkshopForUser(tx, {
+        ownerUserId: created.id,
+        workshopName,
+        address,
+        printers,
+      });
+
+      return tx.user.findUniqueOrThrow({
+        where: { id: created.id },
+        include: { _count: { select: { ownedMakers: true } } },
       });
     });
 
@@ -134,6 +135,13 @@ export async function POST(request: Request) {
 
     return attachSessionCookie(response, token);
   } catch (error) {
+    if (error instanceof Error && error.message === "GEOCODE_FAILED") {
+      return NextResponse.json(
+        { error: "Could not locate this address. Check spelling." },
+        { status: 422 }
+      );
+    }
+
     console.error("[POST /api/auth/signup/maker]", error);
     return NextResponse.json(
       { error: "Maker registration failed" },

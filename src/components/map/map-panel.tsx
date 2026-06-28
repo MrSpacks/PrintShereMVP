@@ -2,11 +2,12 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { MapFiltersBar } from "@/components/map/map-filters";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useMakers } from "@/hooks/use-makers";
+import { isOwnWorkshop } from "@/types/user";
 import { useUserLocation } from "@/hooks/use-user-location";
 import { useTranslations } from "@/i18n/locale-provider";
 import { filterMakers, sortMakersByDistance } from "@/lib/map/filter-makers";
@@ -15,6 +16,10 @@ import {
   createOrder,
   uploadOrderModelFile,
 } from "@/lib/orders/create-order";
+import {
+  clearPendingOrderCheckout,
+  loadPendingOrderCheckout,
+} from "@/lib/orders/pending-order-checkout";
 import { useMapStore } from "@/store/map-store";
 import { useModelStore } from "@/store/model-store";
 import type { Maker } from "@/types/maker";
@@ -62,6 +67,7 @@ export function MapPanel({ className }: MapPanelProps) {
   const { makers, isLoading, error, refetch } = useMakers();
   const [orderFeedback, setOrderFeedback] = useState<OrderFeedback | null>(null);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const resumedCheckoutRef = useRef(false);
 
   useEffect(() => {
     if (isLocationSupported && locationStatus === "idle") {
@@ -81,6 +87,7 @@ export function MapPanel({ className }: MapPanelProps) {
   const handleOrder = useCallback(
     async (maker: Maker, delivery: DeliveryChoice): Promise<boolean> => {
       if (!model) return false;
+      if (user && isOwnWorkshop(user, maker.id)) return false;
 
       setIsSubmittingOrder(true);
       setOrderFeedback(null);
@@ -96,9 +103,9 @@ export function MapPanel({ className }: MapPanelProps) {
         setSelectedMaker({
           makerId: maker.id,
           makerName: maker.name,
-          printCostCzk: order.customerPrintCzk,
+          printCostCzk: order.customerPrintCzk ?? order.printCostCzk,
           deliveryMethod: delivery.method,
-          deliveryPriceCzk: order.deliveryPriceCzk,
+          deliveryPriceCzk: order.deliveryPriceCzk ?? 0,
         });
 
         setOrderFeedback({
@@ -120,8 +127,38 @@ export function MapPanel({ className }: MapPanelProps) {
         setIsSubmittingOrder(false);
       }
     },
-    [model, setSelectedMaker, t]
+    [model, setSelectedMaker, t, user]
   );
+
+  useEffect(() => {
+    if (resumedCheckoutRef.current || !user || isLoading) return;
+
+    const pending = loadPendingOrderCheckout();
+    if (!pending) return;
+
+    if (!model) {
+      clearPendingOrderCheckout();
+      return;
+    }
+
+    const maker = makers.find((item) => item.id === pending.makerId);
+    if (!maker) {
+      clearPendingOrderCheckout();
+      return;
+    }
+
+    resumedCheckoutRef.current = true;
+    clearPendingOrderCheckout();
+
+    const delivery: DeliveryChoice = {
+      method: pending.deliveryMethod,
+      deliveryPriceCzk: pending.deliveryPriceCzk,
+      zasilkovnaPointId: pending.zasilkovnaPointId,
+      zasilkovnaPointLabel: pending.zasilkovnaPointLabel,
+    };
+
+    void handleOrder(maker, delivery);
+  }, [user, model, makers, isLoading, handleOrder]);
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col bg-zinc-100", className)}>
