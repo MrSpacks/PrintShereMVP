@@ -81,6 +81,16 @@ export async function getOrderAccess(orderId: string) {
   return null;
 }
 
+export type OrderAccess = NonNullable<Awaited<ReturnType<typeof getOrderAccess>>>;
+
+/** Customer on this order (uses viewerRole, not legacy user.role). */
+export function isOrderCustomer(access: OrderAccess): boolean {
+  return (
+    access.viewerRole === "customer" &&
+    access.order.customerId === access.user.id
+  );
+}
+
 export function unauthorized() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }

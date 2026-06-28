@@ -8,12 +8,15 @@ import {
 } from "@/lib/orders/order-file-storage";
 import {
   getOrderAccess,
+  isOrderCustomer,
   notFound,
   unauthorized,
 } from "@/lib/orders/require-order-access";
 import { prisma } from "@/lib/prisma";
 
 const MAX_MODEL_FILE_BYTES = 50 * 1024 * 1024;
+
+export const runtime = "nodejs";
 
 interface RouteParams {
   params: { id: string };
@@ -30,10 +33,7 @@ export async function POST(request: Request, { params }: RouteParams) {
   const access = await getOrderAccess(params.id);
   if (!access) return unauthorized();
 
-  if (
-    access.user.role !== "customer" ||
-    access.order.customerId !== access.user.id
-  ) {
+  if (!isOrderCustomer(access)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -46,6 +46,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     const jsonResponse = await handleUpload({
       body,
       request,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
       onBeforeGenerateToken: async (pathname) => {
         if (!isAllowedOrderBlobPathname(params.id, pathname)) {
           throw new Error("Invalid upload path");

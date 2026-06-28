@@ -5,6 +5,7 @@ import { mapDispute } from "@/lib/disputes/map-dispute";
 import { canOpenDispute } from "@/lib/orders/order-workflow";
 import {
   getOrderAccess,
+  isOrderCustomer,
   notFound,
   unauthorized,
 } from "@/lib/orders/require-order-access";
@@ -48,7 +49,7 @@ export async function POST(request: Request, { params }: RouteParams) {
   const access = await getOrderAccess(params.id);
   if (!access) return unauthorized();
 
-  if (access.user.role !== "customer" || access.order.customerId !== access.user.id) {
+  if (!isOrderCustomer(access)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

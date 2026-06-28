@@ -70,10 +70,19 @@ export async function uploadOrderModelFile(
 
   if (modeData.mode === "blob-client") {
     const { upload } = await import("@vercel/blob/client");
-    const blob = await upload(getOrderBlobPathname(orderId, file.name), file, {
-      access: "private",
-      handleUploadUrl: `/api/orders/${orderId}/file/upload`,
-    });
+    const pathname = getOrderBlobPathname(orderId, file.name);
+
+    let blob;
+    try {
+      blob = await upload(pathname, file, {
+        access: "private",
+        handleUploadUrl: `/api/orders/${orderId}/file/upload`,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Blob upload failed";
+      throw new Error(message);
+    }
 
     const confirmResponse = await fetch(`/api/orders/${orderId}/file`, {
       method: "POST",
