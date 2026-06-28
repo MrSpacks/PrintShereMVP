@@ -9,6 +9,17 @@ import {
   sanitizeOrderFileName,
   toOrderFileDownloadUrl,
 } from "@/lib/orders/order-file-paths";
+import {
+  getBlobReadWriteToken,
+  isClientBlobUploadEnabled,
+  isServerBlobStorageEnabled,
+} from "@/lib/orders/blob-config";
+
+export {
+  getBlobReadWriteToken,
+  isClientBlobUploadEnabled,
+  isServerBlobStorageEnabled,
+} from "@/lib/orders/blob-config";
 
 export {
   getOrderBlobPathname,
@@ -21,12 +32,9 @@ export {
 const ORDERS_STORAGE_DIR = path.join(process.cwd(), "storage", "orders");
 const MAX_MODEL_FILE_BYTES = 50 * 1024 * 1024;
 
+/** @deprecated Use isClientBlobUploadEnabled — same check */
 export function isOrderBlobStorageEnabled(): boolean {
-  return Boolean(
-    process.env.BLOB_READ_WRITE_TOKEN ||
-      process.env.VERCEL_OIDC_TOKEN ||
-      process.env.BLOB_STORE_ID
-  );
+  return isClientBlobUploadEnabled();
 }
 
 export function getOrderFileAbsolutePath(orderId: string, fileName: string): string {
@@ -46,11 +54,12 @@ export async function saveOrderModelFile(
     throw new Error("File exceeds maximum size");
   }
 
-  if (isOrderBlobStorageEnabled()) {
+  if (isServerBlobStorageEnabled()) {
     const blob = await put(getOrderBlobPathname(orderId, fileName), data, {
       access: "private",
       contentType: "application/octet-stream",
       multipart: true,
+      token: getBlobReadWriteToken(),
     });
     return blob.url;
   }
@@ -74,7 +83,10 @@ export async function readOrderModelFile(
   orderId: string
 ): Promise<{ buffer: Buffer; contentType: string }> {
   if (isVercelBlobUrl(fileUrl)) {
-    const result = await get(fileUrl, { access: "private" });
+    const result = await get(fileUrl, {
+      access: "private",
+      token: getBlobReadWriteToken(),
+    });
     if (!result?.stream) {
       throw new Error("Blob not found");
     }

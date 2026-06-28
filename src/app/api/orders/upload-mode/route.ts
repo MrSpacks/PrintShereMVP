@@ -1,9 +1,19 @@
 import { NextResponse } from "next/server";
 
-import { isOrderBlobStorageEnabled } from "@/lib/orders/order-file-storage";
+import {
+  getBlobReadWriteToken,
+  isClientBlobUploadEnabled,
+  isServerBlobStorageEnabled,
+} from "@/lib/orders/blob-config";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const hasReadWriteToken = Boolean(getBlobReadWriteToken());
+
   return NextResponse.json({
-    mode: isOrderBlobStorageEnabled() ? "blob-client" : "server",
+    mode: isClientBlobUploadEnabled() ? "blob-client" : "server",
+    hasReadWriteToken,
+    hasBlobStoreLink: isServerBlobStorageEnabled(),
   });
 }

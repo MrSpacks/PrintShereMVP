@@ -2,7 +2,8 @@ import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 
 import {
-  isOrderBlobStorageEnabled,
+  getBlobReadWriteToken,
+  isClientBlobUploadEnabled,
   pathnameMatchesOrderFile,
 } from "@/lib/orders/order-file-storage";
 import {
@@ -23,9 +24,13 @@ interface RouteParams {
 }
 
 export async function POST(request: Request, { params }: RouteParams) {
-  if (!isOrderBlobStorageEnabled()) {
+  const blobToken = getBlobReadWriteToken();
+  if (!isClientBlobUploadEnabled() || !blobToken) {
     return NextResponse.json(
-      { error: "Blob uploads are not configured" },
+      {
+        error:
+          "BLOB_READ_WRITE_TOKEN is missing. In Vercel: Storage → your Blob store → connect to project, then redeploy.",
+      },
       { status: 503 }
     );
   }
@@ -48,7 +53,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     const jsonResponse = await handleUpload({
       body,
       request,
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      token: blobToken,
       onBeforeGenerateToken: async (pathname) => {
         if (!pathnameMatchesOrderFile(params.id, pathname, order.fileName)) {
           throw new Error("Upload path does not match order file name");
