@@ -29,7 +29,8 @@ export const enMessages = {
     support: "Support",
     becomeMaker: "Become a Maker",
     mainNav: "Main navigation",
-    mobileNav: "Mobile navigation",
+    mobileNav: "Menu",
+    openMenu: "Open menu",
   },
   language: {
     switch: "Language",
@@ -222,6 +223,15 @@ export const enMessages = {
     uploadForPricing: "Upload a model to see pricing",
     pickMaker: "Based on {weight}g — pick a maker on the map",
     zasilkovnaExtra: " · Zásilkovna +{price} CZK",
+  },
+  mobile: {
+    stepModel: "1. Model",
+    stepMap: "2. Map",
+    continueToMap: "Continue to map",
+    uploadModelFirst: "Upload a model first",
+    backToModel: "Back to model",
+    filters: "Filters",
+    nearbyMakers: "Nearby workshops",
   },
   map: {
     loading: "Loading map…",

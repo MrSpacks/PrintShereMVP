@@ -1,15 +1,8 @@
-import { SplitScreenLayout } from "@/components/layout/split-screen-layout";
-import { MapPanel } from "@/components/map/map-panel";
-import { ModelPanel } from "@/components/model/model-panel";
+import { HomeExperience } from "@/components/layout/home-experience";
 
 /**
- * Главная страница — split screen с 3D viewer и картой.
+ * Главная страница — split screen (desktop) или stepper (mobile).
  */
 export default function HomePage() {
-  return (
-    <SplitScreenLayout
-      leftPanel={<ModelPanel />}
-      rightPanel={<MapPanel />}
-    />
-  );
+  return <HomeExperience />;
 }

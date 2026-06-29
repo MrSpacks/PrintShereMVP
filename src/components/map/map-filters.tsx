@@ -1,7 +1,9 @@
 "use client";
 
-import { MapPin } from "lucide-react";
+import { MapPin, SlidersHorizontal } from "lucide-react";
+import { useState } from "react";
 
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { useUserLocation } from "@/hooks/use-user-location";
 import { useMapStore } from "@/store/map-store";
 import {
@@ -22,12 +24,12 @@ interface FilterSelectProps {
 
 function FilterSelect({ label, value, onChange, options }: FilterSelectProps) {
   return (
-    <label className="flex items-center gap-2 text-xs font-medium text-zinc-600">
+    <label className="flex min-h-11 flex-col gap-1.5 text-sm font-medium text-zinc-700 sm:flex-row sm:items-center sm:gap-2 sm:text-xs sm:text-zinc-600">
       <span className="shrink-0">{label}</span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-8 rounded-md border border-zinc-200 bg-white px-2 text-xs text-zinc-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+        className="h-11 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/30 sm:h-8 sm:w-auto sm:px-2 sm:text-xs"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -39,11 +41,11 @@ function FilterSelect({ label, value, onChange, options }: FilterSelectProps) {
   );
 }
 
-interface MapFiltersBarProps {
+interface MapFiltersFormProps {
   className?: string;
 }
 
-export function MapFiltersBar({ className }: MapFiltersBarProps) {
+export function MapFiltersForm({ className }: MapFiltersFormProps) {
   const { t } = useTranslations();
   const filters = useMapStore((state) => state.filters);
   const setMaxDistanceKm = useMapStore((state) => state.setMaxDistanceKm);
@@ -120,12 +122,7 @@ export function MapFiltersBar({ className }: MapFiltersBarProps) {
   ];
 
   return (
-    <div
-      className={cn(
-        "flex flex-wrap items-center gap-3 border-b border-zinc-200 bg-white/95 px-3 py-2 backdrop-blur sm:gap-4 sm:px-4",
-        className
-      )}
-    >
+    <div className={cn("flex flex-col gap-4 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 sm:p-0", className)}>
       <button
         type="button"
         onClick={() =>
@@ -133,17 +130,15 @@ export function MapFiltersBar({ className }: MapFiltersBarProps) {
         }
         disabled={!isLocationSupported || locationStatus === "loading"}
         className={cn(
-          "inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+          "inline-flex h-11 min-h-11 items-center justify-center gap-1.5 rounded-md border px-3 text-sm font-medium shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 sm:h-8 sm:px-2.5 sm:text-xs",
           locationStatus === "granted"
             ? "border-brand bg-brand/10 text-brand"
             : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
         )}
         title={locationHint}
       >
-        <MapPin className="h-3.5 w-3.5" aria-hidden />
-        <span className="max-w-[140px] truncate sm:max-w-none">
-          {locationButtonLabel}
-        </span>
+        <MapPin className="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden />
+        <span>{locationButtonLabel}</span>
       </button>
 
       <FilterSelect
@@ -175,6 +170,92 @@ export function MapFiltersBar({ className }: MapFiltersBarProps) {
         onChange={setMaterial}
         options={materialOptions}
       />
+    </div>
+  );
+}
+
+interface MapFiltersBarProps {
+  className?: string;
+  mobileCompact?: boolean;
+}
+
+export function MapFiltersBar({
+  className,
+  mobileCompact = false,
+}: MapFiltersBarProps) {
+  const { t } = useTranslations();
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const {
+    locationStatus,
+    requestLocation,
+    clearLocation,
+    isLocationSupported,
+  } = useUserLocation();
+
+  const locationButtonLabel =
+    locationStatus === "loading"
+      ? t("map.locationLoading")
+      : locationStatus === "granted"
+        ? t("map.locationActive")
+        : locationStatus === "denied"
+          ? t("map.locationDenied")
+          : t("map.useMyLocation");
+
+  if (mobileCompact) {
+    return (
+      <>
+        <div
+          className={cn(
+            "flex items-center gap-2 border-b border-zinc-200 bg-white/95 px-3 py-2 backdrop-blur",
+            className
+          )}
+        >
+          <button
+            type="button"
+            onClick={() =>
+              locationStatus === "granted" ? clearLocation() : requestLocation()
+            }
+            disabled={!isLocationSupported || locationStatus === "loading"}
+            className={cn(
+              "inline-flex h-11 min-w-11 flex-1 items-center justify-center gap-1.5 rounded-md border px-3 text-sm font-medium shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+              locationStatus === "granted"
+                ? "border-brand bg-brand/10 text-brand"
+                : "border-zinc-200 bg-white text-zinc-700"
+            )}
+          >
+            <MapPin className="h-4 w-4" aria-hidden />
+            <span className="truncate">{locationButtonLabel}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFiltersOpen(true)}
+            className="inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 shadow-sm"
+          >
+            <SlidersHorizontal className="h-4 w-4" aria-hidden />
+            <span>{t("mobile.filters")}</span>
+          </button>
+        </div>
+
+        <BottomSheet
+          open={filtersOpen}
+          onClose={() => setFiltersOpen(false)}
+          title={t("mobile.filters")}
+        >
+          <MapFiltersForm />
+        </BottomSheet>
+      </>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "hidden border-b border-zinc-200 bg-white/95 px-3 py-2 backdrop-blur lg:flex lg:flex-wrap lg:items-center lg:gap-3 lg:px-4",
+        className
+      )}
+    >
+      <MapFiltersForm />
     </div>
   );
 }

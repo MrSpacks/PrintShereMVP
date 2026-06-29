@@ -33,6 +33,7 @@ function ModelViewerLoading() {
 
 interface ModelPanelProps {
   className?: string;
+  hidePriceFooter?: boolean;
 }
 
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
@@ -40,7 +41,7 @@ const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
 /**
  * Левая панель: dropzone → Three.js viewer → метаданные → Total Price.
  */
-export function ModelPanel({ className }: ModelPanelProps) {
+export function ModelPanel({ className, hidePriceFooter = false }: ModelPanelProps) {
   const { t } = useTranslations();
   const model = useModelStore((state) => state.model);
   const isParsing = useModelStore((state) => state.isParsing);
@@ -120,7 +121,7 @@ export function ModelPanel({ className }: ModelPanelProps) {
       </div>
 
       {model && <ModelMetadata model={model} />}
-      <PriceFooter />
+      {!hidePriceFooter && <PriceFooter />}
     </div>
   );
 }

@@ -27,7 +27,8 @@ export const csMessages = {
     support: "Podpora",
     becomeMaker: "Stát se výrobcem",
     mainNav: "Hlavní navigace",
-    mobileNav: "Mobilní navigace",
+    mobileNav: "Menu",
+    openMenu: "Otevřít menu",
   },
   language: {
     switch: "Jazyk",
@@ -220,6 +221,15 @@ export const csMessages = {
     uploadForPricing: "Nahrajte model pro zobrazení ceny",
     pickMaker: "Podle {weight}g — vyberte výrobce na mapě",
     zasilkovnaExtra: " · Zásilkovna +{price} Kč",
+  },
+  mobile: {
+    stepModel: "1. Model",
+    stepMap: "2. Mapa",
+    continueToMap: "Pokračovat na mapu",
+    uploadModelFirst: "Nejdříve nahrajte model",
+    backToModel: "Zpět k modelu",
+    filters: "Filtry",
+    nearbyMakers: "Dílny v okolí",
   },
   map: {
     loading: "Načítám mapu…",

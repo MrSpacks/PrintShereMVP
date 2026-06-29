@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { MapFiltersBar } from "@/components/map/map-filters";
+import { MakerListPanel } from "@/components/map/maker-list-panel";
+import { MakerCheckoutPanel } from "@/components/map/maker-checkout-panel";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useMakers } from "@/hooks/use-makers";
 import { isOwnWorkshop } from "@/types/user";
@@ -45,6 +48,8 @@ const Map = dynamic(
 
 interface MapPanelProps {
   className?: string;
+  mobileMode?: boolean;
+  mapActive?: boolean;
 }
 
 interface OrderFeedback {
@@ -54,7 +59,11 @@ interface OrderFeedback {
   orderId?: string;
 }
 
-export function MapPanel({ className }: MapPanelProps) {
+export function MapPanel({
+  className,
+  mobileMode = false,
+  mapActive = true,
+}: MapPanelProps) {
   const { t } = useTranslations();
   const { user } = useAuth();
   const filters = useMapStore((state) => state.filters);
@@ -67,6 +76,7 @@ export function MapPanel({ className }: MapPanelProps) {
   const { makers, isLoading, error, refetch } = useMakers();
   const [orderFeedback, setOrderFeedback] = useState<OrderFeedback | null>(null);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [selectedMaker, setSheetMaker] = useState<Maker | null>(null);
   const resumedCheckoutRef = useRef(false);
 
   useEffect(() => {
@@ -157,12 +167,24 @@ export function MapPanel({ className }: MapPanelProps) {
       zasilkovnaPointLabel: pending.zasilkovnaPointLabel,
     };
 
+    if (mobileMode) {
+      setSheetMaker(maker);
+    }
+
     void handleOrder(maker, delivery);
-  }, [user, model, makers, isLoading, handleOrder]);
+  }, [user, model, makers, isLoading, handleOrder, mobileMode]);
+
+  const handleMakerSelect = useCallback((maker: Maker) => {
+    setSheetMaker(maker);
+  }, []);
+
+  const closeMakerSheet = useCallback(() => {
+    setSheetMaker(null);
+  }, []);
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col bg-zinc-100", className)}>
-      <MapFiltersBar />
+      <MapFiltersBar mobileCompact={mobileMode} />
 
       {error && (
         <div className="flex items-center justify-between gap-3 border-b border-red-200 bg-red-50 px-4 py-2 text-xs text-red-700">
@@ -204,9 +226,14 @@ export function MapPanel({ className }: MapPanelProps) {
         </div>
       )}
 
-      <div className="relative min-h-0 flex-1">
+      <div
+        className={cn(
+          "relative min-h-0 flex-1",
+          mobileMode && "min-h-[42vh]"
+        )}
+      >
         {isLoading ? (
-          <div className="flex h-full items-center justify-center text-sm text-zinc-500">
+          <div className="flex h-full min-h-[240px] items-center justify-center text-sm text-zinc-500">
             {t("map.loadingMakers")}
           </div>
         ) : (
@@ -217,9 +244,41 @@ export function MapPanel({ className }: MapPanelProps) {
             userLocation={userLocation}
             onOrder={handleOrder}
             isSubmittingOrder={isSubmittingOrder}
+            mobilePicker={mobileMode}
+            onMakerSelect={mobileMode ? handleMakerSelect : undefined}
+            mapActive={mapActive}
           />
         )}
       </div>
+
+      {mobileMode && !isLoading && (
+        <MakerListPanel
+          makers={visibleMakers}
+          userLocation={userLocation}
+          modelWeight={modelWeight}
+          isModelLoaded={isModelLoaded}
+          onSelectMaker={handleMakerSelect}
+          className="pb-20"
+        />
+      )}
+
+      {mobileMode && selectedMaker && (
+        <BottomSheet
+          open
+          onClose={closeMakerSheet}
+          title={selectedMaker.name}
+        >
+          <MakerCheckoutPanel
+            maker={selectedMaker}
+            isModelLoaded={isModelLoaded}
+            modelWeight={modelWeight}
+            userLocation={userLocation}
+            onOrder={handleOrder}
+            isSubmittingOrder={isSubmittingOrder}
+            onOrderSuccess={closeMakerSheet}
+          />
+        </BottomSheet>
+      )}
     </div>
   );
 }

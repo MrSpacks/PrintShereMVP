@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 
@@ -13,6 +13,12 @@ export const metadata: Metadata = {
     "Najděte místní 3D tiskaře v Praze. Nahrajte model, porovnejte ceny na mapě a objednejte tisk.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,11 +26,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="cs" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="flex min-h-screen flex-col font-sans">
+      <body className="flex h-dvh flex-col overflow-hidden font-sans">
         <LocaleProvider>
           <AuthProvider>
             <Header />
-            <main className="flex min-h-0 flex-1 flex-col">{children}</main>
+            <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+              {children}
+            </main>
           </AuthProvider>
         </LocaleProvider>
       </body>
