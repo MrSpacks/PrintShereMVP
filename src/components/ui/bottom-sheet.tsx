@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -15,6 +16,9 @@ interface BottomSheetProps {
   hideAbove?: "md" | "lg" | null;
 }
 
+/** Above Leaflet panes (~1000) and mobile sticky bars. */
+const SHEET_Z = 9999;
+
 export function BottomSheet({
   open,
   onClose,
@@ -23,6 +27,12 @@ export function BottomSheet({
   className,
   hideAbove = "lg",
 }: BottomSheetProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
 
@@ -40,7 +50,7 @@ export function BottomSheet({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   const hideClass =
     hideAbove === "lg"
@@ -49,12 +59,13 @@ export function BottomSheet({
         ? "md:hidden"
         : "";
 
-  return (
+  return createPortal(
     <div
       className={cn(
-        "fixed inset-0 z-[2000] flex flex-col justify-end",
+        "fixed inset-0 flex flex-col justify-end",
         hideClass
       )}
+      style={{ zIndex: SHEET_Z }}
     >
       <button
         type="button"
@@ -86,6 +97,7 @@ export function BottomSheet({
         )}
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
