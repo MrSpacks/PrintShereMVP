@@ -134,6 +134,8 @@ export const enMessages = {
     workshopName: "Workshop name",
     address: "Address",
     pricePerGram: "Price per gram (CZK)",
+    pricePerGramFdm: "Price per gram — plastic (FDM)",
+    pricePerGramResin: "Price per gram — resin (SLA)",
     minOrderPrice: "Minimum order price (CZK)",
     printerTypes: "Printer types",
     statusLabel: "Status on map",

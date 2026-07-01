@@ -104,7 +104,8 @@ model Maker {
   latitude         Float
   longitude        Float
   rating           Float
-  pricePerGramCzk  Float
+  pricePerGramFdmCzk   Float
+  pricePerGramResinCzk Float
   minOrderPriceCzk Int              @default(0)
   printerTypes     String[]
   status           MakerStatus      @default(available)
@@ -156,6 +157,7 @@ model Order {
   widthMm           Float
   heightMm          Float
   depthMm           Float
+  printerType       String        @default("fdm")
   printCostCzk      Int
   platformFeeCzk    Int           @default(0)
   customerTotalCzk  Int           @default(0)

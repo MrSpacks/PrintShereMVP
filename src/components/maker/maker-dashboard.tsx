@@ -243,7 +243,8 @@ export function MakerDashboard() {
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [pricePerGramCzk, setPricePerGramCzk] = useState("5");
+  const [pricePerGramFdmCzk, setPricePerGramFdmCzk] = useState("5");
+  const [pricePerGramResinCzk, setPricePerGramResinCzk] = useState("12");
   const [minOrderPriceCzk, setMinOrderPriceCzk] = useState("0");
   const [printerTypes, setPrinterTypes] = useState<PrinterType[]>(["fdm"]);
   const [status, setStatus] = useState<MakerStatus>("available");
@@ -259,7 +260,8 @@ export function MakerDashboard() {
     setProfile(next);
     setName(next.name);
     setAddress(next.address);
-    setPricePerGramCzk(String(next.pricePerGramCzk));
+    setPricePerGramFdmCzk(String(next.pricePerGramFdmCzk));
+    setPricePerGramResinCzk(String(next.pricePerGramResinCzk));
     setMinOrderPriceCzk(String(next.minOrderPriceCzk));
     setPrinterTypes(next.printerTypes);
     setStatus(next.status);
@@ -326,7 +328,8 @@ export function MakerDashboard() {
     const payload: UpdateMakerProfilePayload = {
       name,
       address,
-      pricePerGramCzk: Number(pricePerGramCzk),
+      pricePerGramFdmCzk: Number(pricePerGramFdmCzk),
+      pricePerGramResinCzk: Number(pricePerGramResinCzk),
       minOrderPriceCzk: Number(minOrderPriceCzk),
       printerTypes,
       status,
@@ -499,13 +502,24 @@ export function MakerDashboard() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <DashboardInput
-                id="price-per-gram"
-                label={t("dashboard.pricePerGram")}
-                type="number"
-                value={pricePerGramCzk}
-                onChange={setPricePerGramCzk}
-              />
+              {printerTypes.includes("fdm") && (
+                <DashboardInput
+                  id="price-per-gram-fdm"
+                  label={t("dashboard.pricePerGramFdm")}
+                  type="number"
+                  value={pricePerGramFdmCzk}
+                  onChange={setPricePerGramFdmCzk}
+                />
+              )}
+              {printerTypes.includes("resin") && (
+                <DashboardInput
+                  id="price-per-gram-resin"
+                  label={t("dashboard.pricePerGramResin")}
+                  type="number"
+                  value={pricePerGramResinCzk}
+                  onChange={setPricePerGramResinCzk}
+                />
+              )}
               <DashboardInput
                 id="min-order"
                 label={t("dashboard.minOrderPrice")}

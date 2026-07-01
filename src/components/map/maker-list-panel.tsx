@@ -6,6 +6,11 @@ import { useTranslations } from "@/i18n/locale-provider";
 import { getMakerDistanceKm } from "@/lib/map/filter-makers";
 import { getPrintCostCzk } from "@/lib/map/pricing";
 import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
+import {
+  getMakerPricePerGramCzk,
+  resolvePricingPrinterType,
+} from "@/lib/makers/maker-pricing";
+import { useMapStore } from "@/store/map-store";
 import type { Maker } from "@/types/maker";
 import type { UserLocation } from "@/types/map";
 import { cn } from "@/lib/utils";
@@ -28,6 +33,8 @@ export function MakerListPanel({
   className,
 }: MakerListPanelProps) {
   const { t } = useTranslations();
+  const printerTypeFilter = useMapStore((state) => state.filters.printerType);
+  const activePrinterType = resolvePricingPrinterType(printerTypeFilter);
   const weightGrams = isModelLoaded && modelWeight > 0 ? modelWeight : null;
 
   if (makers.length === 0) {
@@ -65,11 +72,17 @@ export function MakerListPanel({
           const priceLabel =
             weightGrams !== null
               ? (() => {
-                  const print = getPrintCostCzk(maker, weightGrams);
+                  const print = getPrintCostCzk(
+                    maker,
+                    weightGrams,
+                    activePrinterType
+                  );
                   const total = print + calculatePlatformFeeCzk(print);
                   return `${total} ${t("common.czk")}`;
                 })()
-              : t("common.czkPerGram", { price: maker.pricePerGramCzk });
+              : t("common.czkPerGram", {
+                  price: getMakerPricePerGramCzk(maker, activePrinterType),
+                });
 
           return (
             <li key={maker.id}>

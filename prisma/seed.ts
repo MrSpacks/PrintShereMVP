@@ -19,7 +19,8 @@ interface SeedMaker {
   latitude: number;
   longitude: number;
   rating: number;
-  pricePerGramCzk: number;
+  pricePerGramFdmCzk: number;
+  pricePerGramResinCzk: number;
   minOrderPriceCzk: number;
   printerTypes: string[];
   status: MakerStatus;
@@ -35,7 +36,8 @@ const SEED_MAKERS: SeedMaker[] = [
     latitude: 50.0875,
     longitude: 14.4213,
     rating: 4.7,
-    pricePerGramCzk: 5.0,
+    pricePerGramFdmCzk: 5.0,
+    pricePerGramResinCzk: 12.0,
     minOrderPriceCzk: 150,
     printerTypes: ["fdm"],
     status: MakerStatus.available,
@@ -53,7 +55,8 @@ const SEED_MAKERS: SeedMaker[] = [
     latitude: 50.0755,
     longitude: 14.4378,
     rating: 4.9,
-    pricePerGramCzk: 5.8,
+    pricePerGramFdmCzk: 5.8,
+    pricePerGramResinCzk: 14.5,
     minOrderPriceCzk: 200,
     printerTypes: ["fdm", "resin"],
     status: MakerStatus.available,
@@ -73,7 +76,8 @@ const SEED_MAKERS: SeedMaker[] = [
     latitude: 50.0736,
     longitude: 14.4185,
     rating: 3.5,
-    pricePerGramCzk: 4.8,
+    pricePerGramFdmCzk: 4.8,
+    pricePerGramResinCzk: 12.0,
     minOrderPriceCzk: 0,
     printerTypes: ["fdm"],
     status: MakerStatus.available,
@@ -90,7 +94,8 @@ const SEED_MAKERS: SeedMaker[] = [
     latitude: 50.0923,
     longitude: 14.4515,
     rating: 4.1,
-    pricePerGramCzk: 5.2,
+    pricePerGramFdmCzk: 5.2,
+    pricePerGramResinCzk: 13.0,
     minOrderPriceCzk: 180,
     printerTypes: ["fdm", "resin"],
     status: MakerStatus.busy,
@@ -108,7 +113,8 @@ const SEED_MAKERS: SeedMaker[] = [
     latitude: 50.0998,
     longitude: 14.3956,
     rating: 3.8,
-    pricePerGramCzk: 4.5,
+    pricePerGramFdmCzk: 4.5,
+    pricePerGramResinCzk: 11.0,
     minOrderPriceCzk: 100,
     printerTypes: ["fdm"],
     status: MakerStatus.hidden,
@@ -122,7 +128,8 @@ const SEED_MAKERS: SeedMaker[] = [
     latitude: 50.0833,
     longitude: 14.45,
     rating: 4.8,
-    pricePerGramCzk: 5.5,
+    pricePerGramFdmCzk: 5.5,
+    pricePerGramResinCzk: 13.5,
     minOrderPriceCzk: 120,
     printerTypes: ["fdm"],
     status: MakerStatus.available,

@@ -30,7 +30,10 @@ export function filterMakers(
 
     if (filters.material !== "all") {
       const hasMaterial = maker.filaments.some(
-        (filament) => filament.material === filters.material
+        (filament) =>
+          filament.material === filters.material &&
+          (filters.printerType === "all" ||
+            filament.printerType === filters.printerType)
       );
       if (!hasMaterial) {
         return false;

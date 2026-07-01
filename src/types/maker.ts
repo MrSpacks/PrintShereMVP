@@ -24,7 +24,8 @@ export interface Maker {
   latitude: number;
   longitude: number;
   rating: number;
-  pricePerGramCzk: number;
+  pricePerGramFdmCzk: number;
+  pricePerGramResinCzk: number;
   minOrderPriceCzk: number;
   printerTypes: PrinterType[];
   printers: MakerPrinter[];
@@ -59,7 +60,8 @@ export interface PinPriceDisplay {
 export interface UpdateMakerProfilePayload {
   name: string;
   address: string;
-  pricePerGramCzk: number;
+  pricePerGramFdmCzk: number;
+  pricePerGramResinCzk: number;
   minOrderPriceCzk: number;
   printerTypes: PrinterType[];
   status: MakerStatus;

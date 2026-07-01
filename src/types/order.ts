@@ -36,6 +36,7 @@ export interface CreateOrderPayload {
   deliveryMethod: DeliveryMethod;
   zasilkovnaPointId?: string;
   zasilkovnaPointLabel?: string;
+  printerType: "fdm" | "resin";
 }
 
 export interface OrderResponse {
@@ -50,6 +51,7 @@ export interface OrderResponse {
   widthMm: number;
   heightMm: number;
   depthMm: number;
+  printerType: "fdm" | "resin";
   printCostCzk: number;
   /** Omitted for maker viewers — platform commission is not disclosed */
   platformFeeCzk?: number;

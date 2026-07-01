@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth/session";
+import { isPrinterType } from "@/lib/makers/maker-pricing";
 import { mapOrder, mapOrderForViewer } from "@/lib/orders/map-order";
 import { calculateOrderPricing } from "@/lib/orders/order-pricing";
 import { prisma } from "@/lib/prisma";
@@ -34,7 +35,9 @@ function isValidOrderPayload(body: unknown): body is CreateOrderPayload {
     (payload.zasilkovnaPointId === undefined ||
       typeof payload.zasilkovnaPointId === "string") &&
     (payload.zasilkovnaPointLabel === undefined ||
-      typeof payload.zasilkovnaPointLabel === "string")
+      typeof payload.zasilkovnaPointLabel === "string") &&
+    typeof payload.printerType === "string" &&
+    isPrinterType(payload.printerType)
   );
 }
 
@@ -139,6 +142,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!maker.printerTypes.includes(body.printerType)) {
+      return NextResponse.json(
+        { error: "Maker does not offer this print technology" },
+        { status: 400 }
+      );
+    }
+
     const deliveryMethod = body.deliveryMethod as DeliveryMethod;
 
     if (deliveryMethod === "zasilkovna") {
@@ -153,7 +163,8 @@ export async function POST(request: Request) {
     const pricing = await calculateOrderPricing(
       maker,
       body.weightGrams,
-      deliveryMethod
+      deliveryMethod,
+      body.printerType
     );
 
     if (
@@ -181,6 +192,7 @@ export async function POST(request: Request) {
         widthMm: body.widthMm,
         heightMm: body.heightMm,
         depthMm: body.depthMm,
+        printerType: body.printerType,
         printCostCzk: pricing.printCostCzk,
         platformFeeCzk: pricing.platformFeeCzk,
         customerTotalCzk: pricing.customerTotalCzk,

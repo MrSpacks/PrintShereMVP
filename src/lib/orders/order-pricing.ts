@@ -1,5 +1,7 @@
-import { getZasilkovnaQuote } from "@/lib/delivery/zasilkovna";
 import type { DeliveryMethod } from "@/types/delivery";
+import type { PrinterType } from "@/types/maker";
+
+import { getMakerPricePerGramCzk } from "@/lib/makers/maker-pricing";
 
 const PLATFORM_FEE_RATE = 0.12;
 const PLATFORM_FEE_MIN_CZK = 30;
@@ -18,13 +20,14 @@ export function calculatePlatformFeeCzk(makerPrintCzk: number): number {
   );
 }
 
-export async function calculateDeliveryPriceCzk(
+async function calculateDeliveryPriceCzk(
   makerId: string,
   weightGrams: number,
   deliveryMethod: DeliveryMethod
 ): Promise<number> {
-  if (deliveryMethod === "pickup") return 0;
+  if (deliveryMethod !== "zasilkovna") return 0;
 
+  const { getZasilkovnaQuote } = await import("@/lib/delivery/zasilkovna");
   const quote = await getZasilkovnaQuote({ makerId, weightGrams });
   return quote.priceCzk;
 }
@@ -37,14 +40,17 @@ export interface OrderPricing {
 }
 
 export async function calculateOrderPricing(
-  maker: { id: string; pricePerGramCzk: number },
+  maker: {
+    id: string;
+    pricePerGramFdmCzk: number;
+    pricePerGramResinCzk: number;
+  },
   weightGrams: number,
-  deliveryMethod: DeliveryMethod
+  deliveryMethod: DeliveryMethod,
+  printerType: PrinterType
 ): Promise<OrderPricing> {
-  const printCostCzk = calculateMakerPrintCzk(
-    maker.pricePerGramCzk,
-    weightGrams
-  );
+  const pricePerGram = getMakerPricePerGramCzk(maker, printerType);
+  const printCostCzk = calculateMakerPrintCzk(pricePerGram, weightGrams);
   const platformFeeCzk = calculatePlatformFeeCzk(printCostCzk);
   const deliveryPriceCzk = await calculateDeliveryPriceCzk(
     maker.id,
@@ -72,8 +78,10 @@ export function getCustomerTotalCzk(order: {
   printCostCzk: number;
   platformFeeCzk: number;
   deliveryPriceCzk: number;
+  customerTotalCzk?: number;
 }): number {
   return (
+    order.customerTotalCzk ??
     order.printCostCzk + order.platformFeeCzk + order.deliveryPriceCzk
   );
 }

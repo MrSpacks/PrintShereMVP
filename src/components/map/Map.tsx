@@ -19,6 +19,11 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
 import { getPrintCostCzk } from "@/lib/map/pricing";
 import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
+import {
+  getMakerPricePerGramCzk,
+  resolvePricingPrinterType,
+} from "@/lib/makers/maker-pricing";
+import { useMapStore } from "@/store/map-store";
 import type { DeliveryChoice } from "@/types/delivery";
 import type { Maker } from "@/types/maker";
 import type { UserLocation } from "@/types/map";
@@ -159,6 +164,8 @@ export function Map({
 }: MapProps) {
   const { t } = useTranslations();
   const { user } = useAuth();
+  const printerTypeFilter = useMapStore((state) => state.filters.printerType);
+  const activePrinterType = resolvePricingPrinterType(printerTypeFilter);
   const weightGrams = isModelLoaded && modelWeight > 0 ? modelWeight : null;
 
   const getMakerPinIcon = useCallback(
@@ -166,6 +173,7 @@ export function Map({
       const isOwn = user ? isOwnWorkshop(user, maker.id) : false;
       const isHidden = maker.status === "hidden";
       const isBusy = maker.status === "busy";
+      const pricePerGram = getMakerPricePerGramCzk(maker, activePrinterType);
       const pinLabel = isOwn
         ? t("map.ownWorkshopShort")
         : isHidden
@@ -174,12 +182,16 @@ export function Map({
             ? t("map.busyShort")
             : weightGrams !== null
               ? (() => {
-                  const makerPrint = getPrintCostCzk(maker, weightGrams);
+                  const makerPrint = getPrintCostCzk(
+                    maker,
+                    weightGrams,
+                    activePrinterType
+                  );
                   const customerPrint =
                     makerPrint + calculatePlatformFeeCzk(makerPrint);
                   return `${customerPrint} ${t("common.czk")}`;
                 })()
-              : t("common.czkPerGram", { price: maker.pricePerGramCzk });
+              : t("common.czkPerGram", { price: pricePerGram });
 
       const variant = isOwn
         ? "own"
@@ -196,7 +208,7 @@ export function Map({
         variant
       );
     },
-    [weightGrams, t, user]
+    [activePrinterType, weightGrams, t, user]
   );
 
   const center = useMemo(

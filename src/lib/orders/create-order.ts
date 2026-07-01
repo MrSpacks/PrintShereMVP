@@ -1,13 +1,14 @@
 import type { CreateOrderPayload, OrderResponse } from "@/types/order";
 import type { DeliveryChoice } from "@/types/delivery";
 import type { ModelData } from "@/types/model";
-import type { Maker } from "@/types/maker";
+import type { Maker, PrinterType } from "@/types/maker";
 import { getOrderBlobPathname } from "@/lib/orders/order-file-paths";
 
 export function buildOrderPayload(
   maker: Maker,
   model: ModelData,
-  delivery: DeliveryChoice
+  delivery: DeliveryChoice,
+  printerType: PrinterType
 ): CreateOrderPayload {
   const { stats, fileName } = model;
 
@@ -21,6 +22,7 @@ export function buildOrderPayload(
     deliveryMethod: delivery.method,
     zasilkovnaPointId: delivery.zasilkovnaPointId,
     zasilkovnaPointLabel: delivery.zasilkovnaPointLabel,
+    printerType,
   };
 }
 

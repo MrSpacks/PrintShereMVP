@@ -14,6 +14,7 @@ import { isOwnWorkshop } from "@/types/user";
 import { useUserLocation } from "@/hooks/use-user-location";
 import { useTranslations } from "@/i18n/locale-provider";
 import { filterMakers, sortMakersByDistance } from "@/lib/map/filter-makers";
+import { resolvePricingPrinterType } from "@/lib/makers/maker-pricing";
 import {
   buildOrderPayload,
   createOrder,
@@ -103,7 +104,8 @@ export function MapPanel({
       setOrderFeedback(null);
 
       try {
-        const payload = buildOrderPayload(maker, model, delivery);
+        const printerType = resolvePricingPrinterType(filters.printerType);
+        const payload = buildOrderPayload(maker, model, delivery, printerType);
         const order = await createOrder(payload);
 
         if (model.sourceFile) {
@@ -137,7 +139,7 @@ export function MapPanel({
         setIsSubmittingOrder(false);
       }
     },
-    [model, setSelectedMaker, t, user]
+    [model, filters.printerType, setSelectedMaker, t, user]
   );
 
   useEffect(() => {

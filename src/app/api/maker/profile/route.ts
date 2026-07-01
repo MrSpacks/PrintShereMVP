@@ -15,11 +15,16 @@ function isUpdateBody(body: unknown): body is UpdateMakerProfilePayload {
   return (
     typeof p.name === "string" &&
     typeof p.address === "string" &&
-    typeof p.pricePerGramCzk === "number" &&
+    typeof p.pricePerGramFdmCzk === "number" &&
+    typeof p.pricePerGramResinCzk === "number" &&
     typeof p.minOrderPriceCzk === "number" &&
     Array.isArray(p.printerTypes) &&
     typeof p.status === "string"
   );
+}
+
+function validatePricePerGram(value: number): boolean {
+  return value > 0 && value <= 50;
 }
 
 export async function GET() {
@@ -50,14 +55,6 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Address is too short" }, { status: 400 });
     }
 
-    if (body.pricePerGramCzk <= 0 || body.pricePerGramCzk > 50) {
-      return NextResponse.json({ error: "Invalid price per gram" }, { status: 400 });
-    }
-
-    if (body.minOrderPriceCzk < 0) {
-      return NextResponse.json({ error: "Min order price cannot be negative" }, { status: 400 });
-    }
-
     const printerTypes = body.printerTypes.filter((t): t is PrinterType =>
       PRINTER_TYPES.has(t)
     );
@@ -67,6 +64,24 @@ export async function PATCH(request: Request) {
         { error: "Select at least one printer type" },
         { status: 400 }
       );
+    }
+
+    if (printerTypes.includes("fdm") && !validatePricePerGram(body.pricePerGramFdmCzk)) {
+      return NextResponse.json({ error: "Invalid FDM price per gram" }, { status: 400 });
+    }
+
+    if (
+      printerTypes.includes("resin") &&
+      !validatePricePerGram(body.pricePerGramResinCzk)
+    ) {
+      return NextResponse.json(
+        { error: "Invalid resin price per gram" },
+        { status: 400 }
+      );
+    }
+
+    if (body.minOrderPriceCzk < 0) {
+      return NextResponse.json({ error: "Min order price cannot be negative" }, { status: 400 });
     }
 
     if (!STATUSES.has(body.status)) {
@@ -88,7 +103,8 @@ export async function PATCH(request: Request) {
         address: location.displayName,
         latitude: location.latitude,
         longitude: location.longitude,
-        pricePerGramCzk: body.pricePerGramCzk,
+        pricePerGramFdmCzk: body.pricePerGramFdmCzk,
+        pricePerGramResinCzk: body.pricePerGramResinCzk,
         minOrderPriceCzk: body.minOrderPriceCzk,
         printerTypes,
         status: body.status,

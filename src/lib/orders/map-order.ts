@@ -8,6 +8,7 @@ import {
 import { toOrderFileDownloadUrl } from "@/lib/orders/order-file-paths";
 import type { OrderResponse, OrderStatus, PrintQuality } from "@/types/order";
 import type { DeliveryMethod } from "@/types/delivery";
+import type { PrinterType } from "@/types/maker";
 import type { UserRole } from "@/types/user";
 
 const ORDER_STATUSES = new Set<string>([
@@ -25,6 +26,7 @@ const ORDER_STATUSES = new Set<string>([
 ]);
 const DELIVERY_METHODS = new Set<string>(["pickup", "zasilkovna"]);
 const PRINT_QUALITIES = new Set<string>(["draft", "standard", "high"]);
+const PRINTER_TYPES = new Set<string>(["fdm", "resin"]);
 
 function toOrderStatus(status: string): OrderStatus {
   return ORDER_STATUSES.has(status) ? (status as OrderStatus) : "pending";
@@ -37,6 +39,10 @@ function toDeliveryMethod(method: string | null): DeliveryMethod | null {
 
 function toPrintQuality(quality: string): PrintQuality {
   return PRINT_QUALITIES.has(quality) ? (quality as PrintQuality) : "standard";
+}
+
+function toPrinterType(printerType: string): PrinterType {
+  return PRINTER_TYPES.has(printerType) ? (printerType as PrinterType) : "fdm";
 }
 
 type DisputeWithRelations = Dispute & {
@@ -70,6 +76,7 @@ export function mapOrder(order: OrderWithRelations): OrderResponse {
     widthMm: order.widthMm,
     heightMm: order.heightMm,
     depthMm: order.depthMm,
+    printerType: toPrinterType(order.printerType),
     printCostCzk: order.printCostCzk,
     platformFeeCzk: order.platformFeeCzk,
     customerPrintCzk,

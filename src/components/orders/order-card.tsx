@@ -83,7 +83,12 @@ export function OrderCard({ order, view }: OrderCardProps) {
         >
           <div>
             <dt className="text-xs text-muted-foreground">{t("orders.weight")}</dt>
-            <dd className="font-medium">{order.weightGrams}g</dd>
+            <dd className="font-medium">
+              {order.weightGrams}g ·{" "}
+              {order.printerType === "fdm"
+                ? t("printer.plastic")
+                : t("printer.resinShort")}
+            </dd>
           </div>
           <div>
             <dt className="text-xs text-muted-foreground">{printHeading}</dt>

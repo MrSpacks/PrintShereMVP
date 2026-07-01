@@ -11,8 +11,13 @@ import { buildAuthPath } from "@/lib/auth/safe-redirect";
 import { getMakerDistanceKm } from "@/lib/map/filter-makers";
 import { getPrintCostCzk } from "@/lib/map/pricing";
 import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
+import {
+  getMakerPricePerGramCzk,
+  resolvePricingPrinterType,
+} from "@/lib/makers/maker-pricing";
 import { fetchZasilkovnaQuote } from "@/lib/orders/create-order";
 import { savePendingOrderCheckout } from "@/lib/orders/pending-order-checkout";
+import { useMapStore } from "@/store/map-store";
 import type { DeliveryChoice, DeliveryMethod } from "@/types/delivery";
 import type { Maker } from "@/types/maker";
 import type { UserLocation } from "@/types/map";
@@ -48,6 +53,8 @@ export function MakerCheckoutPanel({
   const { t } = useTranslations();
   const { user } = useAuth();
   const router = useRouter();
+  const printerTypeFilter = useMapStore((state) => state.filters.printerType);
+  const activePrinterType = resolvePricingPrinterType(printerTypeFilter);
   const weightGrams = isModelLoaded && modelWeight > 0 ? modelWeight : null;
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
   const [deliveryPriceCzk, setDeliveryPriceCzk] = useState(0);
@@ -56,7 +63,9 @@ export function MakerCheckoutPanel({
   const [quoteError, setQuoteError] = useState<string | null>(null);
 
   const makerPrintCzk =
-    weightGrams !== null ? getPrintCostCzk(maker, weightGrams) : null;
+    weightGrams !== null
+      ? getPrintCostCzk(maker, weightGrams, activePrinterType)
+      : null;
   const platformFeeCzk =
     makerPrintCzk !== null ? calculatePlatformFeeCzk(makerPrintCzk) : 0;
   const customerPrintCzk =
@@ -65,7 +74,9 @@ export function MakerCheckoutPanel({
   const priceLabel =
     customerPrintCzk !== null
       ? `${customerPrintCzk} ${t("common.czk")}`
-      : t("common.czkPerGram", { price: maker.pricePerGramCzk });
+      : t("common.czkPerGram", {
+          price: getMakerPricePerGramCzk(maker, activePrinterType),
+        });
 
   const totalCzk =
     customerPrintCzk !== null ? customerPrintCzk + deliveryPriceCzk : null;
@@ -128,16 +139,21 @@ export function MakerCheckoutPanel({
       : null;
 
   const materialTags = [
-    ...maker.printerTypes.map((type) => ({
-      key: type,
-      label: type === "fdm" ? t("printer.plastic") : t("printer.resinShort"),
+    {
+      key: activePrinterType,
+      label:
+        activePrinterType === "fdm"
+          ? t("printer.plastic")
+          : t("printer.resinShort"),
       colorId: null as string | null,
-    })),
-    ...maker.filaments.map((filament) => ({
-      key: filament.id,
-      label: `${filament.material} · ${filament.color}`,
-      colorId: filament.color,
-    })),
+    },
+    ...maker.filaments
+      .filter((filament) => filament.printerType === activePrinterType)
+      .map((filament) => ({
+        key: filament.id,
+        label: `${filament.material} · ${filament.color}`,
+        colorId: filament.color,
+      })),
   ];
   const visibleTags = materialTags.slice(0, 4);
   const hiddenTagCount = materialTags.length - visibleTags.length;

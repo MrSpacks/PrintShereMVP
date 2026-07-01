@@ -1,4 +1,8 @@
-import type { Maker, PinPriceDisplay } from "@/types/maker";
+import {
+  getMakerPricePerGramCzk,
+  resolvePricingPrinterType,
+} from "@/lib/makers/maker-pricing";
+import type { Maker, PinPriceDisplay, PrinterType } from "@/types/maker";
 
 /**
  * Форматирует цену на пине карты.
@@ -6,17 +10,21 @@ import type { Maker, PinPriceDisplay } from "@/types/maker";
  */
 export function getPinPriceDisplay(
   maker: Maker,
-  weightGrams: number | null
+  weightGrams: number | null,
+  printerType: PrinterType | "all" = "fdm"
 ): PinPriceDisplay {
+  const activeType = resolvePricingPrinterType(printerType);
+  const pricePerGram = getMakerPricePerGramCzk(maker, activeType);
+
   if (weightGrams === null || weightGrams <= 0) {
     return {
-      label: `${formatPrice(maker.pricePerGramCzk)} CZK/g`,
+      label: `${formatPrice(pricePerGram)} CZK/g`,
       printCostCzk: null,
       weightGrams: null,
     };
   }
 
-  const printCostCzk = Math.round(weightGrams * maker.pricePerGramCzk);
+  const printCostCzk = getPrintCostCzk(maker, weightGrams, activeType);
   const roundedWeight = Math.round(weightGrams * 10) / 10;
 
   return {
@@ -29,9 +37,12 @@ export function getPinPriceDisplay(
 /** Стоимость печати для карточки мейкера и Total Price */
 export function getPrintCostCzk(
   maker: Maker,
-  weightGrams: number
+  weightGrams: number,
+  printerType: PrinterType
 ): number {
-  return Math.round(weightGrams * maker.pricePerGramCzk);
+  return Math.round(
+    weightGrams * getMakerPricePerGramCzk(maker, printerType)
+  );
 }
 
 function formatPrice(value: number): string {

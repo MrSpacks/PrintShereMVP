@@ -132,6 +132,8 @@ export const csMessages = {
     workshopName: "Název dílny",
     address: "Adresa",
     pricePerGram: "Cena za gram (Kč)",
+    pricePerGramFdm: "Cena za gram — plast (FDM)",
+    pricePerGramResin: "Cena za gram — pryskyřice (SLA)",
     minOrderPrice: "Minimální cena objednávky (Kč)",
     printerTypes: "Typy tiskáren",
     statusLabel: "Stav na mapě",
