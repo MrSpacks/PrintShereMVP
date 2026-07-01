@@ -12,6 +12,7 @@ import {
   getSession,
 } from "@/lib/auth/session";
 import { geocodeAddress } from "@/lib/geocoding/nominatim";
+import { listLinkedProviders } from "@/lib/auth/oauth/resolve-google-sign-in";
 import { mapPrismaUser } from "@/lib/users/map-user";
 import {
   isValidAvatarUrl,
@@ -91,9 +92,13 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const linkedProviders = await listLinkedProviders(user.id);
+
     return NextResponse.json({
       user: mapPrismaUser(user),
       address: resolveProfileAddress(user),
+      hasPassword: Boolean(user.passwordHash),
+      linkedProviders,
     } satisfies ProfileResponse);
   } catch (error) {
     console.error("[GET /api/profile]", error);
@@ -225,9 +230,9 @@ export async function PATCH(request: Request) {
       Boolean(body.newPassword) || Boolean(body.currentPassword);
 
     if (wantsPasswordChange) {
-      if (!body.currentPassword || !body.newPassword) {
+      if (!body.newPassword) {
         return NextResponse.json(
-          { error: "Current and new password are required" },
+          { error: "New password is required" },
           { status: 400 }
         );
       }
@@ -239,16 +244,25 @@ export async function PATCH(request: Request) {
         );
       }
 
-      const passwordValid = await verifyPassword(
-        body.currentPassword,
-        user.passwordHash
-      );
+      if (user.passwordHash) {
+        if (!body.currentPassword) {
+          return NextResponse.json(
+            { error: "Current password is required" },
+            { status: 400 }
+          );
+        }
 
-      if (!passwordValid) {
-        return NextResponse.json(
-          { error: "Current password is incorrect" },
-          { status: 401 }
+        const passwordValid = await verifyPassword(
+          body.currentPassword,
+          user.passwordHash
         );
+
+        if (!passwordValid) {
+          return NextResponse.json(
+            { error: "Current password is incorrect" },
+            { status: 401 }
+          );
+        }
       }
 
       userData.passwordHash = await hashPassword(body.newPassword);
@@ -258,9 +272,12 @@ export async function PATCH(request: Request) {
       Object.keys(userData).length === 0 &&
       !makerAddressUpdated
     ) {
+      const linkedProviders = await listLinkedProviders(user.id);
       return NextResponse.json({
         user: mapPrismaUser(user),
         address: resolveProfileAddress(user),
+        hasPassword: Boolean(user.passwordHash),
+        linkedProviders,
       } satisfies ProfileResponse);
     }
 
@@ -298,9 +315,13 @@ export async function PATCH(request: Request) {
       role: updated.role,
     });
 
+    const linkedProviders = await listLinkedProviders(updated.id);
+
     const response = NextResponse.json({
       user: mapPrismaUser(updated),
       address: resolveProfileAddress(updated),
+      hasPassword: Boolean(updated.passwordHash),
+      linkedProviders,
     } satisfies ProfileResponse);
 
     return attachSessionCookie(response, token);
