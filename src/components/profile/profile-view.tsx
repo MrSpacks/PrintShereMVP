@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -11,12 +11,14 @@ import {
 } from "@/components/auth/auth-form";
 import { useAuth } from "@/components/auth/auth-provider";
 import { AvatarPicker } from "@/components/profile/avatar-picker";
+import { LinkedAccounts } from "@/components/profile/linked-accounts";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 import { getUserCapabilityLabels, hasMakerAccess, type User } from "@/types/user";
 
 export function ProfileView() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isLoading, refetch, logout } = useAuth();
   const { t } = useTranslations();
 
@@ -24,6 +26,8 @@ export function ProfileView() {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [hasPassword, setHasPassword] = useState(true);
+  const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +51,8 @@ export function ProfileView() {
         const data = (await response.json()) as {
           user: User;
           address: string;
+          hasPassword?: boolean;
+          linkedProviders?: string[];
         };
 
         if (cancelled) return;
@@ -56,6 +62,8 @@ export function ProfileView() {
         setAvatarUrl(data.user.avatarUrl);
         setAddress(data.address);
         setInitialAddress(data.address);
+        setHasPassword(data.hasPassword ?? true);
+        setLinkedProviders(data.linkedProviders ?? []);
       } catch {
         if (!cancelled) {
           setName(currentUser.name);
@@ -71,6 +79,23 @@ export function ProfileView() {
       cancelled = true;
     };
   }, [user]);
+
+  useEffect(() => {
+    if (searchParams.get("linked") === "google") {
+      setSuccess(t("auth.linkSuccess"));
+      setLinkedProviders((current) =>
+        current.includes("google") ? current : [...current, "google"]
+      );
+      return;
+    }
+
+    const oauthError = searchParams.get("error");
+    if (oauthError?.startsWith("oauth_")) {
+      const key = `auth.oauthErrors.${oauthError}` as const;
+      const translated = t(key);
+      setError(translated !== key ? translated : t("auth.oauthErrors.oauth_failed"));
+    }
+  }, [searchParams, t]);
 
   if (isLoading) {
     return (
@@ -125,6 +150,8 @@ export function ProfileView() {
       const data = (await response.json()) as {
         user?: User;
         address?: string;
+        hasPassword?: boolean;
+        linkedProviders?: string[];
         error?: string;
       };
 
@@ -135,6 +162,14 @@ export function ProfileView() {
       if (data.address !== undefined) {
         setAddress(data.address);
         setInitialAddress(data.address);
+      }
+
+      if (data.hasPassword !== undefined) {
+        setHasPassword(data.hasPassword);
+      }
+
+      if (data.linkedProviders) {
+        setLinkedProviders(data.linkedProviders);
       }
 
       await refetch();
@@ -237,25 +272,37 @@ export function ProfileView() {
           </p>
         )}
 
+        <LinkedAccounts
+          providers={linkedProviders}
+          onChange={setLinkedProviders}
+          onError={setError}
+          onSuccess={(message) => {
+            setError(null);
+            setSuccess(message);
+          }}
+        />
+
         <div className="space-y-4 border-t border-border/60 pt-4">
           <div className="space-y-1">
             <h2 className="text-sm font-medium text-foreground">
-              {t("profile.changePassword")}
+              {hasPassword ? t("profile.changePassword") : t("profile.setPassword")}
             </h2>
             <p className="text-xs text-muted-foreground">
-              {t("profile.passwordHint")}
+              {hasPassword ? t("profile.passwordHint") : t("profile.setPasswordHint")}
             </p>
           </div>
 
-          <AuthField
-            id="profile-current-password"
-            label={t("profile.currentPassword")}
-            type="password"
-            value={currentPassword}
-            onChange={setCurrentPassword}
-            autoComplete="current-password"
-            required={false}
-          />
+          {hasPassword && (
+            <AuthField
+              id="profile-current-password"
+              label={t("profile.currentPassword")}
+              type="password"
+              value={currentPassword}
+              onChange={setCurrentPassword}
+              autoComplete="current-password"
+              required={false}
+            />
+          )}
 
           <AuthField
             id="profile-new-password"

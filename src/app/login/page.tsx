@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import {
   AuthCard,
@@ -11,6 +11,11 @@ import {
   AuthSubmitButton,
   AuthTestHint,
 } from "@/components/auth/auth-form";
+import {
+  GoogleOAuthButton,
+  mapOAuthError,
+  OAuthDivider,
+} from "@/components/auth/oauth-buttons";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
 import { buildAuthPath, getSafeRedirectPath } from "@/lib/auth/safe-redirect";
@@ -26,6 +31,13 @@ function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const redirectTo = getSafeRedirectPath(searchParams.get("next"));
+
+  useEffect(() => {
+    const oauthError = mapOAuthError(searchParams.get("error"), t);
+    if (oauthError) {
+      setError(oauthError);
+    }
+  }, [searchParams, t]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -66,6 +78,9 @@ function LoginForm() {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <AuthError message={error} />
+
+        <GoogleOAuthButton next={redirectTo} />
+        <OAuthDivider />
 
         <AuthField
           id="email"

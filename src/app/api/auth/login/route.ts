@@ -47,7 +47,14 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!user || !(await verifyPassword(body.password, user.passwordHash))) {
+    if (!user || !user.passwordHash) {
+      return NextResponse.json(
+        { error: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
+
+    if (!(await verifyPassword(body.password, user.passwordHash))) {
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }

@@ -47,14 +47,6 @@ export function HeaderAuth() {
     );
   }
 
-  const capabilityLabels = user
-    ? [
-        t("roles.customer"),
-        ...(isMaker ? [t("roles.maker")] : []),
-        ...(user.staffRole ? [t(`roles.${user.staffRole}`)] : []),
-      ].join(" · ")
-    : "";
-
   return (
     <>
       {isMaker && (
@@ -124,10 +116,6 @@ export function HeaderAuth() {
           </span>
         </Link>
       </Button>
-
-      <span className="hidden rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground sm:inline">
-        {capabilityLabels}
-      </span>
 
       <Button
         variant="outline"

@@ -23,7 +23,7 @@ export const enMessages = {
     testAccount: "Test account:",
   },
   header: {
-    brand: "Print Local P2P",
+    brand: "PrintShare",
     findMakers: "Find Makers",
     howItWorks: "How It Works",
     support: "Support",
@@ -66,6 +66,29 @@ export const enMessages = {
     loginFailed: "Login failed",
     accountBlocked: "Account is temporarily blocked",
     signupFailed: "Signup failed",
+    continueWithGoogle: "Continue with Google",
+    linkGoogle: "Link Google account",
+    orContinueWith: "or",
+    linkedAccounts: "Linked accounts",
+    linkedAccountsHint:
+      "Connect Google to sign in without a password. Email must match your account.",
+    linked: "connected",
+    unlink: "Unlink",
+    unlinkConfirm: "Unlink this sign-in method?",
+    unlinkSuccess: "Account unlinked",
+    linkSuccess: "Google account linked",
+    unlinkFailed: "Failed to unlink account",
+    oauthErrors: {
+      oauth_cancelled: "Google sign-in was cancelled",
+      oauth_failed: "Google sign-in failed. Try again.",
+      oauth_email_mismatch:
+        "Google email does not match your account email",
+      oauth_google_linked: "This Google account is linked to another user",
+      oauth_account_blocked: "Account is temporarily blocked",
+      oauth_link_session: "Session expired. Log in and try again.",
+      cannot_unlink_last:
+        "Set a password before unlinking your last sign-in method",
+    },
   },
   roles: {
     customer: "customer",
@@ -150,7 +173,10 @@ export const enMessages = {
     removeAvatar: "Remove avatar",
     avatarInvalid: "Invalid image. Use JPG, PNG or WebP.",
     changePassword: "Change password",
+    setPassword: "Set password",
     passwordHint: "Fill in only if you want to change your password.",
+    setPasswordHint:
+      "You signed in with Google. Set a password here to also log in with email.",
     currentPassword: "Current password",
     newPassword: "New password",
     save: "Save profile",
@@ -550,7 +576,7 @@ export const enMessages = {
   howItWorks: {
     title: "How It Works",
     subtitle:
-      "Print Local P2P connects customers with local 3D printers. Upload a model, pick a maker on the map, and track your order through delivery.",
+      "PrintShare connects customers with local 3D printers. Upload a model, pick a maker on the map, and track your order through delivery.",
     customerTitle: "For customers",
     makerTitle: "For makers",
     footer: "Ready to start? Try the map or register your workshop.",
@@ -592,7 +618,7 @@ export const enMessages = {
       "Questions about an order or the platform? Browse the FAQ or email us.",
     contactTitle: "Contact",
     contactText: "For order issues, disputes, or partnerships, reach us at:",
-    contactEmail: "podpora@printlocal.cz",
+    contactEmail: "podpora@printshare.cz",
     faqTitle: "Frequently asked questions",
     faq1Question: "How do I pay for a print?",
     faq1Answer:

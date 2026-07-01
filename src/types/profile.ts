@@ -3,6 +3,8 @@ import type { User, UserRole } from "@/types/user";
 export interface ProfileResponse {
   user: User;
   address: string;
+  hasPassword: boolean;
+  linkedProviders: string[];
 }
 
 export interface PublicUserProfile {

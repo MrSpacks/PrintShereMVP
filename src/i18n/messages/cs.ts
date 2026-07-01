@@ -21,7 +21,7 @@ export const csMessages = {
     testAccount: "Testovací účet:",
   },
   header: {
-    brand: "Print Local P2P",
+    brand: "PrintShare",
     findMakers: "Najít výrobce",
     howItWorks: "Jak to funguje",
     support: "Podpora",
@@ -64,6 +64,29 @@ export const csMessages = {
     loginFailed: "Přihlášení se nezdařilo",
     accountBlocked: "Účet je dočasně zablokován",
     signupFailed: "Registrace se nezdařila",
+    continueWithGoogle: "Pokračovat přes Google",
+    linkGoogle: "Propojit účet Google",
+    orContinueWith: "nebo",
+    linkedAccounts: "Propojené účty",
+    linkedAccountsHint:
+      "Propojte Google pro přihlášení bez hesla. E-mail musí odpovídat vašemu účtu.",
+    linked: "propojeno",
+    unlink: "Odpojit",
+    unlinkConfirm: "Odpojit tento způsob přihlášení?",
+    unlinkSuccess: "Účet byl odpojen",
+    linkSuccess: "Účet Google byl propojen",
+    unlinkFailed: "Odpojení účtu se nezdařilo",
+    oauthErrors: {
+      oauth_cancelled: "Přihlášení přes Google bylo zrušeno",
+      oauth_failed: "Přihlášení přes Google se nezdařilo. Zkuste to znovu.",
+      oauth_email_mismatch:
+        "E-mail Google neodpovídá e-mailu vašeho účtu",
+      oauth_google_linked: "Tento účet Google je propojen s jiným uživatelem",
+      oauth_account_blocked: "Účet je dočasně zablokován",
+      oauth_link_session: "Relace vypršela. Přihlaste se a zkuste to znovu.",
+      cannot_unlink_last:
+        "Nejdříve si nastavte heslo, než odpojíte poslední způsob přihlášení",
+    },
   },
   roles: {
     customer: "zákazník",
@@ -148,7 +171,10 @@ export const csMessages = {
     removeAvatar: "Odebrat avatar",
     avatarInvalid: "Neplatný obrázek. Použijte JPG, PNG nebo WebP.",
     changePassword: "Změna hesla",
+    setPassword: "Nastavit heslo",
     passwordHint: "Vyplňte jen pokud chcete heslo změnit.",
+    setPasswordHint:
+      "Přihlásili jste se přes Google. Zde si můžete nastavit heslo pro přihlášení e-mailem.",
     currentPassword: "Současné heslo",
     newPassword: "Nové heslo",
     save: "Uložit profil",
@@ -549,7 +575,7 @@ export const csMessages = {
   howItWorks: {
     title: "Jak to funguje",
     subtitle:
-      "Print Local P2P propojuje zákazníky s místními 3D tiskaři. Nahrajte model, vyberte výrobce na mapě a sledujte objednávku až po doručení.",
+      "PrintShare propojuje zákazníky s místními 3D tiskaři. Nahrajte model, vyberte výrobce na mapě a sledujte objednávku až po doručení.",
     customerTitle: "Pro zákazníky",
     makerTitle: "Pro výrobce",
     footer: "Připraveni začít? Vyzkoušejte mapu nebo zaregistrujte dílnu.",
@@ -591,7 +617,7 @@ export const csMessages = {
       "Máte dotaz k objednávce nebo platformě? Projděte časté dotazy nebo nám napište.",
     contactTitle: "Kontakt",
     contactText: "Pro dotazy k objednávkám, sporům nebo spolupráci nás kontaktujte e-mailem:",
-    contactEmail: "podpora@printlocal.cz",
+    contactEmail: "podpora@printshare.cz",
     faqTitle: "Časté dotazy",
     faq1Question: "Jak zaplatím za tisk?",
     faq1Answer:

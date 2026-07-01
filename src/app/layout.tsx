@@ -4,14 +4,11 @@ import { GeistMono } from "geist/font/mono";
 
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { Header } from "@/components/layout/header";
+import { buildRootMetadata } from "@/lib/seo/metadata";
 import { LocaleProvider } from "@/i18n/locale-provider";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Print Local P2P — 3D tisk v Praze",
-  description:
-    "Najděte místní 3D tiskaře v Praze. Nahrajte model, porovnejte ceny na mapě a objednejte tisk.",
-};
+export const metadata: Metadata = buildRootMetadata();
 
 export const viewport: Viewport = {
   width: "device-width",

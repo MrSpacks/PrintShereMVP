@@ -10,6 +10,10 @@ import {
   AuthLink,
   AuthSubmitButton,
 } from "@/components/auth/auth-form";
+import {
+  GoogleOAuthButton,
+  OAuthDivider,
+} from "@/components/auth/oauth-buttons";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
 import { buildAuthPath, getSafeRedirectPath } from "@/lib/auth/safe-redirect";
@@ -62,6 +66,9 @@ function SignupForm() {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <AuthError message={error} />
+
+        <GoogleOAuthButton next={redirectTo} />
+        <OAuthDivider />
 
         <AuthField
           id="name"
