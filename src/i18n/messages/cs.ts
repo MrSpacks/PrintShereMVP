@@ -259,6 +259,21 @@ export const csMessages = {
       step4Title: "Sledujte a převezmete",
       step4Text: "Stav v objednávce, chat s výrobcem.",
     },
+    printTech: {
+      title: "Technologie tisku",
+      hint: "Najeďte nebo klepněte na typ — uvidíte rozdíl kvality a ceny na stejném modelu.",
+      fdmPrice: "Levnější",
+      fdmQuality:
+        "Viditelné vrstvy, ale odolné — ideální pro funkční díly a větší modely.",
+      resinPrice: "Dražší",
+      resinQuality:
+        "Jemný detail a hladký povrch — miniatury, šperky, přesné prototypy.",
+      resinSide: "Vlevo: pryskyřice",
+      fdmSide: "Vpravo: FDM",
+      comparisonAlt: "Stejný model D20 vytištěný pryskyřicí a FDM",
+      comparisonCaption: "Stejný 3D model — liší se technologie tisku.",
+      photoCredit: "Foto: {source}",
+    },
   },
   mobile: {
     stepModel: "1. Model",

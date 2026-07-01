@@ -6,11 +6,13 @@ import { useCallback } from "react";
 
 import { ModelDropzone } from "@/components/model/model-dropzone";
 import { ModelMetadata } from "@/components/model/model-metadata";
+import { PrintTechnologySwitcher } from "@/components/model/print-technology-switcher";
 import { PriceFooter } from "@/components/model/price-footer";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 import { parseModelFile } from "@/lib/model/parse-model-file";
 import { useModelStore } from "@/store/model-store";
+import { useMapStore } from "@/store/map-store";
 import { cn } from "@/lib/utils";
 
 const ModelViewer = dynamic(
@@ -50,6 +52,14 @@ export function ModelPanel({ className, hidePriceFooter = false }: ModelPanelPro
   const setParsing = useModelStore((state) => state.setParsing);
   const setParseError = useModelStore((state) => state.setParseError);
   const clearModel = useModelStore((state) => state.clearModel);
+  const setPrinterType = useMapStore((state) => state.setPrinterType);
+  const setMaterial = useMapStore((state) => state.setMaterial);
+
+  const handleClearModel = useCallback(() => {
+    clearModel();
+    setPrinterType("all");
+    setMaterial("all");
+  }, [clearModel, setMaterial, setPrinterType]);
 
   const handleFileSelect = useCallback(
     async (file: File) => {
@@ -64,6 +74,8 @@ export function ModelPanel({ className, hidePriceFooter = false }: ModelPanelPro
       try {
         const parsed = await parseModelFile(file);
         setModel(parsed);
+        setPrinterType("fdm");
+        setMaterial("all");
       } catch (error) {
         const message =
           error instanceof Error ? error.message : t("model.parseFailed");
@@ -72,7 +84,7 @@ export function ModelPanel({ className, hidePriceFooter = false }: ModelPanelPro
         setParsing(false);
       }
     },
-    [setModel, setParseError, setParsing, t]
+    [setModel, setMaterial, setParseError, setParsing, setPrinterType, t]
   );
 
   return (
@@ -96,7 +108,7 @@ export function ModelPanel({ className, hidePriceFooter = false }: ModelPanelPro
                 variant="outline"
                 size="icon"
                 className="h-8 w-8 border-zinc-600 bg-zinc-900/80 text-zinc-300 backdrop-blur hover:bg-zinc-800"
-                onClick={clearModel}
+                onClick={handleClearModel}
                 aria-label={t("model.removeModel")}
               >
                 <X className="h-4 w-4" />
@@ -121,6 +133,7 @@ export function ModelPanel({ className, hidePriceFooter = false }: ModelPanelPro
       </div>
 
       {model && <ModelMetadata model={model} />}
+      {model && <PrintTechnologySwitcher />}
       {!hidePriceFooter && <PriceFooter />}
     </div>
   );

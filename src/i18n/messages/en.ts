@@ -261,6 +261,21 @@ export const enMessages = {
       step4Title: "Track and receive",
       step4Text: "Order status and chat with the maker.",
     },
+    printTech: {
+      title: "Print technology",
+      hint: "Hover or tap a type to see cost vs. quality on the same model.",
+      fdmPrice: "Lower cost",
+      fdmQuality:
+        "Visible layer lines but durable — great for functional parts and larger models.",
+      resinPrice: "Higher cost",
+      resinQuality:
+        "Fine detail and smooth surfaces — miniatures, jewelry, precise prototypes.",
+      resinSide: "Left: resin",
+      fdmSide: "Right: FDM",
+      comparisonAlt: "Same D20 model printed in resin and FDM",
+      comparisonCaption: "Same 3D model — different print technology.",
+      photoCredit: "Photo: {source}",
+    },
   },
   mobile: {
     stepModel: "1. Model",
