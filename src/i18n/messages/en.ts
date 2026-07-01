@@ -71,7 +71,7 @@ export const enMessages = {
     orContinueWith: "or",
     linkedAccounts: "Linked accounts",
     linkedAccountsHint:
-      "Connect Google to sign in without a password. Email must match your account.",
+      "Connect Google for quick sign-in. Your Google email does not need to match your account email.",
     linked: "connected",
     unlink: "Unlink",
     unlinkConfirm: "Unlink this sign-in method?",
@@ -82,7 +82,7 @@ export const enMessages = {
       oauth_cancelled: "Google sign-in was cancelled",
       oauth_failed: "Google sign-in failed. Try again.",
       oauth_email_mismatch:
-        "Google email does not match your account email",
+        "This Google account cannot be auto-linked — log in with email and link Google in your profile.",
       oauth_google_linked: "This Google account is linked to another user",
       oauth_account_blocked: "Account is temporarily blocked",
       oauth_link_session: "Session expired. Log in and try again.",

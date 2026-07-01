@@ -101,10 +101,8 @@ export async function resolveGoogleSignIn(
       throw new OAuthResolveFailure("USER_NOT_FOUND");
     }
 
-    if (normalizeEmail(user.email) !== email) {
-      throw new OAuthResolveFailure("EMAIL_MISMATCH");
-    }
-
+    // Logged-in user explicitly links Google — email need not match account email
+    // (e.g. Seznam registration + personal Gmail). Login-mode auto-link still requires match.
     await assertUserNotBlocked(user);
     await upsertGoogleAccount(user.id, params.googleId);
     return maybeUpdateAvatar(user, params.picture);

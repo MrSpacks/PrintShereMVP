@@ -69,7 +69,7 @@ export const csMessages = {
     orContinueWith: "nebo",
     linkedAccounts: "Propojené účty",
     linkedAccountsHint:
-      "Propojte Google pro přihlášení bez hesla. E-mail musí odpovídat vašemu účtu.",
+      "Připojte Google pro rychlé přihlášení. E-mail Google nemusí být stejný jako u účtu.",
     linked: "propojeno",
     unlink: "Odpojit",
     unlinkConfirm: "Odpojit tento způsob přihlášení?",
@@ -80,7 +80,7 @@ export const csMessages = {
       oauth_cancelled: "Přihlášení přes Google bylo zrušeno",
       oauth_failed: "Přihlášení přes Google se nezdařilo. Zkuste to znovu.",
       oauth_email_mismatch:
-        "E-mail Google neodpovídá e-mailu vašeho účtu",
+        "Tento účet Google nelze automaticky propojit — přihlaste se e-mailem a propojte Google v profilu.",
       oauth_google_linked: "Tento účet Google je propojen s jiným uživatelem",
       oauth_account_blocked: "Účet je dočasně zablokován",
       oauth_link_session: "Relace vypršela. Přihlaste se a zkuste to znovu.",
