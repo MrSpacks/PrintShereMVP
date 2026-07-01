@@ -14,6 +14,8 @@ interface BottomSheetProps {
   className?: string;
   /** Hide overlay above this breakpoint (null = always show when open) */
   hideAbove?: "md" | "lg" | null;
+  /** Top: drops below app header (nav menus). Bottom: map/checkout panels. */
+  placement?: "top" | "bottom";
 }
 
 /** Above Leaflet panes (~1000) and mobile sticky bars. */
@@ -26,6 +28,7 @@ export function BottomSheet({
   children,
   className,
   hideAbove = "lg",
+  placement = "bottom",
 }: BottomSheetProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -59,10 +62,13 @@ export function BottomSheet({
         ? "md:hidden"
         : "";
 
+  const isTop = placement === "top";
+
   return createPortal(
     <div
       className={cn(
-        "fixed inset-0 flex flex-col justify-end",
+        "fixed inset-0 flex flex-col",
+        isTop ? "justify-start pt-14" : "justify-end",
         hideClass
       )}
       style={{ zIndex: SHEET_Z }}
@@ -78,7 +84,10 @@ export function BottomSheet({
         aria-modal="true"
         aria-label={title}
         className={cn(
-          "relative max-h-[85vh] overflow-y-auto rounded-t-2xl border border-border bg-background shadow-2xl",
+          "relative overflow-y-auto border border-border bg-background shadow-2xl",
+          isTop
+            ? "max-h-[calc(100vh-3.5rem)] rounded-b-2xl border-t-0"
+            : "max-h-[85vh] rounded-t-2xl",
           className
         )}
       >

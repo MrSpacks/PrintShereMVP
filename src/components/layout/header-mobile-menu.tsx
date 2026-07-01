@@ -69,6 +69,7 @@ export function HeaderMobileMenu() {
         onClose={close}
         title={t("header.mobileNav")}
         hideAbove={null}
+        placement="top"
       >
         <nav className="flex flex-col gap-1 p-3" aria-label={t("header.mobileNav")}>
           {PUBLIC_LINKS.map((link) => (

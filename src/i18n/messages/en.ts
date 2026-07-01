@@ -249,6 +249,18 @@ export const enMessages = {
     uploadForPricing: "Upload a model to see pricing",
     pickMaker: "Based on {weight}g — pick a maker on the map",
     zasilkovnaExtra: " · Zásilkovna +{price} CZK",
+    homeStepsTitle: "How to order a print",
+    homeStepsMore: "More details →",
+    homeSteps: {
+      step1Title: "Upload your model",
+      step1Text: "STL or OBJ — see weight and estimated price.",
+      step2Title: "Pick a workshop on the map",
+      step2Text: "Compare price, material, and distance.",
+      step3Title: "Place your order",
+      step3Text: "Workshop pickup or Zásilkovna delivery.",
+      step4Title: "Track and receive",
+      step4Text: "Order status and chat with the maker.",
+    },
   },
   mobile: {
     stepModel: "1. Model",

@@ -4,6 +4,7 @@ import { Upload } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ModelHomeSteps } from "@/components/model/model-home-steps";
 import { useTranslations } from "@/i18n/locale-provider";
 import { ACCEPTED_MODEL_EXTENSIONS } from "@/lib/model/constants";
 import { isAcceptedModelFile } from "@/lib/model/parse-model-file";
@@ -57,7 +58,7 @@ export function ModelDropzone({
   return (
     <div
       className={cn(
-        "flex flex-1 flex-col items-center justify-center p-6",
+        "flex flex-1 flex-col items-center justify-start gap-6 overflow-y-auto p-4 sm:justify-center sm:p-6",
         className
       )}
     >
@@ -75,14 +76,14 @@ export function ModelDropzone({
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         className={cn(
-          "flex w-full max-w-sm cursor-pointer flex-col items-center rounded-xl border-2 border-dashed px-6 py-12 transition-colors",
+          "flex w-full max-w-[17rem] cursor-pointer flex-col items-center rounded-xl border-2 border-dashed px-5 py-8 transition-colors sm:max-w-xs",
           isDragOver
             ? "border-brand bg-brand/10"
             : "border-zinc-600 bg-zinc-800/50 hover:border-zinc-500 hover:bg-zinc-800"
         )}
       >
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-700/80">
-          <Upload className="h-6 w-6 text-zinc-300" aria-hidden />
+        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-700/80 sm:mb-4 sm:h-14 sm:w-14">
+          <Upload className="h-5 w-5 text-zinc-300 sm:h-6 sm:w-6" aria-hidden />
         </div>
 
         <p className="text-center text-sm font-medium text-zinc-200">
@@ -96,7 +97,7 @@ export function ModelDropzone({
           type="button"
           variant="outline"
           size="sm"
-          className="mt-5 border-zinc-600 bg-transparent text-zinc-200 hover:bg-zinc-700"
+          className="mt-4 border-zinc-600 bg-transparent text-zinc-200 hover:bg-zinc-700 sm:mt-5"
           disabled={isLoading}
           onClick={(event) => {
             event.stopPropagation();
@@ -106,6 +107,8 @@ export function ModelDropzone({
           {t("model.browseFiles")}
         </Button>
       </div>
+
+      <ModelHomeSteps />
 
       <input
         ref={inputRef}

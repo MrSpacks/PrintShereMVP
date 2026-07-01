@@ -247,6 +247,18 @@ export const csMessages = {
     uploadForPricing: "Nahrajte model pro zobrazení ceny",
     pickMaker: "Podle {weight}g — vyberte výrobce na mapě",
     zasilkovnaExtra: " · Zásilkovna +{price} Kč",
+    homeStepsTitle: "Jak objednat tisk",
+    homeStepsMore: "Více detailů →",
+    homeSteps: {
+      step1Title: "Nahrajte model",
+      step1Text: "STL nebo OBJ — uvidíte váhu a odhad ceny.",
+      step2Title: "Vyberte dílnu na mapě",
+      step2Text: "Porovnejte cenu, materiál a vzdálenost.",
+      step3Title: "Objednejte",
+      step3Text: "Osobní odběr u dílny nebo Zásilkovna.",
+      step4Title: "Sledujte a převezmete",
+      step4Text: "Stav v objednávce, chat s výrobcem.",
+    },
   },
   mobile: {
     stepModel: "1. Model",
