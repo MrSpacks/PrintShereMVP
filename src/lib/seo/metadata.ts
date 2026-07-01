@@ -41,6 +41,10 @@ export function buildRootMetadata(): Metadata {
     alternates: {
       canonical: siteUrl,
     },
+    icons: {
+      icon: "/logo.png",
+      apple: "/logo.png",
+    },
     openGraph: {
       title: defaultTitle,
       description: ogDescription,
@@ -48,12 +52,12 @@ export function buildRootMetadata(): Metadata {
       siteName,
       locale: "cs_CZ",
       type: "website",
-      // Add public/og-image.png (1200×630) when ready
+      // Square brand logo until a dedicated 1200×630 OG asset exists
       images: [
         {
-          url: "/og-image.png",
-          width: 1200,
-          height: 630,
+          url: "/logo.png",
+          width: 651,
+          height: 712,
           alt: "PrintShare — 3D tiskový marketplace v Česku",
         },
       ],
@@ -62,7 +66,7 @@ export function buildRootMetadata(): Metadata {
       card: "summary_large_image",
       title: defaultTitle,
       description: ogDescription,
-      images: ["/og-image.png"],
+      images: ["/logo.png"],
     },
   };
 }

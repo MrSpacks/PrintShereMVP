@@ -1,7 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { Printer } from "lucide-react";
 
 import { HeaderAuth } from "@/components/auth/header-auth";
 import { HeaderMobileMenu } from "@/components/layout/header-mobile-menu";
@@ -35,9 +35,14 @@ export function Header({ className }: HeaderProps) {
           href="/"
           className="flex shrink-0 items-center gap-2 font-semibold tracking-tight text-foreground"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-brand-foreground">
-            <Printer className="h-4 w-4" aria-hidden />
-          </span>
+          <Image
+            src="/logo.png"
+            alt={t("header.brand")}
+            width={36}
+            height={36}
+            className="h-9 w-9 shrink-0 rounded-lg object-contain"
+            priority
+          />
           <span className="hidden sm:inline">{t("header.brand")}</span>
         </Link>
 
