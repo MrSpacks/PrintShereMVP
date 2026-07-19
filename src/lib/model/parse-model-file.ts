@@ -54,7 +54,13 @@ export async function parseModelFile(file: File): Promise<ModelData> {
     }
   }
 
-  const stats = buildModelStats(geometries);
+  const defaultSettings = {
+    infillPercent: 20,
+    wallThicknessMm: 1.2,
+    supportCoefficient: 1.15,
+  };
+  
+  const stats = buildModelStats(geometries, undefined, defaultSettings);
 
   if (stats.volumeCm3 <= 0 || stats.weightGrams <= 0) {
     URL.revokeObjectURL(objectUrl);

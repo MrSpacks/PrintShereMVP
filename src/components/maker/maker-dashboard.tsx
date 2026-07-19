@@ -246,6 +246,9 @@ export function MakerDashboard() {
   const [pricePerGramFdmCzk, setPricePerGramFdmCzk] = useState("5");
   const [pricePerGramResinCzk, setPricePerGramResinCzk] = useState("12");
   const [minOrderPriceCzk, setMinOrderPriceCzk] = useState("0");
+  const [infillPercent, setInfillPercent] = useState("20");
+  const [wallThicknessMm, setWallThicknessMm] = useState("1.2");
+  const [supportCoefficient, setSupportCoefficient] = useState("1.15");
   const [printerTypes, setPrinterTypes] = useState<PrinterType[]>(["fdm"]);
   const [status, setStatus] = useState<MakerStatus>("available");
 
@@ -263,6 +266,9 @@ export function MakerDashboard() {
     setPricePerGramFdmCzk(String(next.pricePerGramFdmCzk));
     setPricePerGramResinCzk(String(next.pricePerGramResinCzk));
     setMinOrderPriceCzk(String(next.minOrderPriceCzk));
+    setInfillPercent(String(next.infillPercent));
+    setWallThicknessMm(String(next.wallThicknessMm));
+    setSupportCoefficient(String(next.supportCoefficient));
     setPrinterTypes(next.printerTypes);
     setStatus(next.status);
   }, []);
@@ -331,6 +337,9 @@ export function MakerDashboard() {
       pricePerGramFdmCzk: Number(pricePerGramFdmCzk),
       pricePerGramResinCzk: Number(pricePerGramResinCzk),
       minOrderPriceCzk: Number(minOrderPriceCzk),
+      infillPercent: Number(infillPercent),
+      wallThicknessMm: Number(wallThicknessMm),
+      supportCoefficient: Number(supportCoefficient),
       printerTypes,
       status,
     };
@@ -527,6 +536,71 @@ export function MakerDashboard() {
                 value={minOrderPriceCzk}
                 onChange={setMinOrderPriceCzk}
               />
+            </div>
+
+            <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
+              <div className="mb-2">
+                <FieldLabel>{t("dashboard.printSettings")}</FieldLabel>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("dashboard.printSettingsHelp")}
+                </p>
+              </div>
+              
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <label htmlFor="infill" className="text-sm font-medium">
+                    {t("dashboard.infillPercent")}
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="infill"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="5"
+                      value={infillPercent}
+                      onChange={(event) => setInfillPercent(event.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    />
+                    <span className="text-sm text-muted-foreground">%</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="wall-thickness" className="text-sm font-medium">
+                    {t("dashboard.wallThickness")}
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="wall-thickness"
+                      type="number"
+                      min="0.4"
+                      max="5"
+                      step="0.2"
+                      value={wallThicknessMm}
+                      onChange={(event) => setWallThicknessMm(event.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    />
+                    <span className="text-sm text-muted-foreground">mm</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="support-coeff" className="text-sm font-medium">
+                    {t("dashboard.supportCoefficient")}
+                  </label>
+                  <input
+                    id="support-coeff"
+                    type="number"
+                    min="1"
+                    max="2"
+                    step="0.05"
+                    value={supportCoefficient}
+                    onChange={(event) => setSupportCoefficient(event.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">

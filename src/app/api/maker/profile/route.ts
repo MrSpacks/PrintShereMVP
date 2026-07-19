@@ -19,12 +19,32 @@ function isUpdateBody(body: unknown): body is UpdateMakerProfilePayload {
     typeof p.pricePerGramResinCzk === "number" &&
     typeof p.minOrderPriceCzk === "number" &&
     Array.isArray(p.printerTypes) &&
-    typeof p.status === "string"
+    typeof p.status === "string" &&
+    (p.infillPercent === undefined || typeof p.infillPercent === "number") &&
+    (p.wallThicknessMm === undefined || typeof p.wallThicknessMm === "number") &&
+    (p.supportCoefficient === undefined || typeof p.supportCoefficient === "number")
   );
 }
 
 function validatePricePerGram(value: number): boolean {
   return value > 0 && value <= 50;
+}
+
+function validatePrintSettings(
+  infillPercent?: number,
+  wallThicknessMm?: number,
+  supportCoefficient?: number
+): string | null {
+  if (infillPercent !== undefined && (infillPercent < 0 || infillPercent > 100)) {
+    return "Infill must be between 0% and 100%";
+  }
+  if (wallThicknessMm !== undefined && (wallThicknessMm < 0.4 || wallThicknessMm > 5.0)) {
+    return "Wall thickness must be between 0.4mm and 5.0mm";
+  }
+  if (supportCoefficient !== undefined && (supportCoefficient < 1.0 || supportCoefficient > 2.0)) {
+    return "Support coefficient must be between 1.0 and 2.0";
+  }
+  return null;
 }
 
 export async function GET() {
@@ -88,6 +108,15 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
+    const printSettingsError = validatePrintSettings(
+      body.infillPercent,
+      body.wallThicknessMm,
+      body.supportCoefficient
+    );
+    if (printSettingsError) {
+      return NextResponse.json({ error: printSettingsError }, { status: 400 });
+    }
+
     const location = await geocodeAddress(address);
     if (!location) {
       return NextResponse.json(
@@ -108,6 +137,9 @@ export async function PATCH(request: Request) {
         minOrderPriceCzk: body.minOrderPriceCzk,
         printerTypes,
         status: body.status,
+        ...(body.infillPercent !== undefined && { infillPercent: body.infillPercent }),
+        ...(body.wallThicknessMm !== undefined && { wallThicknessMm: body.wallThicknessMm }),
+        ...(body.supportCoefficient !== undefined && { supportCoefficient: body.supportCoefficient }),
       },
       include: {
         filaments: { orderBy: [{ printerType: "asc" }, { material: "asc" }] },
