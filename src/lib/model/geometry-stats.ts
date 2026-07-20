@@ -1,7 +1,10 @@
 import * as THREE from "three";
 
-import { DEFAULT_PLA_DENSITY_G_CM3 } from "@/lib/model/constants";
-import type { ModelDimensions, ModelStats } from "@/types/model";
+import {
+  DEFAULT_PLA_DENSITY_G_CM3,
+  DEFAULT_RESIN_DENSITY_G_CM3,
+} from "@/lib/model/constants";
+import type { ModelDimensions, ModelStats, PrintSettings } from "@/types/model";
 
 /**
  * Подписанный объём тетраэдра с вершиной в начале координат.
@@ -70,12 +73,41 @@ function round1(value: number): number {
 }
 
 /**
+ * Рассчитывает реальный вес с учетом infill, стенок и поддержек.
+ * Возвращает общий вес и его разбивку (модель + поддержки).
+ */
+export function calculatePrintWeight(
+  volumeCm3: number,
+  densityGPerCm3: number,
+  printSettings: PrintSettings
+): { totalWeight: number; modelWeight: number; supportWeight: number } {
+  const { infillPercent, wallThicknessMm, supportCoefficient } = printSettings;
+  
+  const infillFraction = infillPercent / 100;
+  const wallFraction = Math.min(wallThicknessMm / 50, 0.3);
+  
+  const materialUsageFraction = infillFraction + wallFraction;
+  const clampedUsage = Math.min(Math.max(materialUsageFraction, 0.15), 1.0);
+  
+  const baseWeight = volumeCm3 * densityGPerCm3 * clampedUsage;
+  const totalWeight = baseWeight * supportCoefficient;
+  const supportWeight = totalWeight - baseWeight;
+  
+  return {
+    totalWeight: round1(totalWeight),
+    modelWeight: round1(baseWeight),
+    supportWeight: round1(supportWeight),
+  };
+}
+
+/**
  * Агрегирует статистику по одной или нескольким геометриям.
- * Объём: мм³ → см³ (/1000), вес: см³ × плотность PLA.
+ * Объём: мм³ → см³ (/1000), вес: см³ × плотность × настройки печати.
  */
 export function buildModelStats(
   geometries: THREE.BufferGeometry[],
-  densityGPerCm3: number = DEFAULT_PLA_DENSITY_G_CM3
+  densityGPerCm3: number = DEFAULT_PLA_DENSITY_G_CM3,
+  printSettings?: PrintSettings
 ): ModelStats {
   let totalVolumeMm3 = 0;
   const combinedBox = new THREE.Box3();
@@ -90,11 +122,31 @@ export function buildModelStats(
 
   const size = combinedBox.getSize(new THREE.Vector3());
   const volumeCm3 = totalVolumeMm3 / 1000;
-  const weightGrams = volumeCm3 * densityGPerCm3;
+  
+  let weightGrams: number;
+  let modelWeightGrams: number | undefined;
+  let supportWeightGrams: number | undefined;
+  
+  if (printSettings) {
+    const weights = calculatePrintWeight(volumeCm3, densityGPerCm3, printSettings);
+    weightGrams = weights.totalWeight;
+    modelWeightGrams = weights.modelWeight;
+    supportWeightGrams = weights.supportWeight;
+  } else {
+    const defaultSettings: PrintSettings = {
+      infillPercent: 20,
+      wallThicknessMm: 1.2,
+      supportCoefficient: 1.15,
+    };
+    const weights = calculatePrintWeight(volumeCm3, densityGPerCm3, defaultSettings);
+    weightGrams = weights.totalWeight;
+  }
 
   return {
     volumeCm3: round1(volumeCm3),
     weightGrams: round1(weightGrams),
+    modelWeightGrams,
+    supportWeightGrams,
     dimensions: {
       width: round1(size.x),
       height: round1(size.y),

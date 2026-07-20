@@ -8,12 +8,26 @@ export interface ModelDimensions {
   depth: number;
 }
 
+/** Настройки печати для расчета реального веса */
+export interface PrintSettings {
+  /** Процент заполнения (infill) — обычно 15-25% */
+  infillPercent: number;
+  /** Толщина стенок в мм — обычно 1.0-2.0 мм */
+  wallThicknessMm: number;
+  /** Коэффициент поддержек — множитель для учета supports (1.0 = без поддержек, 1.3 = +30%) */
+  supportCoefficient: number;
+}
+
 /** Рассчитанные параметры модели для прайсинга */
 export interface ModelStats {
   /** Объём в см³ */
   volumeCm3: number;
-  /** Ориентировочный вес при печати PLA, г */
+  /** Реальный вес при печати с учетом настроек, г */
   weightGrams: number;
+  /** Вес только модели (без поддержек), г */
+  modelWeightGrams?: number;
+  /** Вес поддержек, г */
+  supportWeightGrams?: number;
   dimensions: ModelDimensions;
 }
 

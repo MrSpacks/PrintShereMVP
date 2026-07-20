@@ -109,6 +109,9 @@ model Maker {
   minOrderPriceCzk Int              @default(0)
   printerTypes     String[]
   status           MakerStatus      @default(available)
+  infillPercent    Int              @default(20)
+  wallThicknessMm  Float            @default(1.2)
+  supportCoefficient Float          @default(1.15)
   filaments        MakerFilament[]
   printers         MakerPrinter[]
   orders           Order[]

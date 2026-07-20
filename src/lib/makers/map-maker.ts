@@ -64,6 +64,9 @@ export function mapPrismaMaker(
     printers: (record.printers ?? []).map(mapPrinter),
     filaments: (record.filaments ?? []).map(mapFilament),
     status: toMakerStatus(record.status),
+    infillPercent: record.infillPercent,
+    wallThicknessMm: record.wallThicknessMm,
+    supportCoefficient: record.supportCoefficient,
   };
 }
 

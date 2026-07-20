@@ -22,6 +22,9 @@ interface SeedMaker {
   pricePerGramFdmCzk: number;
   pricePerGramResinCzk: number;
   minOrderPriceCzk: number;
+  infillPercent: number;
+  wallThicknessMm: number;
+  supportCoefficient: number;
   printerTypes: string[];
   status: MakerStatus;
   filaments: SeedFilament[];
@@ -39,6 +42,9 @@ const SEED_MAKERS: SeedMaker[] = [
     pricePerGramFdmCzk: 5.0,
     pricePerGramResinCzk: 12.0,
     minOrderPriceCzk: 150,
+    infillPercent: 20,
+    wallThicknessMm: 1.2,
+    supportCoefficient: 1.15,
     printerTypes: ["fdm"],
     status: MakerStatus.available,
     filaments: [
@@ -58,6 +64,9 @@ const SEED_MAKERS: SeedMaker[] = [
     pricePerGramFdmCzk: 5.8,
     pricePerGramResinCzk: 14.5,
     minOrderPriceCzk: 200,
+    infillPercent: 25,
+    wallThicknessMm: 1.6,
+    supportCoefficient: 1.2,
     printerTypes: ["fdm", "resin"],
     status: MakerStatus.available,
     filaments: [
@@ -79,6 +88,9 @@ const SEED_MAKERS: SeedMaker[] = [
     pricePerGramFdmCzk: 4.8,
     pricePerGramResinCzk: 12.0,
     minOrderPriceCzk: 0,
+    infillPercent: 15,
+    wallThicknessMm: 1.0,
+    supportCoefficient: 1.1,
     printerTypes: ["fdm"],
     status: MakerStatus.available,
     filaments: [
@@ -97,6 +109,9 @@ const SEED_MAKERS: SeedMaker[] = [
     pricePerGramFdmCzk: 5.2,
     pricePerGramResinCzk: 13.0,
     minOrderPriceCzk: 180,
+    infillPercent: 20,
+    wallThicknessMm: 1.2,
+    supportCoefficient: 1.15,
     printerTypes: ["fdm", "resin"],
     status: MakerStatus.busy,
     filaments: [
@@ -116,6 +131,9 @@ const SEED_MAKERS: SeedMaker[] = [
     pricePerGramFdmCzk: 4.5,
     pricePerGramResinCzk: 11.0,
     minOrderPriceCzk: 100,
+    infillPercent: 18,
+    wallThicknessMm: 1.0,
+    supportCoefficient: 1.12,
     printerTypes: ["fdm"],
     status: MakerStatus.hidden,
     filaments: [{ printerType: "fdm", material: "PLA", color: "Black" }],
@@ -131,6 +149,9 @@ const SEED_MAKERS: SeedMaker[] = [
     pricePerGramFdmCzk: 5.5,
     pricePerGramResinCzk: 13.5,
     minOrderPriceCzk: 120,
+    infillPercent: 22,
+    wallThicknessMm: 1.4,
+    supportCoefficient: 1.18,
     printerTypes: ["fdm"],
     status: MakerStatus.available,
     filaments: [

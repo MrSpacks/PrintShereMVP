@@ -31,6 +31,9 @@ export interface Maker {
   printers: MakerPrinter[];
   filaments: MakerFilament[];
   status: MakerStatus;
+  infillPercent: number;
+  wallThicknessMm: number;
+  supportCoefficient: number;
 }
 
 export interface MakerProfile extends Maker {
@@ -65,6 +68,9 @@ export interface UpdateMakerProfilePayload {
   minOrderPriceCzk: number;
   printerTypes: PrinterType[];
   status: MakerStatus;
+  infillPercent?: number;
+  wallThicknessMm?: number;
+  supportCoefficient?: number;
 }
 
 export interface WorkshopPrinterInput {
