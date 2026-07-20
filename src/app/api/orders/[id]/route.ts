@@ -10,9 +10,16 @@ import {
 } from "@/lib/orders/order-pricing";
 import {
   canEditOrderTerms,
+  canCancelOrder,
   canPerformOrderAction,
   getNextStatusForAction,
 } from "@/lib/orders/order-workflow";
+import { deleteOrderModelFile } from "@/lib/orders/order-file-storage";
+import {
+  computeModelRetainUntil,
+  isModelFileAvailable,
+  shouldScheduleModelRetention,
+} from "@/lib/orders/order-model-retention";
 import {
   getOrderAccess,
   notFound,
@@ -150,9 +157,38 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         if (!isCustomer && !isMaker && access.viewerRole !== "admin") {
           return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
+
+        if (!canCancelOrder(order.status, access.viewerRole)) {
+          return NextResponse.json(
+            { error: "Order cannot be cancelled after payment or once work has started" },
+            { status: 409 }
+          );
+        }
+
+        // При отмене удаляем только файл модели, запись заказа сохраняем
+        if (order.fileUrl) {
+          await deleteOrderModelFile(order.id, order.fileName, order.fileUrl);
+          data.fileUrl = null;
+          data.fileDeletedAt = new Date();
+          data.modelRetainUntil = null;
+        }
       }
 
-      data.status = getNextStatusForAction(payload.action);
+      const nextStatus = getNextStatusForAction(payload.action);
+      data.status = nextStatus;
+
+      if (
+        payload.action !== "cancel" &&
+        shouldScheduleModelRetention(nextStatus) &&
+        order.fileUrl &&
+        isModelFileAvailable({
+          fileUrl: order.fileUrl,
+          fileDeletedAt: order.fileDeletedAt,
+          modelRetainUntil: order.modelRetainUntil,
+        })
+      ) {
+        data.modelRetainUntil = computeModelRetainUntil();
+      }
     }
 
     if (Object.keys(data).length === 0) {

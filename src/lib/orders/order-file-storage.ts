@@ -1,7 +1,7 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, unlink, writeFile } from "fs/promises";
 import path from "path";
 
-import { get, put } from "@vercel/blob";
+import { del, get, put } from "@vercel/blob";
 
 import {
   getOrderBlobPathname,
@@ -101,4 +101,27 @@ export async function readOrderModelFile(
   const absolutePath = getOrderFileAbsolutePath(orderId, fileName);
   const buffer = await readFile(absolutePath);
   return { buffer, contentType: "application/octet-stream" };
+}
+
+/**
+ * Удаляет STL/OBJ из Blob или локальной папки storage/orders.
+ * Запись заказа в БД не трогает — это делает вызывающий код.
+ */
+export async function deleteOrderModelFile(
+  orderId: string,
+  fileName: string,
+  fileUrl: string
+): Promise<void> {
+  if (isVercelBlobUrl(fileUrl)) {
+    await del(fileUrl, { token: getBlobReadWriteToken() });
+    return;
+  }
+
+  const absolutePath = getOrderFileAbsolutePath(orderId, fileName);
+  try {
+    await unlink(absolutePath);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code !== "ENOENT") throw error;
+  }
 }

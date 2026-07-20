@@ -13,6 +13,8 @@ interface AvatarPickerProps {
   name: string;
   onChange: (avatarUrl: string | null) => void;
   onError?: (message: string) => void;
+  /** Вертикальная раскладка для узкой боковой колонки профиля */
+  stacked?: boolean;
 }
 
 export function AvatarPicker({
@@ -20,6 +22,7 @@ export function AvatarPicker({
   name,
   onChange,
   onError,
+  stacked = false,
 }: AvatarPickerProps) {
   const { t } = useTranslations();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +39,12 @@ export function AvatarPicker({
   };
 
   return (
-    <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center">
+    <div
+      className={cn(
+        "flex flex-col items-center gap-3",
+        !stacked && "sm:flex-row sm:items-center"
+      )}
+    >
       <div
         className={cn(
           "relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted"

@@ -15,7 +15,8 @@ import { useTranslations } from "@/i18n/locale-provider";
 import { getIntlLocale } from "@/i18n/translate";
 import { getMakerPayoutCzk } from "@/lib/orders/map-order";
 import { uploadOrderModelFile } from "@/lib/orders/create-order";
-import { canEditOrderTerms } from "@/lib/orders/order-workflow";
+import { canCancelOrder, canEditOrderTerms } from "@/lib/orders/order-workflow";
+import { shouldShowModelRetentionNotice } from "@/lib/orders/order-model-retention";
 import type {
   OrderAction,
   OrderMessage,
@@ -175,6 +176,10 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
   };
 
   const handleAction = async (action: OrderAction) => {
+    if (action === "cancel") {
+      if (!window.confirm(t("orderDetail.cancelConfirm"))) return;
+    }
+
     setTermsError(null);
     setTermsMessage(null);
     setIsUpdatingStatus(true);
@@ -277,6 +282,14 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
   const isCustomer = viewerRole === "customer";
   const isStaff =
     viewerRole === "admin" || viewerRole === "moderator";
+  const canCancel =
+    viewerRole !== null && canCancelOrder(order.status, viewerRole);
+  const intlLocale = getIntlLocale(locale);
+  const modelRetainLabel = order.modelRetainUntil
+    ? new Date(order.modelRetainUntil).toLocaleDateString(intlLocale, {
+        dateStyle: "long",
+      })
+    : null;
   const canEditTerms = canEditOrderTerms(order.status);
   const customerTotal = order.customerTotalCzk ?? order.printCostCzk;
   const displayPrintCzk = isMaker
@@ -408,12 +421,34 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
               <p className="mt-2 text-sm text-muted-foreground">{fileMessage}</p>
             )}
             {order.fileUrl ? (
-              <Button variant="brand" size="sm" className="mt-3 gap-2" asChild>
-                <a href={`/api/orders/${order.id}/file`} download={order.fileName}>
-                  <Download className="h-4 w-4" aria-hidden />
-                  {t("orderDetail.downloadModel")}
-                </a>
-              </Button>
+              <>
+                {shouldShowModelRetentionNotice({
+                  fileUrl: order.fileUrl,
+                  fileDeletedAt: order.fileDeletedAt
+                    ? new Date(order.fileDeletedAt)
+                    : null,
+                  modelRetainUntil: order.modelRetainUntil
+                    ? new Date(order.modelRetainUntil)
+                    : null,
+                }) &&
+                  modelRetainLabel && (
+                    <p className="mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                      {t("orderDetail.modelRetentionNotice", {
+                        date: modelRetainLabel,
+                      })}
+                    </p>
+                  )}
+                <Button variant="brand" size="sm" className="mt-3 gap-2" asChild>
+                  <a href={`/api/orders/${order.id}/file`} download={order.fileName}>
+                    <Download className="h-4 w-4" aria-hidden />
+                    {t("orderDetail.downloadModel")}
+                  </a>
+                </Button>
+              </>
+            ) : order.fileDeletedAt || order.status === "cancelled" ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                {t("orderDetail.modelFileRemoved")}
+              </p>
             ) : isCustomer ? (
               <div className="mt-3 space-y-2">
                 <p className="text-sm text-muted-foreground">
@@ -582,9 +617,7 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
                   {t("orderDetail.markShipped")}
                 </Button>
               )}
-              {["pending", "awaiting_customer", "awaiting_payment", "paid"].includes(
-                order.status
-              ) && (
+              {canCancel && (
                 <Button
                   type="button"
                   variant="outline"
@@ -619,7 +652,7 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
           )}
 
           {isCustomer &&
-            ["pending", "awaiting_payment"].includes(order.status) &&
+            canCancel &&
             order.status !== "awaiting_customer" && (
             <div className="mt-6 border-t border-border pt-4">
               <Button

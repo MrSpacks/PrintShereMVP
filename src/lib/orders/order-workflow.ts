@@ -10,12 +10,13 @@ export type OrderAction =
   | "confirm_receipt"
   | "cancel";
 
-const CANCELLABLE: OrderStatus[] = [
+const PRE_PAYMENT_STATUSES: OrderStatus[] = [
   "pending",
   "awaiting_customer",
   "awaiting_payment",
-  "paid",
 ];
+
+const CANCELLABLE: OrderStatus[] = PRE_PAYMENT_STATUSES;
 
 const ACTION_TRANSITIONS: Record<
   OrderAction,
@@ -63,6 +64,10 @@ export function canPerformOrderAction(
   action: OrderAction,
   role: UserRole
 ): boolean {
+  if (action === "cancel") {
+    return canCancelOrder(status, role);
+  }
+
   const rule = ACTION_TRANSITIONS[action];
   if (!rule.roles.includes(role)) return false;
   return rule.from.includes(status);
@@ -103,4 +108,13 @@ export function canConfirmReceipt(status: OrderStatus): boolean {
 
 export function canSubmitReview(status: OrderStatus): boolean {
   return status === "delivered";
+}
+
+/**
+ * Отмена возможна только до оплаты и до принятия в работу (start_printing).
+ * После `paid` / `printing` и далее — отмена запрещена.
+ */
+export function canCancelOrder(status: OrderStatus, role: UserRole): boolean {
+  if (!PRE_PAYMENT_STATUSES.includes(status)) return false;
+  return role === "customer" || role === "maker" || role === "admin";
 }

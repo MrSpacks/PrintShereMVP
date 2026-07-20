@@ -25,6 +25,10 @@ import type {
   PrinterType,
   UpdateMakerProfilePayload,
 } from "@/types/maker";
+import {
+  WORKSHOP_UI_STATUSES,
+  normalizeWorkshopUiStatus,
+} from "@/lib/makers/workshop-status";
 import { cn } from "@/lib/utils";
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -264,7 +268,8 @@ export function MakerDashboard() {
     setPricePerGramResinCzk(String(next.pricePerGramResinCzk));
     setMinOrderPriceCzk(String(next.minOrderPriceCzk));
     setPrinterTypes(next.printerTypes);
-    setStatus(next.status);
+    // В UI только «работаю» / «не работаю»; busy из БД → hidden
+    setStatus(normalizeWorkshopUiStatus(next.status));
   }, []);
 
   const loadWorkshops = useCallback(async () => {
@@ -448,7 +453,7 @@ export function MakerDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <WorkshopToolbar
         workshops={workshops}
         activeMakerId={user?.makerId ?? null}
@@ -466,14 +471,15 @@ export function MakerDashboard() {
         }}
       />
 
-      <form onSubmit={(event) => void handleSave(event)} className="space-y-6">
-        <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div className="grid gap-6 xl:grid-cols-2 xl:items-start">
+      <form onSubmit={(event) => void handleSave(event)}>
+        <section className="rounded-xl border border-border bg-card p-5 shadow-sm md:p-6">
           <h2 className="text-lg font-semibold">{t("dashboard.settingsTitle")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("dashboard.settingsSubtitle")}
           </p>
 
-          <div className="mt-6 space-y-4">
+          <div className="mt-5 space-y-4">
             <AuthError message={saveError} />
             {saveMessage && (
               <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
@@ -481,12 +487,41 @@ export function MakerDashboard() {
               </p>
             )}
 
-            <DashboardInput
-              id="workshop-name"
-              label={t("dashboard.workshopName")}
-              value={name}
-              onChange={setName}
-            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <DashboardInput
+                id="workshop-name"
+                label={t("dashboard.workshopName")}
+                value={name}
+                onChange={setName}
+              />
+
+              {/* Доступность на карте: два состояния вместо busy/hidden/pause */}
+              <div className="space-y-2">
+                <FieldLabel>{t("dashboard.statusLabel")}</FieldLabel>
+                <div className="flex flex-wrap gap-2">
+                  {WORKSHOP_UI_STATUSES.map((value) => {
+                    const isSelected = status === value;
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setStatus(value)}
+                        className={cn(
+                          "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+                          isSelected
+                            ? "border-brand bg-brand text-white"
+                            : "border-input bg-background hover:bg-muted"
+                        )}
+                      >
+                        {value === "available"
+                          ? t("dashboard.statusWorking")
+                          : t("dashboard.statusNotWorking")}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
 
             <div className="space-y-2">
               <label htmlFor="workshop-address" className="text-sm font-medium">
@@ -496,12 +531,12 @@ export function MakerDashboard() {
                 id="workshop-address"
                 value={address}
                 onChange={(event) => setAddress(event.target.value)}
-                rows={3}
+                rows={2}
                 className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {printerTypes.includes("fdm") && (
                 <DashboardInput
                   id="price-per-gram-fdm"
@@ -529,6 +564,7 @@ export function MakerDashboard() {
               />
             </div>
 
+            <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <FieldLabel>{t("dashboard.printerTypes")}</FieldLabel>
               <div className="flex flex-wrap gap-2">
@@ -551,21 +587,6 @@ export function MakerDashboard() {
                   );
                 })}
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <FieldLabel>{t("dashboard.statusLabel")}</FieldLabel>
-              <select
-                value={status}
-                onChange={(event) =>
-                  setStatus(event.target.value as MakerStatus)
-                }
-                className="flex h-10 w-full max-w-xs rounded-md border border-input bg-background px-3 text-sm"
-              >
-                <option value="available">{t("dashboard.statusAvailable")}</option>
-                <option value="busy">{t("dashboard.statusBusy")}</option>
-                <option value="hidden">{t("dashboard.statusHidden")}</option>
-              </select>
             </div>
 
             {profile.printers.length > 0 && (
@@ -592,9 +613,10 @@ export function MakerDashboard() {
                 </ul>
               </div>
             )}
+            </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-5">
             <Button type="submit" variant="brand" disabled={isSaving}>
               {isSaving ? t("common.saving") : t("dashboard.saveSettings")}
             </Button>
@@ -602,7 +624,7 @@ export function MakerDashboard() {
         </section>
       </form>
 
-      <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <section className="rounded-xl border border-border bg-card p-5 shadow-sm md:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold">{t("dashboard.filamentsTitle")}</h2>
@@ -625,7 +647,7 @@ export function MakerDashboard() {
           )}
         </div>
 
-        <div className="mt-6 space-y-3">
+        <div className="mt-5 space-y-3">
           {showAddFilament && (
             <AddFilamentPanel
               printerTypes={printerTypes}
@@ -650,6 +672,7 @@ export function MakerDashboard() {
           ))}
         </div>
       </section>
+      </div>
     </div>
   );
 }

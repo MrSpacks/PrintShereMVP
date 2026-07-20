@@ -51,7 +51,7 @@ export default function BecomeMakerPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-lg flex-1">
+    <div className="w-full flex-1">
       <BecomeMakerForm />
     </div>
   );

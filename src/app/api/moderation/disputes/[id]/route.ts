@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { mapDispute } from "@/lib/disputes/map-dispute";
+import { computeModelRetainUntil } from "@/lib/orders/order-model-retention";
 import {
   requireModeratorUser,
   unauthorized,
@@ -116,6 +117,9 @@ export async function PATCH(request: Request, { params }: RouteParams) {
             resolution === "refund"
               ? "refunded"
               : dispute.statusBeforeDispute,
+          ...(resolution === "refund" && dispute.order.fileUrl
+            ? { modelRetainUntil: computeModelRetainUntil() }
+            : {}),
         },
       });
     });

@@ -11,10 +11,10 @@ A P2P 3D printing marketplace MVP. Customers upload an STL/OBJ, see makers on a 
 ## Quick start
 
 ```bash
-cp .env.example .env.local   # fill DATABASE_URL + AUTH_SECRET
+cp .env.example .env.local   # fill DATABASE_URL + AUTH_SECRET (same Neon URL as Vercel)
 npm install
-npm run db:migrate
-npm run db:seed
+npm run db:deploy            # apply migrations to shared Neon DB
+npm run db:seed              # optional test data
 npm run dev
 ```
 
@@ -92,6 +92,7 @@ prisma/
 | Maker materials | `MakerFilament` table, not string arrays on Maker |
 | Delivery fee | Per order (pickup / Zásilkovna), not per maker |
 | Env for Prisma | `.env.local` via `dotenv-cli` in npm scripts |
+| **Database** | **One shared Neon** for local + Vercel; `npm run db:deploy` after migrations; `build` runs `migrate deploy` |
 | 3D viewer | Dynamic import, no SSR |
 
 ## API reference (main endpoints)

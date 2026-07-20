@@ -166,6 +166,10 @@ model Order {
   zasilkovnaPointId String?
   zasilkovnaPointLabel String?
   fileUrl           String?
+  /** Когда STL/OBJ был удалён из хранилища (запись заказа остаётся) */
+  fileDeletedAt     DateTime?
+  /** После завершения заказа — дата автоудаления файла модели */
+  modelRetainUntil  DateTime?
   printQuality      PrintQuality  @default(standard)
   status            OrderStatus   @default(pending)
   messages          OrderMessage[]

@@ -7,6 +7,7 @@ import {
   saveOrderModelFile,
   toOrderFileDownloadUrl,
 } from "@/lib/orders/order-file-storage";
+import { isModelFileAvailable } from "@/lib/orders/order-model-retention";
 import { mapOrder, ORDER_DETAIL_INCLUDE } from "@/lib/orders/map-order";
 import {
   getOrderAccess,
@@ -35,7 +36,16 @@ export async function GET(_request: Request, { params }: RouteParams) {
   if (!access) return unauthorized();
 
   const order = await prisma.order.findUnique({ where: { id: params.id } });
-  if (!order?.fileUrl) return notFound();
+  if (
+    !order?.fileUrl ||
+    !isModelFileAvailable({
+      fileUrl: order.fileUrl,
+      fileDeletedAt: order.fileDeletedAt,
+      modelRetainUntil: order.modelRetainUntil,
+    })
+  ) {
+    return notFound();
+  }
 
   try {
     const { buffer, contentType } = await readOrderModelFile(

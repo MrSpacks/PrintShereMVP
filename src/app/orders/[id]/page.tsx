@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { OrderDetailView } from "@/components/orders/order-detail-view";
 import { useAuth } from "@/components/auth/auth-provider";
+import { AppPage } from "@/components/layout/app-page";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 
@@ -36,8 +37,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
+    <AppPage title="" width="xl" hideHeader>
       <OrderDetailView orderId={params.id} />
-    </div>
+    </AppPage>
   );
 }

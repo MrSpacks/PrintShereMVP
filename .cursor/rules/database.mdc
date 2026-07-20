@@ -6,6 +6,15 @@ alwaysApply: false
 
 # Database (Prisma + Neon)
 
+## Одна база на всё
+
+**Локальный dev и Vercel используют одну и ту же Neon PostgreSQL** (`DATABASE_URL` в `.env.local` и в Vercel env).
+
+- **Никогда** не запускать `prisma migrate reset` на этой базе — потеряются прод-данные.
+- После изменения `schema.prisma` агент **сам** сразу применяет миграции: `npm run db:deploy`
+- Если `db:migrate` (migrate dev) просит reset — использовать только `npm run db:deploy`, не reset.
+- `npm run build` на Vercel тоже выполняет `prisma migrate deploy` (см. `package.json`).
+
 ## Schema (`prisma/schema.prisma`)
 
 | Model | Purpose |
@@ -17,23 +26,28 @@ alwaysApply: false
 
 ## Migrations
 
-- Create: `npm run db:migrate` (loads `.env.local` automatically)
+| Команда | Когда |
+|---------|--------|
+| `npm run db:migrate` | Локально: создать новую миграцию (`migrate dev`) |
+| `npm run db:deploy` | **Всегда после новой миграции** — применить на shared Neon (локально и как на Vercel) |
+| `npm run db:seed` | Тестовые данные (осторожно на shared DB) |
+
 - Do not use `db:push` for production-like changes unless prototyping
 - Custom SQL migrations live in `prisma/migrations/`
+
+## After schema changes (обязательный чеклист агента)
+
+1. Edit `schema.prisma` + добавить `prisma/migrations/.../migration.sql`
+2. **`npm run db:deploy`** — применить на Neon (не ждать пользователя)
+3. Update `prisma/seed.ts` if seed data affected
+4. Update `src/types/` and `map-*.ts` mappers
+5. `npm test` / `npm run build` to verify
 
 ## Seed (`prisma/seed.ts`)
 
 - 6 Prague makers with `MakerFilament` rows + 7 users
 - Makers: `elena@workshop.cz`, `vinohrady@prints.cz`, etc.
 - Run: `npm run db:seed`
-
-## After schema changes
-
-1. Edit `schema.prisma`
-2. `npm run db:migrate`
-3. Update `prisma/seed.ts` if seed data affected
-4. Update `src/types/` and `map-*.ts` mappers
-5. `npm run build` to verify types
 
 ## Filament options
 

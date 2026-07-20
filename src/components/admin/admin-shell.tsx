@@ -74,7 +74,7 @@ export function AdminShell({
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10">
+    <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-6 lg:py-8">
       <nav
         className="mb-6 flex flex-wrap gap-2 border-b border-border pb-3"
         aria-label={t("admin.navLabel")}

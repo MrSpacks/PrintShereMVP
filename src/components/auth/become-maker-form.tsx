@@ -63,7 +63,7 @@ export function BecomeMakerForm() {
     <AuthCard
       title={t("becomeMaker.title")}
       subtitle={t("becomeMaker.subtitle")}
-      size="lg"
+      size="xl"
       footer={
         <>
           {t("becomeMaker.footer")}{" "}
@@ -78,19 +78,21 @@ export function BecomeMakerForm() {
           <legend className="text-sm font-semibold text-foreground">
             {t("becomeMaker.yourAccount")}
           </legend>
-          <AuthField
-            id="name"
-            label={t("common.fullName")}
-            value={name}
-            onChange={setName}
-          />
-          <AuthField
-            id="email"
-            label={t("common.email")}
-            type="email"
-            value={email}
-            onChange={setEmail}
-          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AuthField
+              id="name"
+              label={t("common.fullName")}
+              value={name}
+              onChange={setName}
+            />
+            <AuthField
+              id="email"
+              label={t("common.email")}
+              type="email"
+              value={email}
+              onChange={setEmail}
+            />
+          </div>
           <AuthField
             id="password"
             label={t("common.password")}
@@ -105,29 +107,31 @@ export function BecomeMakerForm() {
             {t("becomeMaker.workshop")}
           </legend>
 
-          <AuthField
-            id="workshopName"
-            label={t("becomeMaker.workshopName")}
-            value={workshopName}
-            onChange={setWorkshopName}
-          />
-
-          <div className="space-y-2">
-            <label htmlFor="address" className="text-sm font-medium">
-              {t("becomeMaker.fullAddress")}
-            </label>
-            <textarea
-              id="address"
-              value={address}
-              onChange={(event) => setAddress(event.target.value)}
-              required
-              rows={3}
-              placeholder={t("becomeMaker.addressPlaceholder")}
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          <div className="grid gap-4 lg:grid-cols-2">
+            <AuthField
+              id="workshopName"
+              label={t("becomeMaker.workshopName")}
+              value={workshopName}
+              onChange={setWorkshopName}
             />
-            <p className="text-xs text-muted-foreground">
-              {t("becomeMaker.addressHint")}
-            </p>
+
+            <div className="space-y-2">
+              <label htmlFor="address" className="text-sm font-medium">
+                {t("becomeMaker.fullAddress")}
+              </label>
+              <textarea
+                id="address"
+                value={address}
+                onChange={(event) => setAddress(event.target.value)}
+                required
+                rows={2}
+                placeholder={t("becomeMaker.addressPlaceholder")}
+                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              <p className="text-xs text-muted-foreground">
+                {t("becomeMaker.addressHint")}
+              </p>
+            </div>
           </div>
 
           <div className="space-y-2">

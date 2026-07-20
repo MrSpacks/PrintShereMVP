@@ -48,7 +48,7 @@ interface AuthCardProps {
   subtitle: string;
   children: React.ReactNode;
   footer: React.ReactNode;
-  size?: "md" | "lg";
+  size?: "md" | "lg" | "xl";
 }
 
 export function AuthCard({
@@ -59,11 +59,11 @@ export function AuthCard({
   size = "md",
 }: AuthCardProps) {
   return (
-    <div className="flex flex-1 items-center justify-center px-4 py-10">
+    <div className="flex flex-1 items-center justify-center px-4 py-6 md:py-8">
       <div
         className={cn(
           "w-full rounded-xl border border-border bg-card p-6 shadow-sm",
-          size === "lg" ? "max-w-lg" : "max-w-md"
+          size === "xl" ? "max-w-3xl" : size === "lg" ? "max-w-lg" : "max-w-md"
         )}
       >
         <div className="mb-6 space-y-1">

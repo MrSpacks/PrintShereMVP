@@ -7,6 +7,7 @@ import {
   unauthorized,
 } from "@/lib/orders/require-order-access";
 import { canSubmitReview } from "@/lib/orders/order-workflow";
+import { computeModelRetainUntil } from "@/lib/orders/order-model-retention";
 import { mapOrder, ORDER_DETAIL_INCLUDE } from "@/lib/orders/map-order";
 import { recalculateMakerRating } from "@/lib/reviews/update-maker-rating";
 import { prisma } from "@/lib/prisma";
@@ -78,7 +79,12 @@ export async function POST(request: Request, { params }: RouteParams) {
       }),
       prisma.order.update({
         where: { id: order.id },
-        data: { status: "completed" },
+        data: {
+          status: "completed",
+          ...(order.fileUrl
+            ? { modelRetainUntil: computeModelRetainUntil() }
+            : {}),
+        },
       }),
     ]);
 

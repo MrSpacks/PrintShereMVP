@@ -68,6 +68,10 @@ export interface OrderResponse {
   status: OrderStatus;
   review: OrderReviewSummary | null;
   dispute: DisputeSummary | null;
+  /** ISO-дата удаления файла модели из хранилища */
+  fileDeletedAt: string | null;
+  /** ISO-дата автоудаления модели; до неё нужно скачать файл */
+  modelRetainUntil: string | null;
   createdAt: string;
   updatedAt: string;
 }

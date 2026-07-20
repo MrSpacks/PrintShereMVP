@@ -21,6 +21,9 @@ export const enMessages = {
     backToMap: "Back to map",
     goToMap: "Go to map →",
     testAccount: "Test account:",
+    updateAvailable: "A new version is available. Reload to update.",
+    reloadApp: "Reload",
+    later: "Later",
   },
   header: {
     brand: "PrintShare",
@@ -138,7 +141,9 @@ export const enMessages = {
     pricePerGramResin: "Price per gram — resin (SLA)",
     minOrderPrice: "Minimum order price (CZK)",
     printerTypes: "Printer types",
-    statusLabel: "Status on map",
+    statusLabel: "Workshop availability",
+    statusWorking: "Working",
+    statusNotWorking: "Not working",
     statusAvailable: "Available — accepting orders",
     statusBusy: "Busy — hidden from new orders",
     statusHidden: "Paused — grey pin on map, no new orders",
@@ -419,7 +424,14 @@ export const enMessages = {
     markCompleted: "Complete order",
     completeSuccess: "Order completed",
     cancelOrder: "Cancel order",
-    cancelSuccess: "Order cancelled",
+    cancelConfirm:
+      "Cancel this order? The 3D model file will be deleted from the server. The order record will stay in your history.",
+    cancelSuccess: "Order cancelled — model file removed",
+    cancelNotAllowed:
+      "Orders can only be cancelled before payment and before the maker starts printing.",
+    modelRetentionNotice:
+      "The model file will be automatically deleted on {date}. Download it before then if you still need it.",
+    modelFileRemoved: "The model file has been removed from the server.",
     makerPrint: "Your earnings",
     downloadModel: "Download 3D model",
     fileMissing: "Model file not uploaded yet",

@@ -18,11 +18,11 @@ export function InfoPage({
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-2xl flex-1 px-4 py-10 md:px-6 md:py-12",
+        "mx-auto w-full max-w-4xl flex-1 px-4 py-6 md:px-6 lg:py-8",
         className
       )}
     >
-      <header className="mb-8 space-y-2">
+      <header className="mb-6 space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           {title}
         </h1>

@@ -19,6 +19,9 @@ export const csMessages = {
     backToMap: "Zpět na mapu",
     goToMap: "Přejít na mapu →",
     testAccount: "Testovací účet:",
+    updateAvailable: "Je k dispozici nová verze aplikace. Obnovte stránku.",
+    reloadApp: "Obnovit",
+    later: "Později",
   },
   header: {
     brand: "PrintShare",
@@ -136,7 +139,9 @@ export const csMessages = {
     pricePerGramResin: "Cena za gram — pryskyřice (SLA)",
     minOrderPrice: "Minimální cena objednávky (Kč)",
     printerTypes: "Typy tiskáren",
-    statusLabel: "Stav na mapě",
+    statusLabel: "Dostupnost dílny",
+    statusWorking: "Pracuji",
+    statusNotWorking: "Nepracuji",
     statusAvailable: "Dostupný — přijímám objednávky",
     statusBusy: "Zaneprázdněný — nové objednávky nepřijímám",
     statusHidden: "Pauza — šedý pin na mapě, bez nových objednávek",
@@ -417,7 +422,14 @@ export const csMessages = {
     markCompleted: "Dokončit objednávku",
     completeSuccess: "Objednávka dokončena",
     cancelOrder: "Zrušit zakázku",
-    cancelSuccess: "Zakázka zrušena",
+    cancelConfirm:
+      "Zrušit zakázku? 3D model bude ze serveru smazán. Záznam objednávky zůstane v historii.",
+    cancelSuccess: "Zakázka zrušena — soubor modelu byl odstraněn",
+    cancelNotAllowed:
+      "Zakázku lze zrušit jen před zaplacením a před zahájením tisku výrobcem.",
+    modelRetentionNotice:
+      "Soubor modelu bude {date} automaticky smazán. Stáhněte si ho před tímto datem, pokud ho budete potřebovat.",
+    modelFileRemoved: "Soubor modelu byl ze serveru odstraněn.",
     makerPrint: "Váš výdělek",
     downloadModel: "Stáhnout 3D model",
     fileMissing: "Soubor modelu zatím není nahrán",

@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useAuth } from "@/components/auth/auth-provider";
 import { MakerDashboard } from "@/components/maker/maker-dashboard";
+import { AppPage } from "@/components/layout/app-page";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 import { hasMakerAccess } from "@/types/user";
@@ -52,17 +53,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {t("dashboard.title")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("dashboard.subtitle")}
-        </p>
-      </div>
-
+    <AppPage
+      title={t("dashboard.title")}
+      subtitle={t("dashboard.subtitle")}
+      width="xl"
+    >
       <MakerDashboard />
-    </div>
+    </AppPage>
   );
 }

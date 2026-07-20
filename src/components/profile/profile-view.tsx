@@ -10,6 +10,7 @@ import {
   AuthSubmitButton,
 } from "@/components/auth/auth-form";
 import { useAuth } from "@/components/auth/auth-provider";
+import { AppPage, AppPageCard } from "@/components/layout/app-page";
 import { AvatarPicker } from "@/components/profile/avatar-picker";
 import { LinkedAccounts } from "@/components/profile/linked-accounts";
 import { Button } from "@/components/ui/button";
@@ -195,151 +196,171 @@ export function ProfileView() {
   const addressChanged = address.trim() !== initialAddress.trim();
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 py-10">
-      <div className="mb-8 space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {t("profile.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">{t("profile.subtitle")}</p>
-      </div>
+    <AppPage title={t("profile.title")} subtitle={t("profile.subtitle")} width="xl">
+      <form onSubmit={handleSubmit}>
+        <AppPageCard className="space-y-5">
+          <AuthError message={error} />
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-6 rounded-xl border border-border bg-card p-6 shadow-sm"
-      >
-        <AuthError message={error} />
-
-        {success && (
-          <p
-            role="status"
-            className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
-          >
-            {success}
-          </p>
-        )}
-
-        <AvatarPicker
-          avatarUrl={avatarUrl}
-          name={name || user.name}
-          onChange={setAvatarUrl}
-          onError={setError}
-        />
-
-        <div className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-          {t("profile.roleLabel")}:{" "}
-          <span className="font-medium capitalize text-foreground">
-            {capabilityLabels}
-          </span>
-        </div>
-
-        <AuthField
-          id="profile-name"
-          label={t("common.fullName")}
-          value={name}
-          onChange={setName}
-          autoComplete="name"
-        />
-
-        <AuthField
-          id="profile-email"
-          label={t("common.email")}
-          type="email"
-          value={email}
-          onChange={setEmail}
-          autoComplete="email"
-        />
-
-        <div className="space-y-2">
-          <label htmlFor="profile-address" className="text-sm font-medium text-foreground">
-            {isMaker ? t("profile.workshopAddress") : t("profile.address")}
-          </label>
-          <textarea
-            id="profile-address"
-            value={address}
-            onChange={(event) => setAddress(event.target.value)}
-            rows={3}
-            placeholder={t("becomeMaker.addressPlaceholder")}
-            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          />
-          <p className="text-xs text-muted-foreground">
-            {isMaker ? t("profile.workshopAddressHint") : t("profile.addressHint")}
-          </p>
-        </div>
-
-        {isMaker && addressChanged && (
-          <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-            {t("profile.workshopAddressMapNote")}
-          </p>
-        )}
-
-        <LinkedAccounts
-          providers={linkedProviders}
-          onChange={setLinkedProviders}
-          onError={setError}
-          onSuccess={(message) => {
-            setError(null);
-            setSuccess(message);
-          }}
-        />
-
-        <div className="space-y-4 border-t border-border/60 pt-4">
-          <div className="space-y-1">
-            <h2 className="text-sm font-medium text-foreground">
-              {hasPassword ? t("profile.changePassword") : t("profile.setPassword")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {hasPassword ? t("profile.passwordHint") : t("profile.setPasswordHint")}
+          {success && (
+            <p
+              role="status"
+              className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
+            >
+              {success}
             </p>
-          </div>
-
-          {hasPassword && (
-            <AuthField
-              id="profile-current-password"
-              label={t("profile.currentPassword")}
-              type="password"
-              value={currentPassword}
-              onChange={setCurrentPassword}
-              autoComplete="current-password"
-              required={false}
-            />
           )}
 
-          <AuthField
-            id="profile-new-password"
-            label={t("profile.newPassword")}
-            type="password"
-            value={newPassword}
-            onChange={setNewPassword}
-            autoComplete="new-password"
-            required={false}
-          />
-        </div>
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,260px)_1fr] xl:grid-cols-[minmax(0,260px)_1fr_minmax(0,280px)]">
+            {/* Левая колонка: аватар, роль, OAuth */}
+            <aside className="space-y-4">
+              <AvatarPicker
+                avatarUrl={avatarUrl}
+                name={name || user.name}
+                onChange={setAvatarUrl}
+                onError={setError}
+                stacked
+              />
 
-        <AuthSubmitButton
-          isSubmitting={isSubmitting}
-          label={t("profile.save")}
-        />
+              <div className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+                {t("profile.roleLabel")}:{" "}
+                <span className="font-medium capitalize text-foreground">
+                  {capabilityLabels}
+                </span>
+              </div>
+
+              <LinkedAccounts
+                providers={linkedProviders}
+                onChange={setLinkedProviders}
+                onError={setError}
+                onSuccess={(message) => {
+                  setError(null);
+                  setSuccess(message);
+                }}
+              />
+            </aside>
+
+            {/* Центр: имя, email и адрес друг под другом */}
+            <div className="space-y-4">
+              <AuthField
+                id="profile-name"
+                label={t("common.fullName")}
+                value={name}
+                onChange={setName}
+                autoComplete="name"
+              />
+
+              <AuthField
+                id="profile-email"
+                label={t("common.email")}
+                type="email"
+                value={email}
+                onChange={setEmail}
+                autoComplete="email"
+              />
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="profile-address"
+                  className="text-sm font-medium text-foreground"
+                >
+                  {isMaker ? t("profile.workshopAddress") : t("profile.address")}
+                </label>
+                <textarea
+                  id="profile-address"
+                  value={address}
+                  onChange={(event) => setAddress(event.target.value)}
+                  rows={2}
+                  placeholder={t("becomeMaker.addressPlaceholder")}
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {isMaker
+                    ? t("profile.workshopAddressHint")
+                    : t("profile.addressHint")}
+                </p>
+              </div>
+
+              {isMaker && addressChanged && (
+                <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                  {t("profile.workshopAddressMapNote")}
+                </p>
+              )}
+            </div>
+
+            {/* Правая колонка на xl: смена пароля */}
+            <div className="space-y-4 border-t border-border/60 pt-4 lg:col-start-2 xl:col-start-3 xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
+              <div className="space-y-1">
+                <h2 className="text-sm font-medium text-foreground">
+                  {hasPassword
+                    ? t("profile.changePassword")
+                    : t("profile.setPassword")}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {hasPassword
+                    ? t("profile.passwordHint")
+                    : t("profile.setPasswordHint")}
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+                {hasPassword && (
+                  <AuthField
+                    id="profile-current-password"
+                    label={t("profile.currentPassword")}
+                    type="password"
+                    value={currentPassword}
+                    onChange={setCurrentPassword}
+                    autoComplete="current-password"
+                    required={false}
+                  />
+                )}
+
+                <AuthField
+                  id="profile-new-password"
+                  label={t("profile.newPassword")}
+                  type="password"
+                  value={newPassword}
+                  onChange={setNewPassword}
+                  autoComplete="new-password"
+                  required={false}
+                />
+              </div>
+
+              <AuthSubmitButton
+                isSubmitting={isSubmitting}
+                label={t("profile.save")}
+              />
+            </div>
+          </div>
+        </AppPageCard>
       </form>
 
-      <section className="mt-8 rounded-xl border border-red-200 bg-red-50/50 p-6">
-        <h2 className="text-lg font-semibold text-red-900">
-          {t("profile.deleteAccountTitle")}
-        </h2>
-        <p className="mt-1 text-sm text-red-800">{t("profile.deleteAccountText")}</p>
-        <div className="mt-4 space-y-3">
-          <AuthField
-            id="delete-password"
-            label={t("profile.deletePassword")}
-            type="password"
-            value={deletePassword}
-            onChange={setDeletePassword}
-            autoComplete="current-password"
-          />
+      {/* Опасная зона: удаление аккаунта */}
+      <AppPageCard className="mt-5 border-red-200 bg-red-50/50">
+        <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
+          <div className="space-y-3">
+            <div>
+              <h2 className="text-base font-semibold text-red-900">
+                {t("profile.deleteAccountTitle")}
+              </h2>
+              <p className="mt-1 text-sm text-red-800">
+                {t("profile.deleteAccountText")}
+              </p>
+            </div>
+            <AuthField
+              id="delete-password"
+              label={t("profile.deletePassword")}
+              type="password"
+              value={deletePassword}
+              onChange={setDeletePassword}
+              autoComplete="current-password"
+            />
+          </div>
           <Button
             type="button"
             variant="outline"
             disabled={isDeleting || deletePassword.length === 0}
-            className="border-red-300 text-red-700 hover:bg-red-100"
+            className="border-red-300 text-red-700 hover:bg-red-100 md:mb-0.5"
             onClick={() => void (async () => {
               if (!window.confirm(t("profile.deleteConfirm"))) return;
               setIsDeleting(true);
@@ -372,7 +393,7 @@ export function ProfileView() {
             {isDeleting ? t("common.loading") : t("profile.deleteAccount")}
           </Button>
         </div>
-      </section>
-    </div>
+      </AppPageCard>
+    </AppPage>
   );
 }

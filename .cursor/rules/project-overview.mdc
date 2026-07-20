@@ -11,7 +11,7 @@ P2P 3D printing marketplace. Monolithic **Next.js 14 App Router** + **TypeScript
 
 - UI: Tailwind v3 + Shadcn-style components (`src/components/ui/`)
 - State: Zustand (`src/store/`)
-- DB: Prisma + Neon PostgreSQL
+- DB: Prisma + **Neon PostgreSQL (одна база для localhost и Vercel — тот же `DATABASE_URL`)**
 - Auth: JWT in httpOnly cookie (`src/lib/auth/session.ts`)
 - Map: **Leaflet** + CartoDB Positron (no API keys). Do not reintroduce Mapbox.
 - 3D: Three.js / R3F — dynamic import, SSR off (`src/components/model/`)
@@ -36,7 +36,9 @@ P2P 3D printing marketplace. Monolithic **Next.js 14 App Router** + **TypeScript
 ## Env & scripts
 
 - Secrets in `.env.local` (gitignored). Copy from `.env.example`.
-- Prisma CLI uses `.env.local` via `dotenv-cli`: `npm run db:migrate`, `db:seed`, `db:studio`
+- Prisma CLI uses `.env.local` via `dotenv-cli`: `npm run db:migrate`, `db:deploy`, `db:seed`, `db:studio`
+- **Shared Neon DB** — local and Vercel; after schema changes run `npm run db:deploy` (agents: always, without asking)
+- `npm run build` runs `prisma migrate deploy` before `next build` (Vercel applies pending migrations on deploy)
 - Test password (seed): `test123456`
 
 ## Code style

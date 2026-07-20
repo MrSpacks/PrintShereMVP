@@ -6,6 +6,9 @@ import {
   getCustomerTotalCzk,
 } from "@/lib/orders/order-pricing";
 import { toOrderFileDownloadUrl } from "@/lib/orders/order-file-paths";
+import {
+  isModelFileAvailable,
+} from "@/lib/orders/order-model-retention";
 import type { OrderResponse, OrderStatus, PrintQuality } from "@/types/order";
 import type { DeliveryMethod } from "@/types/delivery";
 import type { PrinterType } from "@/types/maker";
@@ -71,7 +74,15 @@ export function mapOrder(order: OrderWithRelations): OrderResponse {
     customerId: order.customerId,
     customerName: order.customer?.name ?? null,
     fileName: order.fileName,
-    fileUrl: order.fileUrl ? toOrderFileDownloadUrl(order.id) : null,
+    fileUrl: isModelFileAvailable({
+      fileUrl: order.fileUrl,
+      fileDeletedAt: order.fileDeletedAt,
+      modelRetainUntil: order.modelRetainUntil,
+    })
+      ? toOrderFileDownloadUrl(order.id)
+      : null,
+    fileDeletedAt: order.fileDeletedAt?.toISOString() ?? null,
+    modelRetainUntil: order.modelRetainUntil?.toISOString() ?? null,
     weightGrams: order.weightGrams,
     widthMm: order.widthMm,
     heightMm: order.heightMm,

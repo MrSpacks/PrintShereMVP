@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { OrderCard, OrdersEmptyState } from "@/components/orders/order-card";
 import { useAuth } from "@/components/auth/auth-provider";
+import { AppPage } from "@/components/layout/app-page";
 import { Button } from "@/components/ui/button";
 import { useOrders } from "@/hooks/use-orders";
 import { useTranslations } from "@/i18n/locale-provider";
@@ -65,17 +66,16 @@ export default function OrdersPage() {
   const { title, subtitle } = pageMeta[activeView];
 
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
-        </div>
-
+    <AppPage
+      title={title}
+      subtitle={subtitle}
+      width="xl"
+      actions={
         <Button variant="outline" size="sm" onClick={refetch}>
           {t("common.refresh")}
         </Button>
-      </div>
+      }
+    >
 
       {canViewMaker && (
         <div
@@ -132,6 +132,6 @@ export default function OrdersPage() {
           ))}
         </ul>
       )}
-    </div>
+    </AppPage>
   );
 }

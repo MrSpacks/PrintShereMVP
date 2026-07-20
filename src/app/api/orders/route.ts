@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth/session";
 import { isPrinterType } from "@/lib/makers/maker-pricing";
+import { isWorkshopAcceptingOrders } from "@/lib/makers/workshop-status";
 import { mapOrder, mapOrderForViewer } from "@/lib/orders/map-order";
 import { calculateOrderPricing } from "@/lib/orders/order-pricing";
 import { prisma } from "@/lib/prisma";
@@ -135,7 +136,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (maker.status !== "available") {
+    if (!isWorkshopAcceptingOrders(maker.status)) {
       return NextResponse.json(
         { error: "Maker is not available" },
         { status: 409 }

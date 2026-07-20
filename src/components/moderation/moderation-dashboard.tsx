@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Scale } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { AppPage } from "@/components/layout/app-page";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
 import { isModeratorUser } from "@/types/user";
@@ -71,20 +72,16 @@ export function ModerationDashboard() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10">
-      <div className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t("moderation.title")}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("moderation.subtitle")}
-          </p>
-        </div>
+    <AppPage
+      title={t("moderation.title")}
+      subtitle={t("moderation.subtitle")}
+      width="xl"
+      actions={
         <Button variant="outline" size="sm" onClick={() => void loadDisputes()}>
           {t("common.refresh")}
         </Button>
-      </div>
+      }
+    >
 
       {error && (
         <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -132,6 +129,6 @@ export function ModerationDashboard() {
           ))}
         </ul>
       )}
-    </div>
+    </AppPage>
   );
 }
