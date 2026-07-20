@@ -17,8 +17,7 @@ import { MapInvalidator } from "@/components/map/map-invalidator";
 import { MapTouchSettings } from "@/components/map/map-touch-settings";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
-import { getPrintCostCzk } from "@/lib/map/pricing";
-import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
+import { getCustomerQuoteCzk } from "@/lib/map/pricing";
 import {
   getMakerPricePerGramCzk,
   resolvePricingPrinterType,
@@ -28,17 +27,19 @@ import type { DeliveryChoice } from "@/types/delivery";
 import type { Maker } from "@/types/maker";
 import type { UserLocation } from "@/types/map";
 import { isOwnWorkshop } from "@/types/user";
+import type { CheckoutConsentsValue } from "@/components/legal/checkout-consents";
 
 import styles from "./Map.module.css";
 
 export interface MapProps {
   isModelLoaded: boolean;
-  modelWeight: number;
+  modelVolumeCm3: number;
   makers: Maker[];
   userLocation?: UserLocation | null;
   onOrder: (
     maker: Maker,
-    delivery: DeliveryChoice
+    delivery: DeliveryChoice,
+    consents: CheckoutConsentsValue
   ) => boolean | void | Promise<boolean | void>;
   isSubmittingOrder?: boolean;
   /** Mobile: open bottom sheet instead of Leaflet popup */
@@ -131,11 +132,12 @@ function createPinIcon(
 interface MakerPopupContentProps {
   maker: Maker;
   isModelLoaded: boolean;
-  modelWeight: number;
+  modelVolumeCm3: number;
   userLocation?: UserLocation | null;
   onOrder: (
     maker: Maker,
-    delivery: DeliveryChoice
+    delivery: DeliveryChoice,
+    consents: CheckoutConsentsValue
   ) => boolean | void | Promise<boolean | void>;
   isSubmittingOrder: boolean;
 }
@@ -153,7 +155,7 @@ function MakerPopupContent(props: MakerPopupContentProps) {
 
 export function Map({
   isModelLoaded,
-  modelWeight,
+  modelVolumeCm3,
   makers,
   userLocation = null,
   onOrder,
@@ -166,7 +168,7 @@ export function Map({
   const { user } = useAuth();
   const printerTypeFilter = useMapStore((state) => state.filters.printerType);
   const activePrinterType = resolvePricingPrinterType(printerTypeFilter);
-  const weightGrams = isModelLoaded && modelWeight > 0 ? modelWeight : null;
+  const hasModelVolume = isModelLoaded && modelVolumeCm3 > 0;
 
   const getMakerPinIcon = useCallback(
     (maker: Maker) => {
@@ -174,23 +176,17 @@ export function Map({
       const isHidden = maker.status === "hidden";
       const isBusy = maker.status === "busy";
       const pricePerGram = getMakerPricePerGramCzk(maker, activePrinterType);
+      const { customerPrintCzk } = hasModelVolume
+        ? getCustomerQuoteCzk(maker, modelVolumeCm3, activePrinterType)
+        : { customerPrintCzk: null };
       const pinLabel = isOwn
         ? t("map.ownWorkshopShort")
         : isHidden
           ? t("map.paused")
           : isBusy
             ? t("map.busyShort")
-            : weightGrams !== null
-              ? (() => {
-                  const makerPrint = getPrintCostCzk(
-                    maker,
-                    weightGrams,
-                    activePrinterType
-                  );
-                  const customerPrint =
-                    makerPrint + calculatePlatformFeeCzk(makerPrint);
-                  return `${customerPrint} ${t("common.czk")}`;
-                })()
+            : customerPrintCzk !== null
+              ? `${customerPrintCzk} ${t("common.czk")}`
               : t("common.czkPerGram", { price: pricePerGram });
 
       const variant = isOwn
@@ -208,7 +204,7 @@ export function Map({
         variant
       );
     },
-    [activePrinterType, weightGrams, t, user]
+    [activePrinterType, hasModelVolume, modelVolumeCm3, t, user]
   );
 
   const center = useMemo(
@@ -250,7 +246,7 @@ export function Map({
 
         {makers.map((maker) => (
           <Marker
-            key={maker.id}
+            key={`${maker.id}-${modelVolumeCm3}-${activePrinterType}`}
             position={[maker.latitude, maker.longitude]}
             icon={getMakerPinIcon(maker)}
             eventHandlers={
@@ -266,7 +262,7 @@ export function Map({
                 <MakerPopupContent
                   maker={maker}
                   isModelLoaded={isModelLoaded}
-                  modelWeight={modelWeight}
+                  modelVolumeCm3={modelVolumeCm3}
                   userLocation={userLocation}
                   onOrder={onOrder}
                   isSubmittingOrder={isSubmittingOrder}

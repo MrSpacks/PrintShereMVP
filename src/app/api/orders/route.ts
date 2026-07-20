@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth/session";
+import { LEGAL_DOCS_VERSION } from "@/lib/legal/constants";
 import { isPrinterType } from "@/lib/makers/maker-pricing";
+import { assertMakerCanAcceptPrintOrder } from "@/lib/makers/maker-income-gate";
 import { isWorkshopAcceptingOrders } from "@/lib/makers/workshop-status";
 import { mapOrder, mapOrderForViewer } from "@/lib/orders/map-order";
 import { calculateOrderPricing } from "@/lib/orders/order-pricing";
@@ -38,7 +40,12 @@ function isValidOrderPayload(body: unknown): body is CreateOrderPayload {
     (payload.zasilkovnaPointLabel === undefined ||
       typeof payload.zasilkovnaPointLabel === "string") &&
     typeof payload.printerType === "string" &&
-    isPrinterType(payload.printerType)
+    isPrinterType(payload.printerType) &&
+    payload.acceptedTerms === true &&
+    payload.acceptedPrivacy === true &&
+    payload.acceptedCustomManufacture === true &&
+    typeof payload.legalDocsVersion === "string" &&
+    payload.legalDocsVersion === LEGAL_DOCS_VERSION
   );
 }
 
@@ -180,9 +187,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const incomeGate = await assertMakerCanAcceptPrintOrder({
+      makerId: maker.id,
+      makerIco: maker.companyId,
+      additionalPrintCostCzk: pricing.printCostCzk,
+    });
+    if (!incomeGate.ok) {
+      return NextResponse.json({ error: incomeGate.error }, { status: 409 });
+    }
+
     const point = MOCK_ZASILKOVNA_POINTS.find(
       (entry) => entry.id === body.zasilkovnaPointId
     );
+
+    const consentedAt = new Date();
 
     const order = await prisma.order.create({
       data: {
@@ -205,6 +223,10 @@ export async function POST(request: Request) {
           deliveryMethod === "zasilkovna"
             ? (body.zasilkovnaPointLabel ?? point?.label ?? null)
             : null,
+        acceptedTermsAt: consentedAt,
+        acceptedPrivacyAt: consentedAt,
+        acceptedCustomManufactureAt: consentedAt,
+        legalDocsVersion: body.legalDocsVersion,
       },
       include: { maker: true, customer: true },
     });

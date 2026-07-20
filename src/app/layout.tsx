@@ -5,6 +5,8 @@ import { GeistMono } from "geist/font/mono";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppUpdateNotifier } from "@/components/layout/app-update-notifier";
 import { Header } from "@/components/layout/header";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { CookieBanner } from "@/components/legal/cookie-banner";
 import { buildRootMetadata } from "@/lib/seo/metadata";
 import { getAppVersion } from "@/lib/version/app-version";
 import { LocaleProvider } from "@/i18n/locale-provider";
@@ -37,6 +39,8 @@ export default function RootLayout({
             <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
               {children}
             </main>
+            <SiteFooter />
+            <CookieBanner />
             <AppUpdateNotifier />
           </AuthProvider>
         </LocaleProvider>

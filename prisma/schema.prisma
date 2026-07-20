@@ -112,6 +112,8 @@ model Maker {
   infillPercent    Int              @default(20)
   wallThicknessMm  Float            @default(1.2)
   supportCoefficient Float          @default(1.15)
+  /** IČO podnikatele; bez IČO platí roční limit příležitostného příjmu 50 000 Kč */
+  companyId        String?
   filaments        MakerFilament[]
   printers         MakerPrinter[]
   orders           Order[]
@@ -175,6 +177,13 @@ model Order {
   modelRetainUntil  DateTime?
   printQuality      PrintQuality  @default(standard)
   status            OrderStatus   @default(pending)
+  /** Souhlas s VOP při vytvoření objednávky */
+  acceptedTermsAt   DateTime?
+  /** Seznámení se zásadami ochrany osobních údajů */
+  acceptedPrivacyAt DateTime?
+  /** Potvrzení výjimky z 14denního odstoupení (custom výroba) */
+  acceptedCustomManufactureAt DateTime?
+  legalDocsVersion  String?
   messages          OrderMessage[]
   readReceipts      OrderReadReceipt[]
   review            OrderReview?

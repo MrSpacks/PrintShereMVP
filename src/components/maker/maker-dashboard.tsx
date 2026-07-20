@@ -253,6 +253,7 @@ export function MakerDashboard() {
   const [infillPercent, setInfillPercent] = useState("20");
   const [wallThicknessMm, setWallThicknessMm] = useState("1.2");
   const [supportCoefficient, setSupportCoefficient] = useState("1.15");
+  const [companyId, setCompanyId] = useState("");
   const [printerTypes, setPrinterTypes] = useState<PrinterType[]>(["fdm"]);
   const [status, setStatus] = useState<MakerStatus>("available");
 
@@ -273,6 +274,7 @@ export function MakerDashboard() {
     setInfillPercent(String(next.infillPercent));
     setWallThicknessMm(String(next.wallThicknessMm));
     setSupportCoefficient(String(next.supportCoefficient));
+    setCompanyId(next.companyId ?? "");
     setPrinterTypes(next.printerTypes);
     // В UI только «работаю» / «не работаю»; busy из БД → hidden
     setStatus(normalizeWorkshopUiStatus(next.status));
@@ -345,6 +347,7 @@ export function MakerDashboard() {
       infillPercent: Number(infillPercent),
       wallThicknessMm: Number(wallThicknessMm),
       supportCoefficient: Number(supportCoefficient),
+      companyId: companyId.trim() === "" ? null : companyId.trim(),
       printerTypes,
       status,
     };
@@ -543,6 +546,49 @@ export function MakerDashboard() {
                 rows={2}
                 className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="company-id" className="text-sm font-medium">
+                {t("dashboard.companyId")}
+              </label>
+              <input
+                id="company-id"
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="12345678"
+                value={companyId}
+                onChange={(event) =>
+                  setCompanyId(event.target.value.replace(/[^\d]/g, "").slice(0, 8))
+                }
+                className="flex h-10 w-full max-w-xs rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              <p className="text-xs text-muted-foreground">
+                {t("dashboard.companyIdHelp")}
+              </p>
+              {profile.occasionalIncomeRemainingCzk !== null &&
+                profile.occasionalIncomeRemainingCzk !== undefined && (
+                  <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                    <p className="font-medium">{t("dashboard.incomeLimitTitle")}</p>
+                    <p className="mt-1">
+                      {t("dashboard.incomeLimitYtd", {
+                        ytd: profile.yearToDatePrintIncomeCzk ?? 0,
+                        limit: profile.occasionalIncomeLimitCzk ?? 50000,
+                      })}
+                    </p>
+                    <p>
+                      {t("dashboard.incomeLimitRemaining", {
+                        remaining: profile.occasionalIncomeRemainingCzk,
+                      })}
+                    </p>
+                    {profile.occasionalIncomeRemainingCzk === 0 && (
+                      <p className="mt-1 font-medium">
+                        {t("dashboard.incomeLimitReached")}
+                      </p>
+                    )}
+                  </div>
+                )}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

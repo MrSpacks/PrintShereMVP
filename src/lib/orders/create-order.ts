@@ -2,20 +2,30 @@ import type { CreateOrderPayload, OrderResponse } from "@/types/order";
 import type { DeliveryChoice } from "@/types/delivery";
 import type { ModelData } from "@/types/model";
 import type { Maker, PrinterType } from "@/types/maker";
+import { LEGAL_DOCS_VERSION } from "@/lib/legal/constants";
+import { getMakerQuoteWeightGrams } from "@/lib/map/pricing";
 import { getOrderBlobPathname } from "@/lib/orders/order-file-paths";
 
 export function buildOrderPayload(
   maker: Maker,
   model: ModelData,
   delivery: DeliveryChoice,
-  printerType: PrinterType
+  printerType: PrinterType,
+  consents: {
+    acceptedTerms: boolean;
+    acceptedPrivacy: boolean;
+    acceptedCustomManufacture: boolean;
+  }
 ): CreateOrderPayload {
   const { stats, fileName } = model;
+  const weightGrams =
+    getMakerQuoteWeightGrams(stats.volumeCm3, maker, printerType) ??
+    stats.weightGrams;
 
   return {
     makerId: maker.id,
     fileName,
-    weightGrams: stats.weightGrams,
+    weightGrams,
     widthMm: stats.dimensions.width,
     heightMm: stats.dimensions.height,
     depthMm: stats.dimensions.depth,
@@ -23,6 +33,10 @@ export function buildOrderPayload(
     zasilkovnaPointId: delivery.zasilkovnaPointId,
     zasilkovnaPointLabel: delivery.zasilkovnaPointLabel,
     printerType,
+    acceptedTerms: consents.acceptedTerms,
+    acceptedPrivacy: consents.acceptedPrivacy,
+    acceptedCustomManufacture: consents.acceptedCustomManufacture,
+    legalDocsVersion: LEGAL_DOCS_VERSION,
   };
 }
 

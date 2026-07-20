@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 
 import { geocodeAddress } from "@/lib/geocoding/nominatim";
+import { OCCASIONAL_INCOME_LIMIT_CZK } from "@/lib/legal/constants";
 import { mapPrismaMakerProfile } from "@/lib/makers/map-maker";
+import { getMakerYearToDatePrintIncomeCzk } from "@/lib/makers/maker-income-gate";
+import {
+  normalizeMakerIco,
+  remainingOccasionalIncomeCzk,
+  validateMakerIcoInput,
+} from "@/lib/makers/occasional-income";
 import { requireMakerUser, unauthorized } from "@/lib/maker/require-maker";
 import { prisma } from "@/lib/prisma";
 import type { UpdateMakerProfilePayload, PrinterType } from "@/types/maker";
@@ -22,7 +29,10 @@ function isUpdateBody(body: unknown): body is UpdateMakerProfilePayload {
     typeof p.status === "string" &&
     (p.infillPercent === undefined || typeof p.infillPercent === "number") &&
     (p.wallThicknessMm === undefined || typeof p.wallThicknessMm === "number") &&
-    (p.supportCoefficient === undefined || typeof p.supportCoefficient === "number")
+    (p.supportCoefficient === undefined || typeof p.supportCoefficient === "number") &&
+    (p.companyId === undefined ||
+      p.companyId === null ||
+      typeof p.companyId === "string")
   );
 }
 
@@ -51,7 +61,18 @@ export async function GET() {
   const user = await requireMakerUser();
   if (!user || !user.maker) return unauthorized();
 
-  return NextResponse.json({ profile: mapPrismaMakerProfile(user.maker) });
+  const profile = mapPrismaMakerProfile(user.maker);
+  const ytd = await getMakerYearToDatePrintIncomeCzk(user.maker.id);
+  const remaining = remainingOccasionalIncomeCzk(ytd, user.maker.companyId);
+
+  return NextResponse.json({
+    profile: {
+      ...profile,
+      yearToDatePrintIncomeCzk: ytd,
+      occasionalIncomeLimitCzk: OCCASIONAL_INCOME_LIMIT_CZK,
+      occasionalIncomeRemainingCzk: remaining,
+    },
+  });
 }
 
 export async function PATCH(request: Request) {
@@ -117,6 +138,13 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: printSettingsError }, { status: 400 });
     }
 
+    if (body.companyId !== undefined) {
+      const icoError = validateMakerIcoInput(body.companyId);
+      if (icoError) {
+        return NextResponse.json({ error: icoError }, { status: 400 });
+      }
+    }
+
     const location = await geocodeAddress(address);
     if (!location) {
       return NextResponse.json(
@@ -140,6 +168,9 @@ export async function PATCH(request: Request) {
         ...(body.infillPercent !== undefined && { infillPercent: body.infillPercent }),
         ...(body.wallThicknessMm !== undefined && { wallThicknessMm: body.wallThicknessMm }),
         ...(body.supportCoefficient !== undefined && { supportCoefficient: body.supportCoefficient }),
+        ...(body.companyId !== undefined && {
+          companyId: normalizeMakerIco(body.companyId),
+        }),
       },
       include: {
         filaments: { orderBy: [{ printerType: "asc" }, { material: "asc" }] },
@@ -147,7 +178,17 @@ export async function PATCH(request: Request) {
       },
     });
 
-    return NextResponse.json({ profile: mapPrismaMakerProfile(updated) });
+    const ytd = await getMakerYearToDatePrintIncomeCzk(updated.id);
+    const remaining = remainingOccasionalIncomeCzk(ytd, updated.companyId);
+
+    return NextResponse.json({
+      profile: {
+        ...mapPrismaMakerProfile(updated),
+        yearToDatePrintIncomeCzk: ytd,
+        occasionalIncomeLimitCzk: OCCASIONAL_INCOME_LIMIT_CZK,
+        occasionalIncomeRemainingCzk: remaining,
+      },
+    });
   } catch (error) {
     console.error("[PATCH /api/maker/profile]", error);
     return NextResponse.json({ error: "Update failed" }, { status: 500 });

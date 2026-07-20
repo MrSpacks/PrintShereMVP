@@ -16,6 +16,13 @@ export const DEFAULT_PLA_DENSITY_G_CM3 = MATERIAL_DENSITIES.pla;
 /** Плотность resin по умолчанию (г/см³) */
 export const DEFAULT_RESIN_DENSITY_G_CM3 = MATERIAL_DENSITIES.resin;
 
+/** Настройки печати по умолчанию для оценки веса до выбора мейкера */
+export const DEFAULT_PRINT_SETTINGS = {
+  infillPercent: 20,
+  wallThicknessMm: 1.2,
+  supportCoefficient: 1.15,
+} as const;
+
 /** Допустимые расширения файлов */
 export const ACCEPTED_MODEL_EXTENSIONS = [".stl", ".obj"] as const;
 

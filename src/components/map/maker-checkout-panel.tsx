@@ -9,7 +9,7 @@ import { MOCK_ZASILKOVNA_POINTS } from "@/data/zasilkovna-points";
 import { useTranslations } from "@/i18n/locale-provider";
 import { buildAuthPath } from "@/lib/auth/safe-redirect";
 import { getMakerDistanceKm } from "@/lib/map/filter-makers";
-import { getPrintCostCzk } from "@/lib/map/pricing";
+import { getCustomerQuoteCzk, getPrintCostCzk } from "@/lib/map/pricing";
 import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
 import {
   getMakerPricePerGramCzk,
@@ -23,17 +23,23 @@ import type { Maker } from "@/types/maker";
 import type { UserLocation } from "@/types/map";
 import { isOwnWorkshop } from "@/types/user";
 import { cn } from "@/lib/utils";
+import {
+  areCheckoutConsentsComplete,
+  CheckoutConsents,
+  type CheckoutConsentsValue,
+} from "@/components/legal/checkout-consents";
 
 import styles from "./Map.module.css";
 
 export interface MakerCheckoutPanelProps {
   maker: Maker;
   isModelLoaded: boolean;
-  modelWeight: number;
+  modelVolumeCm3: number;
   userLocation?: UserLocation | null;
   onOrder: (
     maker: Maker,
-    delivery: DeliveryChoice
+    delivery: DeliveryChoice,
+    consents: CheckoutConsentsValue
   ) => boolean | void | Promise<boolean | void>;
   isSubmittingOrder: boolean;
   onOrderSuccess?: () => void;
@@ -43,7 +49,7 @@ export interface MakerCheckoutPanelProps {
 export function MakerCheckoutPanel({
   maker,
   isModelLoaded,
-  modelWeight,
+  modelVolumeCm3,
   userLocation,
   onOrder,
   isSubmittingOrder,
@@ -55,12 +61,20 @@ export function MakerCheckoutPanel({
   const router = useRouter();
   const printerTypeFilter = useMapStore((state) => state.filters.printerType);
   const activePrinterType = resolvePricingPrinterType(printerTypeFilter);
-  const weightGrams = isModelLoaded && modelWeight > 0 ? modelWeight : null;
+  const { weightGrams, customerPrintCzk } =
+    isModelLoaded && modelVolumeCm3 > 0
+      ? getCustomerQuoteCzk(maker, modelVolumeCm3, activePrinterType)
+      : { weightGrams: null, customerPrintCzk: null };
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
   const [deliveryPriceCzk, setDeliveryPriceCzk] = useState(0);
   const [zasilkovnaPointId, setZasilkovnaPointId] = useState("");
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
+  const [consents, setConsents] = useState<CheckoutConsentsValue>({
+    acceptedTerms: false,
+    acceptedPrivacy: false,
+    acceptedCustomManufacture: false,
+  });
 
   const makerPrintCzk =
     weightGrams !== null
@@ -68,8 +82,6 @@ export function MakerCheckoutPanel({
       : null;
   const platformFeeCzk =
     makerPrintCzk !== null ? calculatePlatformFeeCzk(makerPrintCzk) : 0;
-  const customerPrintCzk =
-    makerPrintCzk !== null ? makerPrintCzk + platformFeeCzk : null;
 
   const priceLabel =
     customerPrintCzk !== null
@@ -124,6 +136,7 @@ export function MakerCheckoutPanel({
     maker.status === "available" &&
     !isSubmittingOrder &&
     !isLoadingQuote &&
+    areCheckoutConsentsComplete(consents) &&
     (deliveryMethod === "pickup" ||
       (deliveryPriceCzk > 0 && zasilkovnaPointId.length > 0)) &&
     (makerPrintCzk === null ||
@@ -172,6 +185,8 @@ export function MakerCheckoutPanel({
   );
 
   const handleOrderClick = async () => {
+    if (!areCheckoutConsentsComplete(consents)) return;
+
     const delivery: DeliveryChoice = {
       method: deliveryMethod,
       deliveryPriceCzk:
@@ -188,12 +203,15 @@ export function MakerCheckoutPanel({
         deliveryPriceCzk: delivery.deliveryPriceCzk,
         zasilkovnaPointId: delivery.zasilkovnaPointId,
         zasilkovnaPointLabel: delivery.zasilkovnaPointLabel,
+        acceptedTerms: consents.acceptedTerms,
+        acceptedPrivacy: consents.acceptedPrivacy,
+        acceptedCustomManufacture: consents.acceptedCustomManufacture,
       });
       router.push(buildAuthPath("/login", "/"));
       return;
     }
 
-    const succeeded = await onOrder(maker, delivery);
+    const succeeded = await onOrder(maker, delivery, consents);
     if (succeeded) {
       onOrderSuccess?.();
     }
@@ -330,6 +348,10 @@ export function MakerCheckoutPanel({
           </div>
         )}
 
+        {!isOwn && weightGrams !== null && (
+          <CheckoutConsents value={consents} onChange={setConsents} />
+        )}
+
         <span
           className={
             maker.status === "available"
@@ -359,7 +381,7 @@ export function MakerCheckoutPanel({
             ? t("map.savingOrder")
             : isLoadingQuote
               ? t("map.calculatingDelivery")
-              : !isModelLoaded || modelWeight <= 0
+              : !isModelLoaded || modelVolumeCm3 <= 0
                 ? t("map.uploadToOrder")
                 : !user && canContinueToAuth
                   ? t("map.loginToOrder")

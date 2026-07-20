@@ -154,6 +154,15 @@ export const enMessages = {
     statusHidden: "Paused — grey pin on map, no new orders",
     saveSettings: "Save settings",
     settingsSaved: "Workshop settings saved",
+    companyId: "Company ID (IČO)",
+    companyIdHelp:
+      "8 digits. Without an IČO, annual platform income is capped at CZK 50,000 (occasional income).",
+    companyIdInvalid: "IČO must be exactly 8 digits",
+    incomeLimitTitle: "Occasional income limit",
+    incomeLimitYtd: "This year on the platform: {ytd} CZK of {limit} CZK",
+    incomeLimitRemaining: "Remaining: {remaining} CZK",
+    incomeLimitReached:
+      "The CZK 50,000 limit without IČO is reached. Add an IČO to accept further orders.",
     filamentsTitle: "Plastics & resins",
     filamentsSubtitle:
       "Materials shown on your map card. Pick material, then tap a color swatch.",
@@ -686,5 +695,29 @@ export const enMessages = {
     linksLogin: "account access",
     linksMaker: "register a workshop on the map",
     footer: "Didn't find an answer? Email us or return to the map.",
+  },
+  legal: {
+    ico: "Company ID (IČO)",
+    notVatPayer: "not a VAT payer",
+    registeredOffice: "Registered office",
+    footerNav: "Legal documents",
+    terms: "Terms of Service",
+    privacy: "Privacy Policy",
+    complaints: "Complaints Policy",
+    cookies: "Cookies",
+    effectiveFrom: "Effective from",
+  },
+  cookies: {
+    title: "Cookies and privacy",
+    body: "We use necessary cookies for login and language. Optional analytics will not load until you accept. See",
+    accept: "Accept",
+    reject: "Reject",
+  },
+  checkout: {
+    consentTermsPrefix: "I agree to the",
+    consentPrivacyPrefix: "I have read the",
+    consentCustomManufacture:
+      "I confirm that the goods are made to my specifications (custom STL/OBJ) and that the statutory 14-day right to withdraw without giving a reason does not apply.",
+    consentsRequired: "Please tick all confirmations to place the order.",
   },
 } as const;

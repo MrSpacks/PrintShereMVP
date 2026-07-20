@@ -28,6 +28,7 @@ import { useMapStore } from "@/store/map-store";
 import { useModelStore } from "@/store/model-store";
 import type { Maker } from "@/types/maker";
 import type { DeliveryChoice } from "@/types/delivery";
+import type { CheckoutConsentsValue } from "@/components/legal/checkout-consents";
 import { cn } from "@/lib/utils";
 
 function MapLoading() {
@@ -93,10 +94,14 @@ export function MapPanel({
   }, [makers, filters, userLocation]);
 
   const isModelLoaded = model !== null;
-  const modelWeight = model?.stats.weightGrams ?? 0;
+  const modelVolumeCm3 = model?.stats.volumeCm3 ?? 0;
 
   const handleOrder = useCallback(
-    async (maker: Maker, delivery: DeliveryChoice): Promise<boolean> => {
+    async (
+      maker: Maker,
+      delivery: DeliveryChoice,
+      consents: CheckoutConsentsValue
+    ): Promise<boolean> => {
       if (!model) return false;
       if (user && isOwnWorkshop(user, maker.id)) return false;
 
@@ -105,7 +110,13 @@ export function MapPanel({
 
       try {
         const printerType = resolvePricingPrinterType(filters.printerType);
-        const payload = buildOrderPayload(maker, model, delivery, printerType);
+        const payload = buildOrderPayload(
+          maker,
+          model,
+          delivery,
+          printerType,
+          consents
+        );
         const order = await createOrder(payload);
 
         if (model.sourceFile) {
@@ -173,7 +184,11 @@ export function MapPanel({
       setSheetMaker(maker);
     }
 
-    void handleOrder(maker, delivery);
+    void handleOrder(maker, delivery, {
+      acceptedTerms: pending.acceptedTerms,
+      acceptedPrivacy: pending.acceptedPrivacy,
+      acceptedCustomManufacture: pending.acceptedCustomManufacture,
+    });
   }, [user, model, makers, isLoading, handleOrder, mobileMode]);
 
   const handleMakerSelect = useCallback((maker: Maker) => {
@@ -241,7 +256,7 @@ export function MapPanel({
         ) : (
           <Map
             isModelLoaded={isModelLoaded}
-            modelWeight={modelWeight}
+            modelVolumeCm3={modelVolumeCm3}
             makers={visibleMakers}
             userLocation={userLocation}
             onOrder={handleOrder}
@@ -257,7 +272,7 @@ export function MapPanel({
         <MakerListPanel
           makers={visibleMakers}
           userLocation={userLocation}
-          modelWeight={modelWeight}
+          modelVolumeCm3={modelVolumeCm3}
           isModelLoaded={isModelLoaded}
           onSelectMaker={handleMakerSelect}
           className="pb-20"
@@ -273,7 +288,7 @@ export function MapPanel({
           <MakerCheckoutPanel
             maker={selectedMaker}
             isModelLoaded={isModelLoaded}
-            modelWeight={modelWeight}
+            modelVolumeCm3={modelVolumeCm3}
             userLocation={userLocation}
             onOrder={handleOrder}
             isSubmittingOrder={isSubmittingOrder}

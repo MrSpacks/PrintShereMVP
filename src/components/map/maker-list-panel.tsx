@@ -4,8 +4,7 @@ import { ChevronRight, Star } from "lucide-react";
 
 import { useTranslations } from "@/i18n/locale-provider";
 import { getMakerDistanceKm } from "@/lib/map/filter-makers";
-import { getPrintCostCzk } from "@/lib/map/pricing";
-import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
+import { getCustomerQuoteCzk } from "@/lib/map/pricing";
 import {
   getMakerPricePerGramCzk,
   resolvePricingPrinterType,
@@ -18,7 +17,7 @@ import { cn } from "@/lib/utils";
 interface MakerListPanelProps {
   makers: Maker[];
   userLocation?: UserLocation | null;
-  modelWeight: number;
+  modelVolumeCm3: number;
   isModelLoaded: boolean;
   onSelectMaker: (maker: Maker) => void;
   className?: string;
@@ -27,7 +26,7 @@ interface MakerListPanelProps {
 export function MakerListPanel({
   makers,
   userLocation,
-  modelWeight,
+  modelVolumeCm3,
   isModelLoaded,
   onSelectMaker,
   className,
@@ -35,7 +34,7 @@ export function MakerListPanel({
   const { t } = useTranslations();
   const printerTypeFilter = useMapStore((state) => state.filters.printerType);
   const activePrinterType = resolvePricingPrinterType(printerTypeFilter);
-  const weightGrams = isModelLoaded && modelWeight > 0 ? modelWeight : null;
+  const hasModelVolume = isModelLoaded && modelVolumeCm3 > 0;
 
   if (makers.length === 0) {
     return null;
@@ -70,15 +69,18 @@ export function MakerListPanel({
               : null;
 
           const priceLabel =
-            weightGrams !== null
+            hasModelVolume
               ? (() => {
-                  const print = getPrintCostCzk(
+                  const { customerPrintCzk } = getCustomerQuoteCzk(
                     maker,
-                    weightGrams,
+                    modelVolumeCm3,
                     activePrinterType
                   );
-                  const total = print + calculatePlatformFeeCzk(print);
-                  return `${total} ${t("common.czk")}`;
+                  return customerPrintCzk !== null
+                    ? `${customerPrintCzk} ${t("common.czk")}`
+                    : t("common.czkPerGram", {
+                        price: getMakerPricePerGramCzk(maker, activePrinterType),
+                      });
                 })()
               : t("common.czkPerGram", {
                   price: getMakerPricePerGramCzk(maker, activePrinterType),

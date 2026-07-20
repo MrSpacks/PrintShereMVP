@@ -6,6 +6,10 @@ import {
   buildModelStats,
   extractMeshGeometries,
 } from "@/lib/model/geometry-stats";
+import {
+  DEFAULT_PLA_DENSITY_G_CM3,
+  DEFAULT_PRINT_SETTINGS,
+} from "@/lib/model/constants";
 import type { ModelData, ModelFileType } from "@/types/model";
 
 const STL_EXTENSIONS = new Set(["stl"]);
@@ -54,15 +58,17 @@ export async function parseModelFile(file: File): Promise<ModelData> {
     }
   }
 
-  const defaultSettings = {
-    infillPercent: 20,
-    wallThicknessMm: 1.2,
-    supportCoefficient: 1.15,
-  };
-  
-  const stats = buildModelStats(geometries, undefined, defaultSettings);
+  const stats = buildModelStats(
+    geometries,
+    DEFAULT_PLA_DENSITY_G_CM3,
+    DEFAULT_PRINT_SETTINGS
+  );
 
-  if (stats.volumeCm3 <= 0 || stats.weightGrams <= 0) {
+  if (
+    stats.volumeCm3 <= 0 ||
+    !Number.isFinite(stats.weightGrams) ||
+    stats.weightGrams <= 0
+  ) {
     URL.revokeObjectURL(objectUrl);
     throw new Error(
       "Could not calculate model volume. Ensure the mesh is watertight."

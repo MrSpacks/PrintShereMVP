@@ -37,6 +37,10 @@ export interface CreateOrderPayload {
   zasilkovnaPointId?: string;
   zasilkovnaPointLabel?: string;
   printerType: "fdm" | "resin";
+  acceptedTerms: boolean;
+  acceptedPrivacy: boolean;
+  acceptedCustomManufacture: boolean;
+  legalDocsVersion: string;
 }
 
 export interface OrderResponse {

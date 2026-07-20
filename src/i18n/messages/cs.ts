@@ -152,6 +152,15 @@ export const csMessages = {
     statusHidden: "Pauza — šedý pin na mapě, bez nových objednávek",
     saveSettings: "Uložit nastavení",
     settingsSaved: "Nastavení dílny uloženo",
+    companyId: "IČO",
+    companyIdHelp:
+      "8 číslic. Bez IČO je roční příjem z platformy omezen na 50 000 Kč (příležitostný příjem).",
+    companyIdInvalid: "IČO musí mít přesně 8 číslic",
+    incomeLimitTitle: "Limit příležitostného příjmu",
+    incomeLimitYtd: "Letos na platformě: {ytd} Kč z {limit} Kč",
+    incomeLimitRemaining: "Zbývá: {remaining} Kč",
+    incomeLimitReached:
+      "Limit 50 000 Kč bez IČO je vyčerpán. Doplňte IČO, abyste mohli přijímat další objednávky.",
     filamentsTitle: "Plasty a pryskyřice",
     filamentsSubtitle:
       "Materiály zobrazené na kartě na mapě. Vyberte materiál, pak barvu kliknutím.",
@@ -685,6 +694,30 @@ export const csMessages = {
     linksLogin: "přístup k účtu",
     linksMaker: "registrace dílny na mapě",
     footer: "Nenašli jste odpověď? Napište nám nebo se vraťte na mapu.",
+  },
+  legal: {
+    ico: "IČO",
+    notVatPayer: "neplátce DPH",
+    registeredOffice: "Sídlo",
+    footerNav: "Právní dokumenty",
+    terms: "Obchodní podmínky",
+    privacy: "Ochrana osobních údajů",
+    complaints: "Reklamační řád",
+    cookies: "Cookies",
+    effectiveFrom: "Účinnost od",
+  },
+  cookies: {
+    title: "Cookies a soukromí",
+    body: "Používáme nezbytné cookies pro přihlášení a jazyk. Volitelná analytika se nenačte, dokud ji nepřijmete. Více v",
+    accept: "Přijmout",
+    reject: "Odmítnout",
+  },
+  checkout: {
+    consentTermsPrefix: "Souhlasím s",
+    consentPrivacyPrefix: "Seznámil(a) jsem se se",
+    consentCustomManufacture:
+      "Potvrzuji, že zboží je vyráběno na míru podle mých podkladů (custom STL/OBJ) a že se neuplatní zákonné právo na odstoupení od smlouvy do 14 dnů bez uvedení důvodu.",
+    consentsRequired: "Pro odeslání objednávky zaškrtněte všechna potvrzení.",
   },
 } as const;
 

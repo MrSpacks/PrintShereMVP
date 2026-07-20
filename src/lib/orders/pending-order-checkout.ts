@@ -9,6 +9,9 @@ export interface PendingOrderCheckout {
   deliveryPriceCzk: number;
   zasilkovnaPointId?: string;
   zasilkovnaPointLabel?: string;
+  acceptedTerms: boolean;
+  acceptedPrivacy: boolean;
+  acceptedCustomManufacture: boolean;
   savedAt: number;
 }
 
@@ -37,7 +40,10 @@ export function loadPendingOrderCheckout(): PendingOrderCheckout | null {
       !parsed.makerId ||
       !parsed.deliveryMethod ||
       typeof parsed.deliveryPriceCzk !== "number" ||
-      typeof parsed.savedAt !== "number"
+      typeof parsed.savedAt !== "number" ||
+      parsed.acceptedTerms !== true ||
+      parsed.acceptedPrivacy !== true ||
+      parsed.acceptedCustomManufacture !== true
     ) {
       sessionStorage.removeItem(STORAGE_KEY);
       return null;

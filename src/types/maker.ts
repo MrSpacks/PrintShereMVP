@@ -31,6 +31,8 @@ export interface Maker {
   printers: MakerPrinter[];
   filaments: MakerFilament[];
   status: MakerStatus;
+  /** IČO — without it, annual occasional-income limit applies */
+  companyId: string | null;
   infillPercent: number;
   wallThicknessMm: number;
   supportCoefficient: number;
@@ -38,6 +40,10 @@ export interface Maker {
 
 export interface MakerProfile extends Maker {
   updatedAt: string;
+  /** YTD print income counting toward occasional-income limit (null if IČO set) */
+  yearToDatePrintIncomeCzk?: number;
+  occasionalIncomeLimitCzk?: number;
+  occasionalIncomeRemainingCzk?: number | null;
 }
 
 export interface MakerWorkshopSummary {
@@ -71,6 +77,8 @@ export interface UpdateMakerProfilePayload {
   infillPercent?: number;
   wallThicknessMm?: number;
   supportCoefficient?: number;
+  /** Empty string or omit to clear; 8 digits to set */
+  companyId?: string | null;
 }
 
 export interface WorkshopPrinterInput {
