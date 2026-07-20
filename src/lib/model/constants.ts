@@ -35,3 +35,25 @@ export const ACCEPTED_MODEL_MIME_TYPES = [
   "model/obj",
   "application/obj",
 ] as const;
+
+/**
+ * Значение для <input accept>.
+ * На iOS/iPadOS фильтр `.stl`/`.obj` часто делает файлы серыми и невыбираемыми
+ * (система не знает UTI). Там не ограничиваем picker — валидируем после выбора.
+ */
+export function getModelFileInputAccept(): string | undefined {
+  if (typeof navigator === "undefined") {
+    return ACCEPTED_MODEL_EXTENSIONS.join(",");
+  }
+
+  const ua = navigator.userAgent;
+  const isIOS =
+    /iPad|iPhone|iPod/i.test(ua) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+  if (isIOS) {
+    return undefined;
+  }
+
+  return ACCEPTED_MODEL_EXTENSIONS.join(",");
+}

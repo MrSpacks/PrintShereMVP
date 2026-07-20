@@ -47,7 +47,7 @@ export function MobileStickyPriceBar({
   return (
     <div
       className={cn(
-        "fixed inset-x-0 bottom-0 z-[1500] border-t border-zinc-700/80 bg-zinc-950/95 px-4 py-3 backdrop-blur lg:hidden",
+        "fixed inset-x-0 bottom-8 z-[1500] border-t border-zinc-700/80 bg-zinc-950/95 px-4 py-3 pb-[max(0.75rem,calc(0.75rem+env(safe-area-inset-bottom)))] backdrop-blur lg:hidden",
         className
       )}
     >

@@ -17,6 +17,8 @@ import { getMakerPayoutCzk } from "@/lib/orders/map-order";
 import { uploadOrderModelFile } from "@/lib/orders/create-order";
 import { canCancelOrder, canEditOrderTerms } from "@/lib/orders/order-workflow";
 import { shouldShowModelRetentionNotice } from "@/lib/orders/order-model-retention";
+import { getModelFileInputAccept } from "@/lib/model/constants";
+import { isAcceptedModelFile } from "@/lib/model/parse-model-file";
 import type {
   OrderAction,
   OrderMessage,
@@ -61,6 +63,7 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
   const [fileMessage, setFileMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const modelFileAccept = getModelFileInputAccept();
 
   const loadOrder = useCallback(async () => {
     const response = await fetch(`/api/orders/${orderId}`);
@@ -209,6 +212,11 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
   };
 
   const handleUploadModel = async (file: File) => {
+    if (!isAcceptedModelFile(file)) {
+      setFileMessage(t("model.unsupportedFileType"));
+      return;
+    }
+
     setIsUploadingFile(true);
     setFileMessage(null);
     try {
@@ -457,7 +465,7 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".stl,.obj"
+                  {...(modelFileAccept ? { accept: modelFileAccept } : {})}
                   className="hidden"
                   disabled={isUploadingFile}
                   onChange={(event) => {

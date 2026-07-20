@@ -57,9 +57,9 @@ export function HomeExperience() {
 
       <div className="relative min-h-0 flex-1 overflow-hidden">
         {mobileStep === "model" ? (
-          <div className="absolute inset-0 flex min-h-0 flex-col">
+          <div className="absolute inset-0 flex min-h-0 flex-col overflow-hidden">
             <ModelPanel className="min-h-0 flex-1" hidePriceFooter />
-            <div className="shrink-0 border-t border-border bg-background p-3">
+            <div className="relative z-10 shrink-0 border-t border-border bg-background p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <Button
                 type="button"
                 variant="brand"

@@ -6,7 +6,7 @@ import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ModelHomeSteps } from "@/components/model/model-home-steps";
 import { useTranslations } from "@/i18n/locale-provider";
-import { ACCEPTED_MODEL_EXTENSIONS } from "@/lib/model/constants";
+import { getModelFileInputAccept } from "@/lib/model/constants";
 import { isAcceptedModelFile } from "@/lib/model/parse-model-file";
 import { cn } from "@/lib/utils";
 
@@ -28,10 +28,15 @@ export function ModelDropzone({
   const handleFiles = useCallback(
     (files: FileList | null) => {
       const file = files?.[0];
-      if (!file || !isAcceptedModelFile(file)) return;
+      if (!file) return;
+      if (!isAcceptedModelFile(file)) {
+        // iOS picker may show all files — reject unsupported types here
+        window.alert(t("model.unsupportedFileType"));
+        return;
+      }
       onFileSelect(file);
     },
-    [onFileSelect]
+    [onFileSelect, t]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -53,12 +58,12 @@ export function ModelDropzone({
     [handleFiles]
   );
 
-  const accept = ACCEPTED_MODEL_EXTENSIONS.join(",");
+  const accept = getModelFileInputAccept();
 
   return (
     <div
       className={cn(
-        "flex flex-1 flex-col items-center justify-start gap-6 overflow-y-auto p-4 sm:justify-center sm:p-6",
+        "flex h-full min-h-0 flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain p-4 pb-6 sm:justify-center sm:p-6",
         className
       )}
     >
@@ -113,7 +118,7 @@ export function ModelDropzone({
       <input
         ref={inputRef}
         type="file"
-        accept={accept}
+        {...(accept ? { accept } : {})}
         className="hidden"
         disabled={isLoading}
         onChange={(event) => {

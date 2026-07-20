@@ -28,7 +28,6 @@ import { cn } from "@/lib/utils";
 const PUBLIC_LINKS = [
   { key: "header.howItWorks", href: "/how-it-works" },
   { key: "header.support", href: "/support" },
-  { key: "header.becomeMaker", href: "/become-maker", variant: "brand" as const },
 ] as const;
 
 export function HeaderMobileMenu() {
@@ -77,16 +76,24 @@ export function HeaderMobileMenu() {
               key={link.href}
               href={link.href}
               onClick={close}
-              className={cn(
-                navLinkClass(link.href),
-                "variant" in link &&
-                  link.variant === "brand" &&
-                  "bg-brand text-brand-foreground hover:bg-brand/90"
-              )}
+              className={navLinkClass(link.href)}
             >
               {t(link.key)}
             </Link>
           ))}
+
+          {!isMaker && (
+            <Link
+              href="/become-maker"
+              onClick={close}
+              className={cn(
+                navLinkClass("/become-maker"),
+                "bg-brand text-brand-foreground hover:bg-brand/90"
+              )}
+            >
+              {t("header.becomeMaker")}
+            </Link>
+          )}
 
           <div className="my-2 border-t border-border" />
 
@@ -144,6 +151,8 @@ export function HeaderMobileMenu() {
                   {t("auth.moderation")}
                 </Link>
               )}
+
+              <div className="my-1 border-t border-border" />
 
               <button
                 type="button"

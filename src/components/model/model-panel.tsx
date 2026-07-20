@@ -89,11 +89,12 @@ export function ModelPanel({ className, hidePriceFooter = false }: ModelPanelPro
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col bg-zinc-900", className)}>
-      <div className="relative min-h-0 flex-1">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         {!model ? (
           <ModelDropzone
             onFileSelect={handleFileSelect}
             isLoading={isParsing}
+            className="absolute inset-0"
           />
         ) : (
           <>

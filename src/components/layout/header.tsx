@@ -7,8 +7,10 @@ import { HeaderAuth } from "@/components/auth/header-auth";
 import { HeaderMobileMenu } from "@/components/layout/header-mobile-menu";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { MessageInbox } from "@/components/layout/message-inbox";
+import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
+import { hasMakerAccess } from "@/types/user";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -22,6 +24,9 @@ interface HeaderProps {
 
 export function Header({ className }: HeaderProps) {
   const { t } = useTranslations();
+  const { user } = useAuth();
+  const isMaker = user ? hasMakerAccess(user) : false;
+  const showBecomeMaker = !isMaker;
 
   return (
     <header
@@ -61,9 +66,11 @@ export function Header({ className }: HeaderProps) {
           <LanguageSwitcher />
 
           <div className="hidden items-center gap-2 md:flex">
-            <Button variant="brand" size="sm" asChild>
-              <Link href="/become-maker">{t("header.becomeMaker")}</Link>
-            </Button>
+            {showBecomeMaker && (
+              <Button variant="brand" size="sm" asChild>
+                <Link href="/become-maker">{t("header.becomeMaker")}</Link>
+              </Button>
+            )}
             <MessageInbox />
             <HeaderAuth />
           </div>
