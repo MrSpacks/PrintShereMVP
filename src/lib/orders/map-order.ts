@@ -27,7 +27,7 @@ const ORDER_STATUSES = new Set<string>([
   "refunded",
   "cancelled",
 ]);
-const DELIVERY_METHODS = new Set<string>(["pickup", "zasilkovna"]);
+const DELIVERY_METHODS = new Set<string>(["pickup", "delivery", "zasilkovna"]);
 const PRINT_QUALITIES = new Set<string>(["draft", "standard", "high"]);
 const PRINTER_TYPES = new Set<string>(["fdm", "resin"]);
 
@@ -90,6 +90,7 @@ export function mapOrder(order: OrderWithRelations): OrderResponse {
     printerType: toPrinterType(order.printerType),
     printCostCzk: order.printCostCzk,
     platformFeeCzk: order.platformFeeCzk,
+    stripeFeeCzk: order.stripeFeeCzk,
     customerPrintCzk,
     customerTotalCzk: order.customerTotalCzk || getCustomerTotalCzk(order),
     printQuality: toPrintQuality(order.printQuality),
@@ -112,8 +113,10 @@ export function mapOrder(order: OrderWithRelations): OrderResponse {
   };
 }
 
-export function getMakerPayoutCzk(order: Pick<OrderResponse, "printCostCzk">): number {
-  return order.printCostCzk;
+export function getMakerPayoutCzk(
+  order: Pick<OrderResponse, "printCostCzk" | "deliveryPriceCzk">
+): number {
+  return order.printCostCzk + (order.deliveryPriceCzk ?? 0);
 }
 
 export function getOrderTotalCzk(
@@ -135,9 +138,9 @@ export function mapOrderForViewer(
 
   const {
     platformFeeCzk: _platformFeeCzk,
+    stripeFeeCzk: _stripeFeeCzk,
     customerTotalCzk: _customerTotalCzk,
     customerPrintCzk: _customerPrintCzk,
-    deliveryPriceCzk: _deliveryPriceCzk,
     ...makerSafe
   } = mapped;
 

@@ -107,6 +107,10 @@ model Maker {
   pricePerGramFdmCzk   Float
   pricePerGramResinCzk Float
   minOrderPriceCzk Int              @default(0)
+  /** Maker ships parcels themselves (Packeta/PPL/etc.) at a fixed price */
+  offersDelivery   Boolean          @default(false)
+  /** Fixed shipping fee charged to customer and paid out to maker */
+  deliveryPriceCzk Int              @default(0)
   printerTypes     String[]
   status           MakerStatus      @default(available)
   infillPercent    Int              @default(20)
@@ -165,6 +169,8 @@ model Order {
   printerType       String        @default("fdm")
   printCostCzk      Int
   platformFeeCzk    Int           @default(0)
+  /** Reserved Stripe processing fee paid by the customer (gross-up) */
+  stripeFeeCzk      Int           @default(0)
   customerTotalCzk  Int           @default(0)
   deliveryMethod    String?
   deliveryPriceCzk  Int           @default(0)

@@ -140,6 +140,11 @@ export const enMessages = {
     pricePerGramFdm: "Price per gram — plastic (FDM)",
     pricePerGramResin: "Price per gram — resin (SLA)",
     minOrderPrice: "Minimum order price (CZK)",
+    deliveryTitle: "Delivery",
+    deliveryHelp:
+      "Enable if you ship to customers (Packeta, PPL, etc.). You set a fixed price — shipping is arranged outside the platform.",
+    offersDelivery: "I offer delivery",
+    deliveryPrice: "Delivery price (CZK)",
     printSettings: "Print settings",
     printSettingsHelp: "These settings affect weight calculation and pricing accuracy",
     infillPercent: "Infill",
@@ -271,6 +276,7 @@ export const enMessages = {
     uploadForPricing: "Upload a model to see pricing",
     pickMaker: "Based on {weight}g — pick a maker on the map",
     zasilkovnaExtra: " · Zásilkovna +{price} CZK",
+    deliveryExtra: " · delivery +{price} CZK",
     homeStepsTitle: "How to order a print",
     homeStepsMore: "More details →",
     homeSteps: {
@@ -324,6 +330,8 @@ export const enMessages = {
       "Print cost is below this maker's minimum ({min} CZK)",
     delivery: "Delivery",
     pickupFree: "Pickup at workshop — Free",
+    makerDelivery: "Delivery",
+    pickupOnly: "This maker only offers workshop pickup.",
     zasilkovna: "Zásilkovna parcel",
     calculating: "calculating…",
     quoteFailed: "Quote failed",
@@ -448,6 +456,8 @@ export const enMessages = {
       "The model file will be automatically deleted on {date}. Download it before then if you still need it.",
     modelFileRemoved: "The model file has been removed from the server.",
     makerPrint: "Your earnings",
+    makerPrintCost: "Print price",
+    makerPayoutHint: "You receive {amount} CZK total (print + delivery).",
     downloadModel: "Download 3D model",
     fileMissing: "Model file not uploaded yet",
     fileMissingCustomer:

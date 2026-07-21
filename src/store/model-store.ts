@@ -7,9 +7,12 @@ import type { DeliveryMethod } from "@/types/delivery";
 interface SelectedMakerPrice {
   makerId: string;
   makerName: string;
+  /** Customer-facing print line (maker print + platform fee) */
   printCostCzk: number;
   deliveryMethod: DeliveryMethod | null;
   deliveryPriceCzk: number;
+  /** Full amount the customer pays (incl. Stripe gross-up) */
+  customerTotalCzk: number;
 }
 
 interface ModelStore {

@@ -59,13 +59,15 @@ export interface OrderResponse {
   printCostCzk: number;
   /** Omitted for maker viewers — platform commission is not disclosed */
   platformFeeCzk?: number;
+  /** Omitted for maker viewers — Stripe fee is paid by the customer */
+  stripeFeeCzk?: number;
   /** Omitted for maker viewers */
   customerPrintCzk?: number;
   /** Omitted for maker viewers */
   customerTotalCzk?: number;
   printQuality: PrintQuality;
   deliveryMethod: DeliveryMethod | null;
-  /** Omitted for maker viewers — delivery is paid by the customer */
+  /** Delivery fee the maker receives (with print) when shipping is selected */
   deliveryPriceCzk?: number;
   zasilkovnaPointId: string | null;
   zasilkovnaPointLabel: string | null;

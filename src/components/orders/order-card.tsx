@@ -34,6 +34,7 @@ export function OrderCard({ order, view }: OrderCardProps) {
 
   const deliveryLabels = {
     pickup: t("orders.pickup"),
+    delivery: t("map.makerDelivery"),
     zasilkovna: t("map.zasilkovna"),
     czk: t("common.czk"),
   };

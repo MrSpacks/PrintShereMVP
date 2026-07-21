@@ -60,6 +60,8 @@ export function mapPrismaMaker(
     pricePerGramFdmCzk: record.pricePerGramFdmCzk,
     pricePerGramResinCzk: record.pricePerGramResinCzk,
     minOrderPriceCzk: record.minOrderPriceCzk,
+    offersDelivery: record.offersDelivery,
+    deliveryPriceCzk: record.deliveryPriceCzk,
     printerTypes: toPrinterTypes(record.printerTypes),
     printers: (record.printers ?? []).map(mapPrinter),
     filaments: (record.filaments ?? []).map(mapFilament),

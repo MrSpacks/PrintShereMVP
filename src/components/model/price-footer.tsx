@@ -10,16 +10,15 @@ export function PriceFooter() {
 
   const deliveryPart =
     selectedMaker && selectedMaker.deliveryPriceCzk > 0
-      ? selectedMaker.deliveryMethod === "zasilkovna"
-        ? t("model.zasilkovnaExtra", {
+      ? selectedMaker.deliveryMethod === "delivery" ||
+        selectedMaker.deliveryMethod === "zasilkovna"
+        ? t("model.deliveryExtra", {
             price: selectedMaker.deliveryPriceCzk,
           })
         : ""
       : "";
 
-  const totalCzk = selectedMaker
-    ? selectedMaker.printCostCzk + selectedMaker.deliveryPriceCzk
-    : null;
+  const totalCzk = selectedMaker ? selectedMaker.customerTotalCzk : null;
 
   const label =
     totalCzk !== null

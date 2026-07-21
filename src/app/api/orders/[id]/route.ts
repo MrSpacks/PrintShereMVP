@@ -5,8 +5,7 @@ import {
   ORDER_DETAIL_INCLUDE,
 } from "@/lib/orders/map-order";
 import {
-  calculatePlatformFeeCzk,
-  getCustomerTotalCzk,
+  recalculateOrderMoney,
 } from "@/lib/orders/order-pricing";
 import {
   canEditOrderTerms,
@@ -120,13 +119,13 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     if (editingTerms) {
-      const platformFeeCzk = calculatePlatformFeeCzk(nextPrintCost);
-      data.platformFeeCzk = platformFeeCzk;
-      data.customerTotalCzk = getCustomerTotalCzk({
+      const money = recalculateOrderMoney({
         printCostCzk: nextPrintCost,
-        platformFeeCzk,
         deliveryPriceCzk: order.deliveryPriceCzk,
       });
+      data.platformFeeCzk = money.platformFeeCzk;
+      data.stripeFeeCzk = money.stripeFeeCzk;
+      data.customerTotalCzk = money.customerTotalCzk;
     }
 
     if (payload.action !== undefined) {

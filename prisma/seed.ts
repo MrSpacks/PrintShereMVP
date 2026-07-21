@@ -22,6 +22,8 @@ interface SeedMaker {
   pricePerGramFdmCzk: number;
   pricePerGramResinCzk: number;
   minOrderPriceCzk: number;
+  offersDelivery?: boolean;
+  deliveryPriceCzk?: number;
   infillPercent: number;
   wallThicknessMm: number;
   supportCoefficient: number;
@@ -42,6 +44,8 @@ const SEED_MAKERS: SeedMaker[] = [
     pricePerGramFdmCzk: 5.0,
     pricePerGramResinCzk: 12.0,
     minOrderPriceCzk: 150,
+    offersDelivery: true,
+    deliveryPriceCzk: 89,
     infillPercent: 20,
     wallThicknessMm: 1.2,
     supportCoefficient: 1.15,
@@ -64,6 +68,8 @@ const SEED_MAKERS: SeedMaker[] = [
     pricePerGramFdmCzk: 5.8,
     pricePerGramResinCzk: 14.5,
     minOrderPriceCzk: 200,
+    offersDelivery: true,
+    deliveryPriceCzk: 99,
     infillPercent: 25,
     wallThicknessMm: 1.6,
     supportCoefficient: 1.2,
@@ -234,8 +240,16 @@ async function seedMakers() {
 
     await prisma.maker.upsert({
       where: { id: maker.id },
-      update: makerData,
-      create: makerData,
+      update: {
+        ...makerData,
+        offersDelivery: maker.offersDelivery ?? false,
+        deliveryPriceCzk: maker.deliveryPriceCzk ?? 0,
+      },
+      create: {
+        ...makerData,
+        offersDelivery: maker.offersDelivery ?? false,
+        deliveryPriceCzk: maker.deliveryPriceCzk ?? 0,
+      },
     });
 
     await prisma.makerFilament.deleteMany({ where: { makerId: maker.id } });

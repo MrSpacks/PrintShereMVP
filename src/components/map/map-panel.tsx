@@ -129,6 +129,10 @@ export function MapPanel({
           printCostCzk: order.customerPrintCzk ?? order.printCostCzk,
           deliveryMethod: delivery.method,
           deliveryPriceCzk: order.deliveryPriceCzk ?? 0,
+          customerTotalCzk:
+            order.customerTotalCzk ??
+            (order.customerPrintCzk ?? order.printCostCzk) +
+              (order.deliveryPriceCzk ?? 0),
         });
 
         setOrderFeedback({

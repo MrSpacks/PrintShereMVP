@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Maker" ADD COLUMN "offersDelivery" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Maker" ADD COLUMN "deliveryPriceCzk" INTEGER NOT NULL DEFAULT 0;

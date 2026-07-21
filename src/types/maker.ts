@@ -27,6 +27,10 @@ export interface Maker {
   pricePerGramFdmCzk: number;
   pricePerGramResinCzk: number;
   minOrderPriceCzk: number;
+  /** Maker offers shipping at a fixed price they set */
+  offersDelivery: boolean;
+  /** Fixed shipping price in CZK (used when offersDelivery) */
+  deliveryPriceCzk: number;
   printerTypes: PrinterType[];
   printers: MakerPrinter[];
   filaments: MakerFilament[];
@@ -72,6 +76,8 @@ export interface UpdateMakerProfilePayload {
   pricePerGramFdmCzk: number;
   pricePerGramResinCzk: number;
   minOrderPriceCzk: number;
+  offersDelivery: boolean;
+  deliveryPriceCzk: number;
   printerTypes: PrinterType[];
   status: MakerStatus;
   infillPercent?: number;

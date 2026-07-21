@@ -13,7 +13,6 @@ import { OrderCustomerActions } from "@/components/orders/order-customer-actions
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 import { getIntlLocale } from "@/i18n/translate";
-import { getMakerPayoutCzk } from "@/lib/orders/map-order";
 import { uploadOrderModelFile } from "@/lib/orders/create-order";
 import { canCancelOrder, canEditOrderTerms } from "@/lib/orders/order-workflow";
 import { shouldShowModelRetentionNotice } from "@/lib/orders/order-model-retention";
@@ -299,9 +298,14 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
       })
     : null;
   const canEditTerms = canEditOrderTerms(order.status);
+  const parsedPrintCost = Number(printCostCzk);
+  const effectivePrintCost =
+    Number.isFinite(parsedPrintCost) && parsedPrintCost >= 0
+      ? parsedPrintCost
+      : order.printCostCzk;
   const customerTotal = order.customerTotalCzk ?? order.printCostCzk;
   const displayPrintCzk = isMaker
-    ? getMakerPayoutCzk(order)
+    ? effectivePrintCost + (order.deliveryPriceCzk ?? 0)
     : (order.customerPrintCzk ?? order.printCostCzk);
   const formattedDate = new Intl.DateTimeFormat(getIntlLocale(locale), {
     dateStyle: "medium",
@@ -376,23 +380,24 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
               {isMaker ? t("orders.deliveryMethod") : t("orders.deliveryLabel")}
             </dt>
             <dd className="font-medium">
-              {isMaker ? (
-                order.deliveryMethod === "zasilkovna" ? (
-                  <span>
-                    {t("map.zasilkovna")}
-                    {order.zasilkovnaPointLabel && (
-                      <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                        {order.zasilkovnaPointLabel}
-                      </span>
-                    )}
-                  </span>
-                ) : (
-                  t("orders.pickup")
-                )
+              {order.deliveryMethod === "delivery" ? (
+                <span>
+                  {t("map.makerDelivery")}{" "}
+                  {(order.deliveryPriceCzk ?? 0) > 0 && (
+                    <>
+                      {order.deliveryPriceCzk} {t("common.czk")}
+                    </>
+                  )}
+                </span>
               ) : order.deliveryMethod === "zasilkovna" ? (
                 <span>
-                  {t("map.zasilkovna")} {order.deliveryPriceCzk ?? 0}{" "}
-                  {t("common.czk")}
+                  {t("map.zasilkovna")}
+                  {(order.deliveryPriceCzk ?? 0) > 0 && (
+                    <>
+                      {" "}
+                      {order.deliveryPriceCzk} {t("common.czk")}
+                    </>
+                  )}
                   {order.zasilkovnaPointLabel && (
                     <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
                       {order.zasilkovnaPointLabel}
@@ -531,8 +536,10 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
               </div>
               <div className="space-y-2">
                 <label htmlFor="price" className="text-sm font-medium">
-                  {isMaker ? t("orderDetail.makerPrint") : t("orders.print")} (
-                  {t("common.czk")})
+                  {isMaker
+                    ? t("orderDetail.makerPrintCost")
+                    : t("orders.print")}{" "}
+                  ({t("common.czk")})
                 </label>
                 <input
                   id="price"
@@ -540,9 +547,16 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
                   min="0"
                   value={printCostCzk}
                   onChange={(e) => setPrintCostCzk(e.target.value)}
-                  disabled={!canEditTerms}
+                  disabled={!canEditTerms || (!isMaker && !isStaff)}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm disabled:opacity-50"
                 />
+                {isMaker && (
+                  <p className="text-xs text-muted-foreground">
+                    {t("orderDetail.makerPayoutHint", {
+                      amount: displayPrintCzk,
+                    })}
+                  </p>
+                )}
               </div>
             </div>
 

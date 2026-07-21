@@ -250,6 +250,8 @@ export function MakerDashboard() {
   const [pricePerGramFdmCzk, setPricePerGramFdmCzk] = useState("5");
   const [pricePerGramResinCzk, setPricePerGramResinCzk] = useState("12");
   const [minOrderPriceCzk, setMinOrderPriceCzk] = useState("0");
+  const [offersDelivery, setOffersDelivery] = useState(false);
+  const [deliveryPriceCzk, setDeliveryPriceCzk] = useState("0");
   const [infillPercent, setInfillPercent] = useState("20");
   const [wallThicknessMm, setWallThicknessMm] = useState("1.2");
   const [supportCoefficient, setSupportCoefficient] = useState("1.15");
@@ -271,6 +273,8 @@ export function MakerDashboard() {
     setPricePerGramFdmCzk(String(next.pricePerGramFdmCzk));
     setPricePerGramResinCzk(String(next.pricePerGramResinCzk));
     setMinOrderPriceCzk(String(next.minOrderPriceCzk));
+    setOffersDelivery(next.offersDelivery);
+    setDeliveryPriceCzk(String(next.deliveryPriceCzk));
     setInfillPercent(String(next.infillPercent));
     setWallThicknessMm(String(next.wallThicknessMm));
     setSupportCoefficient(String(next.supportCoefficient));
@@ -344,6 +348,8 @@ export function MakerDashboard() {
       pricePerGramFdmCzk: Number(pricePerGramFdmCzk),
       pricePerGramResinCzk: Number(pricePerGramResinCzk),
       minOrderPriceCzk: Number(minOrderPriceCzk),
+      offersDelivery,
+      deliveryPriceCzk: Number(deliveryPriceCzk),
       infillPercent: Number(infillPercent),
       wallThicknessMm: Number(wallThicknessMm),
       supportCoefficient: Number(supportCoefficient),
@@ -617,6 +623,35 @@ export function MakerDashboard() {
                 value={minOrderPriceCzk}
                 onChange={setMinOrderPriceCzk}
               />
+            </div>
+
+            <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <FieldLabel>{t("dashboard.deliveryTitle")}</FieldLabel>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {t("dashboard.deliveryHelp")}
+                  </p>
+                </div>
+                <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium">
+                  <input
+                    type="checkbox"
+                    checked={offersDelivery}
+                    onChange={(event) => setOffersDelivery(event.target.checked)}
+                    className="h-4 w-4 rounded border-input"
+                  />
+                  {t("dashboard.offersDelivery")}
+                </label>
+              </div>
+              {offersDelivery && (
+                <DashboardInput
+                  id="delivery-price"
+                  label={t("dashboard.deliveryPrice")}
+                  type="number"
+                  value={deliveryPriceCzk}
+                  onChange={setDeliveryPriceCzk}
+                />
+              )}
             </div>
 
             <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">

@@ -25,6 +25,8 @@ function isUpdateBody(body: unknown): body is UpdateMakerProfilePayload {
     typeof p.pricePerGramFdmCzk === "number" &&
     typeof p.pricePerGramResinCzk === "number" &&
     typeof p.minOrderPriceCzk === "number" &&
+    typeof p.offersDelivery === "boolean" &&
+    typeof p.deliveryPriceCzk === "number" &&
     Array.isArray(p.printerTypes) &&
     typeof p.status === "string" &&
     (p.infillPercent === undefined || typeof p.infillPercent === "number") &&
@@ -125,6 +127,20 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Min order price cannot be negative" }, { status: 400 });
     }
 
+    if (body.deliveryPriceCzk < 0) {
+      return NextResponse.json(
+        { error: "Delivery price cannot be negative" },
+        { status: 400 }
+      );
+    }
+
+    if (body.offersDelivery && body.deliveryPriceCzk <= 0) {
+      return NextResponse.json(
+        { error: "Set a delivery price greater than 0, or turn delivery off" },
+        { status: 400 }
+      );
+    }
+
     if (!STATUSES.has(body.status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
@@ -163,6 +179,8 @@ export async function PATCH(request: Request) {
         pricePerGramFdmCzk: body.pricePerGramFdmCzk,
         pricePerGramResinCzk: body.pricePerGramResinCzk,
         minOrderPriceCzk: body.minOrderPriceCzk,
+        offersDelivery: body.offersDelivery,
+        deliveryPriceCzk: body.offersDelivery ? body.deliveryPriceCzk : 0,
         printerTypes,
         status: body.status,
         ...(body.infillPercent !== undefined && { infillPercent: body.infillPercent }),

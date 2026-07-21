@@ -1,21 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { FilamentColorSwatch } from "@/components/maker/filament-color-picker";
 import { useAuth } from "@/components/auth/auth-provider";
-import { MOCK_ZASILKOVNA_POINTS } from "@/data/zasilkovna-points";
 import { useTranslations } from "@/i18n/locale-provider";
 import { buildAuthPath } from "@/lib/auth/safe-redirect";
 import { getMakerDistanceKm } from "@/lib/map/filter-makers";
 import { getCustomerQuoteCzk, getPrintCostCzk } from "@/lib/map/pricing";
-import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
+import { recalculateOrderMoney } from "@/lib/orders/order-pricing";
 import {
   getMakerPricePerGramCzk,
   resolvePricingPrinterType,
 } from "@/lib/makers/maker-pricing";
-import { fetchZasilkovnaQuote } from "@/lib/orders/create-order";
 import { savePendingOrderCheckout } from "@/lib/orders/pending-order-checkout";
 import { useMapStore } from "@/store/map-store";
 import type { DeliveryChoice, DeliveryMethod } from "@/types/delivery";
@@ -66,10 +64,6 @@ export function MakerCheckoutPanel({
       ? getCustomerQuoteCzk(maker, modelVolumeCm3, activePrinterType)
       : { weightGrams: null, customerPrintCzk: null };
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
-  const [deliveryPriceCzk, setDeliveryPriceCzk] = useState(0);
-  const [zasilkovnaPointId, setZasilkovnaPointId] = useState("");
-  const [isLoadingQuote, setIsLoadingQuote] = useState(false);
-  const [quoteError, setQuoteError] = useState<string | null>(null);
   const [consents, setConsents] = useState<CheckoutConsentsValue>({
     acceptedTerms: false,
     acceptedPrivacy: false,
@@ -80,8 +74,19 @@ export function MakerCheckoutPanel({
     weightGrams !== null
       ? getPrintCostCzk(maker, weightGrams, activePrinterType)
       : null;
-  const platformFeeCzk =
-    makerPrintCzk !== null ? calculatePlatformFeeCzk(makerPrintCzk) : 0;
+
+  const deliveryPriceCzk =
+    deliveryMethod === "delivery" && maker.offersDelivery
+      ? maker.deliveryPriceCzk
+      : 0;
+
+  const orderMoney =
+    makerPrintCzk !== null
+      ? recalculateOrderMoney({
+          printCostCzk: makerPrintCzk,
+          deliveryPriceCzk,
+        })
+      : null;
 
   const priceLabel =
     customerPrintCzk !== null
@@ -90,43 +95,7 @@ export function MakerCheckoutPanel({
           price: getMakerPricePerGramCzk(maker, activePrinterType),
         });
 
-  const totalCzk =
-    customerPrintCzk !== null ? customerPrintCzk + deliveryPriceCzk : null;
-
-  useEffect(() => {
-    if (deliveryMethod !== "zasilkovna" || weightGrams === null) {
-      setDeliveryPriceCzk(0);
-      setQuoteError(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadQuote() {
-      setIsLoadingQuote(true);
-      setQuoteError(null);
-
-      try {
-        const price = await fetchZasilkovnaQuote(maker.id, weightGrams!);
-        if (!cancelled) setDeliveryPriceCzk(price);
-      } catch (error) {
-        if (!cancelled) {
-          setDeliveryPriceCzk(0);
-          setQuoteError(
-            error instanceof Error ? error.message : t("map.quoteFailed")
-          );
-        }
-      } finally {
-        if (!cancelled) setIsLoadingQuote(false);
-      }
-    }
-
-    void loadQuote();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [deliveryMethod, maker.id, weightGrams, t]);
+  const totalCzk = orderMoney?.customerTotalCzk ?? null;
 
   const isOwn = user ? isOwnWorkshop(user, maker.id) : false;
 
@@ -135,10 +104,9 @@ export function MakerCheckoutPanel({
     weightGrams !== null &&
     maker.status === "available" &&
     !isSubmittingOrder &&
-    !isLoadingQuote &&
     areCheckoutConsentsComplete(consents) &&
     (deliveryMethod === "pickup" ||
-      (deliveryPriceCzk > 0 && zasilkovnaPointId.length > 0)) &&
+      (maker.offersDelivery && maker.deliveryPriceCzk > 0)) &&
     (makerPrintCzk === null ||
       maker.minOrderPriceCzk === 0 ||
       makerPrintCzk >= maker.minOrderPriceCzk);
@@ -180,20 +148,12 @@ export function MakerCheckoutPanel({
         : t("map.distanceKm", { km: distanceKm.toFixed(1) })
       : null;
 
-  const selectedPoint = MOCK_ZASILKOVNA_POINTS.find(
-    (point) => point.id === zasilkovnaPointId
-  );
-
   const handleOrderClick = async () => {
     if (!areCheckoutConsentsComplete(consents)) return;
 
     const delivery: DeliveryChoice = {
-      method: deliveryMethod,
-      deliveryPriceCzk:
-        deliveryMethod === "zasilkovna" ? deliveryPriceCzk : 0,
-      zasilkovnaPointId:
-        deliveryMethod === "zasilkovna" ? zasilkovnaPointId : undefined,
-      zasilkovnaPointLabel: selectedPoint?.label,
+      method: deliveryMethod === "delivery" ? "delivery" : "pickup",
+      deliveryPriceCzk,
     };
 
     if (!user) {
@@ -201,8 +161,6 @@ export function MakerCheckoutPanel({
         makerId: maker.id,
         deliveryMethod: delivery.method,
         deliveryPriceCzk: delivery.deliveryPriceCzk,
-        zasilkovnaPointId: delivery.zasilkovnaPointId,
-        zasilkovnaPointLabel: delivery.zasilkovnaPointLabel,
         acceptedTerms: consents.acceptedTerms,
         acceptedPrivacy: consents.acceptedPrivacy,
         acceptedCustomManufacture: consents.acceptedCustomManufacture,
@@ -297,44 +255,21 @@ export function MakerCheckoutPanel({
               <span>{t("map.pickupFree")}</span>
             </label>
 
-            <label className={styles.deliveryOption}>
-              <input
-                type="radio"
-                name={`delivery-${maker.id}`}
-                checked={deliveryMethod === "zasilkovna"}
-                onChange={() => setDeliveryMethod("zasilkovna")}
-              />
-              <span>
-                {t("map.zasilkovna")}
-                {isLoadingQuote && ` — ${t("map.calculating")}`}
-                {!isLoadingQuote &&
-                  deliveryMethod === "zasilkovna" &&
-                  deliveryPriceCzk > 0 &&
-                  ` — ${deliveryPriceCzk} ${t("common.czk")}`}
-              </span>
-            </label>
-
-            {quoteError && (
-              <p className={styles.deliveryError}>{quoteError}</p>
-            )}
-
-            {deliveryMethod === "zasilkovna" && (
-              <div className={styles.pickupPointSelect}>
-                <select
-                  id={`pickup-${maker.id}`}
-                  value={zasilkovnaPointId}
-                  onChange={(event) => setZasilkovnaPointId(event.target.value)}
-                  className={styles.pickupSelect}
-                  aria-label={t("map.pickupPoint")}
-                >
-                  <option value="">{t("map.selectPickupPoint")}</option>
-                  {MOCK_ZASILKOVNA_POINTS.map((point) => (
-                    <option key={point.id} value={point.id}>
-                      {point.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            {maker.offersDelivery && maker.deliveryPriceCzk > 0 ? (
+              <label className={styles.deliveryOption}>
+                <input
+                  type="radio"
+                  name={`delivery-${maker.id}`}
+                  checked={deliveryMethod === "delivery"}
+                  onChange={() => setDeliveryMethod("delivery")}
+                />
+                <span>
+                  {t("map.makerDelivery")} — {maker.deliveryPriceCzk}{" "}
+                  {t("common.czk")}
+                </span>
+              </label>
+            ) : (
+              <p className={styles.deliveryHint}>{t("map.pickupOnly")}</p>
             )}
           </div>
         )}
@@ -379,17 +314,15 @@ export function MakerCheckoutPanel({
           ? t("map.ownWorkshop")
           : isSubmittingOrder
             ? t("map.savingOrder")
-            : isLoadingQuote
-              ? t("map.calculatingDelivery")
-              : !isModelLoaded || modelVolumeCm3 <= 0
-                ? t("map.uploadToOrder")
-                : !user && canContinueToAuth
-                  ? t("map.loginToOrder")
-                  : maker.status === "available"
-                    ? t("map.orderPrinting")
-                    : maker.status === "hidden"
-                      ? t("map.paused")
-                      : t("map.currentlyBusy")}
+            : !isModelLoaded || modelVolumeCm3 <= 0
+              ? t("map.uploadToOrder")
+              : !user && canContinueToAuth
+                ? t("map.loginToOrder")
+                : maker.status === "available"
+                  ? t("map.orderPrinting")
+                  : maker.status === "hidden"
+                    ? t("map.paused")
+                    : t("map.currentlyBusy")}
       </button>
     </div>
   );

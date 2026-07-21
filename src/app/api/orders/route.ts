@@ -8,7 +8,6 @@ import { isWorkshopAcceptingOrders } from "@/lib/makers/workshop-status";
 import { mapOrder, mapOrderForViewer } from "@/lib/orders/map-order";
 import { calculateOrderPricing } from "@/lib/orders/order-pricing";
 import { prisma } from "@/lib/prisma";
-import { MOCK_ZASILKOVNA_POINTS } from "@/data/zasilkovna-points";
 import type { CreateOrderPayload } from "@/types/order";
 import type { DeliveryMethod } from "@/types/delivery";
 import {
@@ -17,8 +16,7 @@ import {
   type OrdersListView,
 } from "@/types/user";
 
-const DELIVERY_METHODS = new Set<string>(["pickup", "zasilkovna"]);
-const MOCK_POINT_IDS = new Set(MOCK_ZASILKOVNA_POINTS.map((point) => point.id));
+const DELIVERY_METHODS = new Set<string>(["pickup", "delivery"]);
 
 function isValidOrderPayload(body: unknown): body is CreateOrderPayload {
   if (!body || typeof body !== "object") return false;
@@ -159,16 +157,16 @@ export async function POST(request: Request) {
 
     const deliveryMethod = body.deliveryMethod as DeliveryMethod;
 
-    if (deliveryMethod === "zasilkovna") {
-      if (!body.zasilkovnaPointId || !MOCK_POINT_IDS.has(body.zasilkovnaPointId)) {
+    if (deliveryMethod === "delivery") {
+      if (!maker.offersDelivery || maker.deliveryPriceCzk <= 0) {
         return NextResponse.json(
-          { error: "Select a Zásilkovna pickup point" },
+          { error: "This maker does not offer delivery" },
           { status: 400 }
         );
       }
     }
 
-    const pricing = await calculateOrderPricing(
+    const pricing = calculateOrderPricing(
       maker,
       body.weightGrams,
       deliveryMethod,
@@ -196,10 +194,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: incomeGate.error }, { status: 409 });
     }
 
-    const point = MOCK_ZASILKOVNA_POINTS.find(
-      (entry) => entry.id === body.zasilkovnaPointId
-    );
-
     const consentedAt = new Date();
 
     const order = await prisma.order.create({
@@ -214,15 +208,12 @@ export async function POST(request: Request) {
         printerType: body.printerType,
         printCostCzk: pricing.printCostCzk,
         platformFeeCzk: pricing.platformFeeCzk,
+        stripeFeeCzk: pricing.stripeFeeCzk,
         customerTotalCzk: pricing.customerTotalCzk,
         deliveryMethod,
         deliveryPriceCzk: pricing.deliveryPriceCzk,
-        zasilkovnaPointId:
-          deliveryMethod === "zasilkovna" ? body.zasilkovnaPointId : null,
-        zasilkovnaPointLabel:
-          deliveryMethod === "zasilkovna"
-            ? (body.zasilkovnaPointLabel ?? point?.label ?? null)
-            : null,
+        zasilkovnaPointId: null,
+        zasilkovnaPointLabel: null,
         acceptedTermsAt: consentedAt,
         acceptedPrivacyAt: consentedAt,
         acceptedCustomManufactureAt: consentedAt,

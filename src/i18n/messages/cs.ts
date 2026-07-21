@@ -138,6 +138,11 @@ export const csMessages = {
     pricePerGramFdm: "Cena za gram — plast (FDM)",
     pricePerGramResin: "Cena za gram — pryskyřice (SLA)",
     minOrderPrice: "Minimální cena objednávky (Kč)",
+    deliveryTitle: "Doručení",
+    deliveryHelp:
+      "Zapněte, pokud zákazníkům nabízíte odeslání (Zásilkovna, PPL aj.). Cenu nastavíte sami — dopravu řešíte mimo platformu.",
+    offersDelivery: "Nabízím doručení",
+    deliveryPrice: "Cena doručení (Kč)",
     printSettings: "Nastavení tisku",
     printSettingsHelp: "Tato nastavení ovlivňují výpočet hmotnosti a přesnost ceny",
     infillPercent: "Výplň",
@@ -269,6 +274,7 @@ export const csMessages = {
     uploadForPricing: "Nahrajte model pro zobrazení ceny",
     pickMaker: "Podle {weight}g — vyberte výrobce na mapě",
     zasilkovnaExtra: " · Zásilkovna +{price} Kč",
+    deliveryExtra: " · doručení +{price} Kč",
     homeStepsTitle: "Jak objednat tisk",
     homeStepsMore: "Více detailů →",
     homeSteps: {
@@ -322,6 +328,8 @@ export const csMessages = {
       "Cena tisku je pod minimem tohoto výrobce ({min} Kč)",
     delivery: "Doručení",
     pickupFree: "Vyzvednutí v dílně — zdarma",
+    makerDelivery: "Doručení",
+    pickupOnly: "Tento výrobce nabízí jen vyzvednutí v dílně.",
     zasilkovna: "Zásilkovna",
     calculating: "počítám…",
     quoteFailed: "Výpočet ceny se nezdařil",
@@ -446,6 +454,8 @@ export const csMessages = {
       "Soubor modelu bude {date} automaticky smazán. Stáhněte si ho před tímto datem, pokud ho budete potřebovat.",
     modelFileRemoved: "Soubor modelu byl ze serveru odstraněn.",
     makerPrint: "Váš výdělek",
+    makerPrintCost: "Cena tisku",
+    makerPayoutHint: "Celkem dostanete {amount} Kč (tisk + doprava).",
     downloadModel: "Stáhnout 3D model",
     fileMissing: "Soubor modelu zatím není nahrán",
     fileMissingCustomer:

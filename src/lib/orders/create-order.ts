@@ -29,33 +29,13 @@ export function buildOrderPayload(
     widthMm: stats.dimensions.width,
     heightMm: stats.dimensions.height,
     depthMm: stats.dimensions.depth,
-    deliveryMethod: delivery.method,
-    zasilkovnaPointId: delivery.zasilkovnaPointId,
-    zasilkovnaPointLabel: delivery.zasilkovnaPointLabel,
+    deliveryMethod: delivery.method === "delivery" ? "delivery" : "pickup",
     printerType,
     acceptedTerms: consents.acceptedTerms,
     acceptedPrivacy: consents.acceptedPrivacy,
     acceptedCustomManufacture: consents.acceptedCustomManufacture,
     legalDocsVersion: LEGAL_DOCS_VERSION,
   };
-}
-
-export async function fetchZasilkovnaQuote(
-  makerId: string,
-  weightGrams: number
-): Promise<number> {
-  const response = await fetch("/api/delivery/zasilkovna/quote", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ makerId, weightGrams }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to calculate Zásilkovna delivery");
-  }
-
-  const data = (await response.json()) as { priceCzk: number };
-  return data.priceCzk;
 }
 
 export async function createOrder(
