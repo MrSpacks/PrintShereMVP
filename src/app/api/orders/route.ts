@@ -173,18 +173,6 @@ export async function POST(request: Request) {
       body.printerType
     );
 
-    if (
-      maker.minOrderPriceCzk > 0 &&
-      pricing.printCostCzk < maker.minOrderPriceCzk
-    ) {
-      return NextResponse.json(
-        {
-          error: `Minimum print order for this maker is ${maker.minOrderPriceCzk} CZK`,
-        },
-        { status: 400 }
-      );
-    }
-
     const incomeGate = await assertMakerCanAcceptPrintOrder({
       makerId: maker.id,
       makerIco: maker.companyId,

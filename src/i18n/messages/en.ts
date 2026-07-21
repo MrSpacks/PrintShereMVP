@@ -328,6 +328,8 @@ export const enMessages = {
     minOrder: "Min. order",
     belowMinimum:
       "Print cost is below this maker's minimum ({min} CZK)",
+    minOrderApplied:
+      "Minimum order {min} CZK applied (weight-based estimate: {raw} CZK)",
     delivery: "Delivery",
     pickupFree: "Pickup at workshop — Free",
     makerDelivery: "Delivery",

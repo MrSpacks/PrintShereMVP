@@ -70,10 +70,20 @@ export function MakerCheckoutPanel({
     acceptedCustomManufacture: false,
   });
 
+  const rawPrintCzk =
+    weightGrams !== null
+      ? Math.round(
+          weightGrams * getMakerPricePerGramCzk(maker, activePrinterType)
+        )
+      : null;
   const makerPrintCzk =
     weightGrams !== null
       ? getPrintCostCzk(maker, weightGrams, activePrinterType)
       : null;
+  const minOrderApplied =
+    rawPrintCzk !== null &&
+    maker.minOrderPriceCzk > 0 &&
+    rawPrintCzk < maker.minOrderPriceCzk;
 
   const deliveryPriceCzk =
     deliveryMethod === "delivery" && maker.offersDelivery
@@ -89,11 +99,13 @@ export function MakerCheckoutPanel({
       : null;
 
   const priceLabel =
-    customerPrintCzk !== null
-      ? `${customerPrintCzk} ${t("common.czk")}`
-      : t("common.czkPerGram", {
-          price: getMakerPricePerGramCzk(maker, activePrinterType),
-        });
+    orderMoney !== null
+      ? `${orderMoney.printCostCzk + orderMoney.platformFeeCzk} ${t("common.czk")}`
+      : customerPrintCzk !== null
+        ? `${customerPrintCzk} ${t("common.czk")}`
+        : t("common.czkPerGram", {
+            price: getMakerPricePerGramCzk(maker, activePrinterType),
+          });
 
   const totalCzk = orderMoney?.customerTotalCzk ?? null;
 
@@ -106,10 +118,7 @@ export function MakerCheckoutPanel({
     !isSubmittingOrder &&
     areCheckoutConsentsComplete(consents) &&
     (deliveryMethod === "pickup" ||
-      (maker.offersDelivery && maker.deliveryPriceCzk > 0)) &&
-    (makerPrintCzk === null ||
-      maker.minOrderPriceCzk === 0 ||
-      makerPrintCzk >= maker.minOrderPriceCzk);
+      (maker.offersDelivery && maker.deliveryPriceCzk > 0));
 
   const canPlaceOrder = orderReady && Boolean(user);
   const canContinueToAuth = orderReady && !user;
@@ -204,11 +213,12 @@ export function MakerCheckoutPanel({
           </div>
         )}
 
-        {makerPrintCzk !== null &&
-          maker.minOrderPriceCzk > 0 &&
-          makerPrintCzk < maker.minOrderPriceCzk && (
-            <p className={styles.deliveryError}>
-              {t("map.belowMinimum", { min: maker.minOrderPriceCzk })}
+        {minOrderApplied && makerPrintCzk !== null && (
+            <p className={styles.deliveryHint}>
+              {t("map.minOrderApplied", {
+                min: maker.minOrderPriceCzk,
+                raw: rawPrintCzk ?? 0,
+              })}
             </p>
           )}
 

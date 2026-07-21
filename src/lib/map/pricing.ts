@@ -8,7 +8,7 @@ import {
   DEFAULT_PRINT_SETTINGS,
   DEFAULT_RESIN_DENSITY_G_CM3,
 } from "@/lib/model/constants";
-import { calculatePlatformFeeCzk } from "@/lib/orders/order-pricing";
+import { calculatePlatformFeeCzk, applyMinOrderFloorCzk } from "@/lib/orders/order-pricing";
 import type { Maker, PinPriceDisplay, PrinterType } from "@/types/maker";
 import type { PrintSettings } from "@/types/model";
 
@@ -94,15 +94,16 @@ export function getMakerQuoteWeightGrams(
   return totalWeight;
 }
 
-/** Стоимость печати для карточки мейкера и Total Price */
+/** Стоимость печати для карточки мейкера и Total Price (с учётом min. objednávky) */
 export function getPrintCostCzk(
   maker: Maker,
   weightGrams: number,
   printerType: PrinterType
 ): number {
-  return Math.round(
+  const raw = Math.round(
     weightGrams * getMakerPricePerGramCzk(maker, printerType)
   );
+  return applyMinOrderFloorCzk(raw, maker.minOrderPriceCzk);
 }
 
 /** Итоговая цена печати для клиента (maker print + platform fee) */

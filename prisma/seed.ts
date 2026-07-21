@@ -155,6 +155,8 @@ const SEED_MAKERS: SeedMaker[] = [
     pricePerGramFdmCzk: 5.5,
     pricePerGramResinCzk: 13.5,
     minOrderPriceCzk: 120,
+    offersDelivery: true,
+    deliveryPriceCzk: 89,
     infillPercent: 22,
     wallThicknessMm: 1.4,
     supportCoefficient: 1.18,

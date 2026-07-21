@@ -326,6 +326,8 @@ export const csMessages = {
     minOrder: "Min. objednávka",
     belowMinimum:
       "Cena tisku je pod minimem tohoto výrobce ({min} Kč)",
+    minOrderApplied:
+      "Uplatněno minimum objednávky {min} Kč (výpočet z váhy: {raw} Kč)",
     delivery: "Doručení",
     pickupFree: "Vyzvednutí v dílně — zdarma",
     makerDelivery: "Doručení",

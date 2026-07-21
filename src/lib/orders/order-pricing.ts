@@ -15,6 +15,15 @@ export function calculateMakerPrintCzk(
   return Math.round(weightGrams * pricePerGramCzk);
 }
 
+/** Min. objednávka = spodní limit ceny tisku pro výrobce (ne blokace). */
+export function applyMinOrderFloorCzk(
+  printCostCzk: number,
+  minOrderPriceCzk: number
+): number {
+  if (minOrderPriceCzk <= 0) return printCostCzk;
+  return Math.max(printCostCzk, Math.round(minOrderPriceCzk));
+}
+
 export function calculatePlatformFeeCzk(makerPrintCzk: number): number {
   if (makerPrintCzk <= 0) return 0;
   return Math.max(
@@ -83,6 +92,7 @@ export function calculateOrderPricing(
     id: string;
     pricePerGramFdmCzk: number;
     pricePerGramResinCzk: number;
+    minOrderPriceCzk: number;
     offersDelivery: boolean;
     deliveryPriceCzk: number;
   },
@@ -91,7 +101,11 @@ export function calculateOrderPricing(
   printerType: PrinterType
 ): OrderPricing {
   const pricePerGram = getMakerPricePerGramCzk(maker, printerType);
-  const printCostCzk = calculateMakerPrintCzk(pricePerGram, weightGrams);
+  const rawPrintCostCzk = calculateMakerPrintCzk(pricePerGram, weightGrams);
+  const printCostCzk = applyMinOrderFloorCzk(
+    rawPrintCostCzk,
+    maker.minOrderPriceCzk
+  );
   const deliveryPriceCzk = resolveDeliveryPriceCzk(maker, deliveryMethod);
   const money = recalculateOrderMoney({ printCostCzk, deliveryPriceCzk });
 
