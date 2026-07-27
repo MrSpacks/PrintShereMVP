@@ -5,6 +5,7 @@ import Link from "next/link";
 import { InfoFaq, InfoPage, InfoSection } from "@/components/info/info-page";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
+import { DonationQrContent } from "@/components/support/donation-qr-content";
 import { LEGAL_PATHS } from "@/lib/legal/constants";
 import { isSupportDonationsEnabled } from "@/lib/product/product-mode";
 
@@ -34,26 +35,7 @@ export function SupportView() {
       {isSupportDonationsEnabled() && (
       <InfoSection title={t("support.donationTitle")}>
         <div className="rounded-xl border border-border bg-card p-5 md:p-6">
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {t("support.donationText")}
-          </p>
-          <p className="mt-2 text-sm font-medium text-foreground">
-            {t("support.donationSuggested")}
-          </p>
-          <div className="mt-5 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/support/donation-qr-csob.png"
-              alt={t("support.donationQrAlt")}
-              width={220}
-              height={220}
-              className="rounded-lg border border-border bg-white p-2"
-            />
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>{t("support.donationHowTo")}</p>
-              <p className="text-xs">{t("support.donationLegal")}</p>
-            </div>
-          </div>
+          <DonationQrContent />
         </div>
       </InfoSection>
       )}

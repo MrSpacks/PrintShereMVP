@@ -695,6 +695,8 @@ export const enMessages = {
     subtitle:
       "Questions about an order or the platform? Browse the FAQ or email us.",
     donationTitle: "Support PrintShare",
+    footerDonate: "Support the PrintShare project",
+    footerDonateShort: "Support",
     donationText:
       "PrintShare is free and connects customers with makers. A voluntary contribution helps cover servers, maps, and development.",
     donationSuggested: "Suggested amount: 100 CZK — or any amount you choose.",

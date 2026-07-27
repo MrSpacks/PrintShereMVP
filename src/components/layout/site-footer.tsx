@@ -10,6 +10,8 @@ import {
   LEGAL_PATHS,
   PLATFORM_OPERATOR,
 } from "@/lib/legal/constants";
+import { DonationPopup } from "@/components/support/donation-popup";
+import { isSupportDonationsEnabled } from "@/lib/product/product-mode";
 import { cn } from "@/lib/utils";
 
 const LEGAL_LINKS = [
@@ -74,7 +76,9 @@ export function SiteFooter() {
           </span>
         </p>
 
-        <div className="relative shrink-0">
+        <div className="relative flex shrink-0 items-center gap-1">
+          {isSupportDonationsEnabled() ? <DonationPopup /> : null}
+          <div className="relative">
           <button
             type="button"
             className={cn(
@@ -148,6 +152,7 @@ export function SiteFooter() {
               </nav>
             </div>
           )}
+          </div>
         </div>
       </div>
     </footer>

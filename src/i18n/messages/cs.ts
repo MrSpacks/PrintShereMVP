@@ -694,6 +694,8 @@ export const csMessages = {
     subtitle:
       "Máte dotaz k objednávce nebo platformě? Projděte časté dotazy nebo nám napište.",
     donationTitle: "Podpořte PrintShare",
+    footerDonate: "Podpořit projekt PrintShare",
+    footerDonateShort: "Podpořit",
     donationText:
       "PrintShare je zdarma a propojuje zákazníky s tiskaři. Dobrovolný příspěvek pomůže pokrýt servery, mapy a vývoj.",
     donationSuggested: "Doporučená částka: 100 Kč — nebo libovolná částka dle vašeho uvážení.",
