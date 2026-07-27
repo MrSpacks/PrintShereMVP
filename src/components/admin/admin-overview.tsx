@@ -12,6 +12,7 @@ import { useTranslations } from "@/i18n/locale-provider";
 import { ORDER_STATUS_KEYS, ORDER_STATUS_STYLES } from "@/components/orders/order-status-labels";
 import type { AdminPlatformStats } from "@/types/admin";
 import type { OrderStatus } from "@/types/order";
+import { isAdminFinanceVisible } from "@/lib/product/product-mode";
 import { cn } from "@/lib/utils";
 
 export function AdminOverview() {
@@ -95,70 +96,127 @@ export function AdminOverview() {
             />
           </section>
 
-          <section>
-            <h2 className="mb-3 text-base font-semibold">
-              {t("admin.revenueTitle")}
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <AdminStatCard
-                label={t("admin.statGmvNet")}
-                value={formatAdminMoney(stats.revenue.gmvNetCzk, t)}
-                hint={t("admin.statGmvNetHint")}
-              />
-              <AdminStatCard
-                label={t("admin.statGmvCompleted")}
-                value={formatAdminMoney(stats.revenue.gmvCompletedCzk, t)}
-              />
-              <AdminStatCard
-                label={t("admin.statGmvInProgress")}
-                value={formatAdminMoney(stats.revenue.gmvInProgressCzk, t)}
-              />
-              <AdminStatCard
-                label={t("admin.statPlatformFeesNet")}
-                value={formatAdminMoney(stats.revenue.platformFeesNetCzk, t)}
-                accent
-                hint={t("admin.statPlatformFeesCompleted", {
-                  amount: formatAdminMoney(
-                    stats.revenue.platformFeesCompletedCzk,
-                    t
-                  ),
-                })}
-              />
-              <AdminStatCard
-                label={t("admin.statNetPlatformRevenue")}
-                value={formatAdminMoney(
-                  stats.revenue.netPlatformRevenueCzk,
-                  t
-                )}
-                accent
-                hint={t("admin.statNetPlatformRevenueHint")}
-              />
-              <AdminStatCard
-                label={t("admin.statMakerEarnings")}
-                value={formatAdminMoney(
-                  stats.revenue.makerEarningsCompletedCzk,
-                  t
-                )}
-              />
-              <AdminStatCard
-                label={t("admin.statRefunded")}
-                value={formatAdminMoney(
-                  stats.revenue.refundedToCustomersCzk,
-                  t
-                )}
-                hint={t("admin.statRefundedHint", {
-                  platform: formatAdminMoney(
-                    stats.revenue.refundedPlatformFeesCzk,
-                    t
-                  ),
-                  stripe: formatAdminMoney(
-                    stats.revenue.stripeRefundFeesCzk,
-                    t
-                  ),
-                })}
-              />
-            </div>
-          </section>
+          {isAdminFinanceVisible() ? (
+            <>
+              <section>
+                <h2 className="mb-3 text-base font-semibold">
+                  {t("admin.revenueTitle")}
+                </h2>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <AdminStatCard
+                    label={t("admin.statGmvNet")}
+                    value={formatAdminMoney(stats.revenue.gmvNetCzk, t)}
+                    hint={t("admin.statGmvNetHint")}
+                  />
+                  <AdminStatCard
+                    label={t("admin.statGmvCompleted")}
+                    value={formatAdminMoney(stats.revenue.gmvCompletedCzk, t)}
+                  />
+                  <AdminStatCard
+                    label={t("admin.statGmvInProgress")}
+                    value={formatAdminMoney(stats.revenue.gmvInProgressCzk, t)}
+                  />
+                  <AdminStatCard
+                    label={t("admin.statPlatformFeesNet")}
+                    value={formatAdminMoney(stats.revenue.platformFeesNetCzk, t)}
+                    accent
+                    hint={t("admin.statPlatformFeesCompleted", {
+                      amount: formatAdminMoney(
+                        stats.revenue.platformFeesCompletedCzk,
+                        t
+                      ),
+                    })}
+                  />
+                  <AdminStatCard
+                    label={t("admin.statNetPlatformRevenue")}
+                    value={formatAdminMoney(
+                      stats.revenue.netPlatformRevenueCzk,
+                      t
+                    )}
+                    accent
+                    hint={t("admin.statNetPlatformRevenueHint")}
+                  />
+                  <AdminStatCard
+                    label={t("admin.statMakerEarnings")}
+                    value={formatAdminMoney(
+                      stats.revenue.makerEarningsCompletedCzk,
+                      t
+                    )}
+                  />
+                  <AdminStatCard
+                    label={t("admin.statRefunded")}
+                    value={formatAdminMoney(
+                      stats.revenue.refundedToCustomersCzk,
+                      t
+                    )}
+                    hint={t("admin.statRefundedHint", {
+                      platform: formatAdminMoney(
+                        stats.revenue.refundedPlatformFeesCzk,
+                        t
+                      ),
+                      stripe: formatAdminMoney(
+                        stats.revenue.stripeRefundFeesCzk,
+                        t
+                      ),
+                    })}
+                  />
+                </div>
+              </section>
+
+              <section>
+                <h2 className="mb-3 text-base font-semibold">
+                  {t("admin.stripeTitle")}
+                </h2>
+                <div
+                  className={cn(
+                    "rounded-xl border px-4 py-4",
+                    stats.stripe.connected
+                      ? "border-emerald-200 bg-emerald-50"
+                      : "border-amber-200 bg-amber-50"
+                  )}
+                >
+                  <p className="text-sm font-medium text-foreground">
+                    {stats.stripe.connected
+                      ? t("admin.stripeConnected")
+                      : t("admin.stripeNotConnected")}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {stats.stripe.connected
+                      ? t("admin.stripeConnectedHint")
+                      : t("admin.stripeNotConnectedHint")}
+                  </p>
+                  {stats.stripe.connected ? (
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                      <AdminStatCard
+                        label={t("admin.stripeCaptured")}
+                        value={formatAdminMoney(
+                          stats.stripe.paymentsCapturedCzk,
+                          t
+                        )}
+                      />
+                      <AdminStatCard
+                        label={t("admin.stripeEscrow")}
+                        value={formatAdminMoney(stats.stripe.escrowHeldCzk, t)}
+                      />
+                      <AdminStatCard
+                        label={t("admin.stripePayouts")}
+                        value={formatAdminMoney(
+                          stats.stripe.pendingPayoutsCzk,
+                          t
+                        )}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </section>
+            </>
+          ) : (
+            <section className="rounded-xl border border-border bg-muted/30 px-4 py-4">
+              <p className="text-sm text-muted-foreground">
+                {t("admin.financeConnectionModeHint")}
+              </p>
+            </section>
+          )}
 
           <section>
             <h2 className="mb-3 text-base font-semibold">
@@ -207,53 +265,6 @@ export function AdminOverview() {
                   </tbody>
                 </table>
               </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-base font-semibold">
-              {t("admin.stripeTitle")}
-            </h2>
-            <div
-              className={cn(
-                "rounded-xl border px-4 py-4",
-                stats.stripe.connected
-                  ? "border-emerald-200 bg-emerald-50"
-                  : "border-amber-200 bg-amber-50"
-              )}
-            >
-              <p className="text-sm font-medium text-foreground">
-                {stats.stripe.connected
-                  ? t("admin.stripeConnected")
-                  : t("admin.stripeNotConnected")}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {stats.stripe.connected
-                  ? t("admin.stripeConnectedHint")
-                  : t("admin.stripeNotConnectedHint")}
-              </p>
-              {stats.stripe.connected ? (
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <AdminStatCard
-                    label={t("admin.stripeCaptured")}
-                    value={formatAdminMoney(
-                      stats.stripe.paymentsCapturedCzk,
-                      t
-                    )}
-                  />
-                  <AdminStatCard
-                    label={t("admin.stripeEscrow")}
-                    value={formatAdminMoney(stats.stripe.escrowHeldCzk, t)}
-                  />
-                  <AdminStatCard
-                    label={t("admin.stripePayouts")}
-                    value={formatAdminMoney(
-                      stats.stripe.pendingPayoutsCzk,
-                      t
-                    )}
-                  />
-                </div>
-              ) : null}
             </div>
           </section>
         </div>

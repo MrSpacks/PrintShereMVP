@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/auth-provider";
 import { usePendingOrdersCount } from "@/hooks/use-pending-orders-count";
 import { useTranslations } from "@/i18n/locale-provider";
+import { isModerationNavVisible } from "@/lib/product/product-mode";
 import { hasMakerAccess, isAdminUser, isModeratorUser } from "@/types/user";
 import { cn } from "@/lib/utils";
 
@@ -184,7 +185,7 @@ export function HeaderAuth() {
         </Button>
       )}
 
-      {isModerator && (
+      {isModerator && isModerationNavVisible() && (
         <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
           <Link href="/moderation" className="gap-1.5">
             <Scale className="h-3.5 w-3.5" aria-hidden />

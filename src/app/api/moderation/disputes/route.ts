@@ -24,6 +24,11 @@ const DISPUTE_LIST_INCLUDE = {
 
 /** Otevřené spory pro moderátora */
 export async function GET() {
+  const { isModerationEnabled } = await import("@/lib/product/product-mode");
+  if (!isModerationEnabled()) {
+    return NextResponse.json({ error: "Moderation disabled" }, { status: 403 });
+  }
+
   const user = await requireModeratorUser();
   if (!user) return unauthorized();
 

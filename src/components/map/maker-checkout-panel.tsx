@@ -100,14 +100,17 @@ export function MakerCheckoutPanel({
 
   const priceLabel =
     orderMoney !== null
-      ? `${orderMoney.printCostCzk + orderMoney.platformFeeCzk} ${t("common.czk")}`
+      ? `${orderMoney.printCostCzk} ${t("common.czk")}`
       : customerPrintCzk !== null
         ? `${customerPrintCzk} ${t("common.czk")}`
         : t("common.czkPerGram", {
             price: getMakerPricePerGramCzk(maker, activePrinterType),
           });
 
-  const totalCzk = orderMoney?.customerTotalCzk ?? null;
+  const totalCzk =
+    orderMoney !== null
+      ? orderMoney.printCostCzk + orderMoney.deliveryPriceCzk
+      : null;
 
   const isOwn = user ? isOwnWorkshop(user, maker.id) : false;
 
@@ -285,12 +288,15 @@ export function MakerCheckoutPanel({
         )}
 
         {weightGrams !== null && totalCzk !== null && (
-          <div className={styles.popupRow}>
-            <span className={styles.popupLabel}>{t("map.total")}</span>
-            <span className={styles.popupValue}>
-              {totalCzk} {t("common.czk")}
-            </span>
-          </div>
+          <>
+            <div className={styles.popupRow}>
+              <span className={styles.popupLabel}>{t("map.total")}</span>
+              <span className={styles.popupValue}>
+                {totalCzk} {t("common.czk")}
+              </span>
+            </div>
+            <p className={styles.deliveryHint}>{t("map.priceEstimateNote")}</p>
+          </>
         )}
 
         {!isOwn && weightGrams !== null && (

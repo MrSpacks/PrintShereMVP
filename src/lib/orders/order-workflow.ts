@@ -1,5 +1,10 @@
 import type { OrderStatus } from "@/types/order";
 import type { UserRole } from "@/types/user";
+import {
+  acceptTermsSkipsPayment,
+  isConnectionMode,
+  isPaymentsEnabled,
+} from "@/lib/product/product-mode";
 
 export type OrderAction =
   | "propose_terms"
@@ -64,6 +69,10 @@ export function canPerformOrderAction(
   action: OrderAction,
   role: UserRole
 ): boolean {
+  if (action === "pay" && !isPaymentsEnabled()) {
+    return false;
+  }
+
   if (action === "cancel") {
     return canCancelOrder(status, role);
   }
@@ -74,6 +83,9 @@ export function canPerformOrderAction(
 }
 
 export function getNextStatusForAction(action: OrderAction): OrderStatus {
+  if (action === "accept_terms" && acceptTermsSkipsPayment()) {
+    return "paid";
+  }
   return ACTION_TRANSITIONS[action].to;
 }
 
@@ -99,6 +111,7 @@ export function isMakerInboxStatus(status: OrderStatus): boolean {
 }
 
 export function canOpenDispute(status: OrderStatus): boolean {
+  if (!isPaymentsEnabled()) return false;
   return status === "shipped" || status === "delivered" || status === "completed";
 }
 
@@ -111,10 +124,14 @@ export function canSubmitReview(status: OrderStatus): boolean {
 }
 
 /**
- * Отмена возможна только до оплаты и до принятия в работу (start_printing).
- * После `paid` / `printing` и далее — отмена запрещена.
+ * Отмена: до оплаты / до start_printing.
+ * Connection mode: pending, awaiting_customer, paid (paid = domluveno, ještě netiskne).
  */
 export function canCancelOrder(status: OrderStatus, role: UserRole): boolean {
-  if (!PRE_PAYMENT_STATUSES.includes(status)) return false;
+  const cancellable: OrderStatus[] = isConnectionMode()
+    ? ["pending", "awaiting_customer", "paid"]
+    : PRE_PAYMENT_STATUSES;
+
+  if (!cancellable.includes(status)) return false;
   return role === "customer" || role === "maker" || role === "admin";
 }

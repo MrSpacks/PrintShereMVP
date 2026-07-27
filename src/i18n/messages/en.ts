@@ -338,6 +338,8 @@ export const enMessages = {
     calculating: "calculating…",
     quoteFailed: "Quote failed",
     total: "Total",
+    priceEstimateNote:
+      "Indicative print and delivery price. Arrange payment directly with the maker outside PrintShare.",
     available: "Available",
     busy: "Busy",
     busyShort: "Busy",
@@ -439,6 +441,10 @@ export const enMessages = {
     proposeSuccess: "Proposal sent to the customer",
     acceptTerms: "Accept terms",
     acceptSuccess: "Terms accepted — you can pay now",
+    acceptSuccessConnection:
+      "Terms accepted — agree on payment with the maker, then printing can start",
+    connectionPaymentHint:
+      "PrintShare does not process payments yet. Agree on price and payment method with the maker in chat.",
     payOrder: "Pay",
     paySuccess: "Payment recorded (test mode)",
     payHint: "Stripe checkout will be available soon. Use the button below for testing.",
@@ -523,6 +529,8 @@ export const enMessages = {
     resolveSuccess: "Dispute resolved",
     resolveFailed: "Failed to save decision",
     alreadyResolved: "This dispute is already closed",
+    disabledHint:
+      "Dispute moderation is disabled in this version. Resolve issues directly with the maker in the order chat.",
   },
   admin: {
     title: "User management",
@@ -588,7 +596,9 @@ export const enMessages = {
     stripeConnectedHint:
       "Once Stripe is wired, you'll see live payments, escrow, and maker payouts here.",
     stripeNotConnectedHint:
-      "Payments happen off-platform for now. Add STRIPE_SECRET_KEY for live data.",
+      "Stripe checkout will be available when marketplace payments are enabled.",
+    financeConnectionModeHint:
+      "Connection MVP — PrintShare does not process payments. Revenue and Stripe stats appear when platform payments are enabled.",
     stripeCaptured: "Captured payments",
     stripeEscrow: "In escrow",
     stripePayouts: "Pending payouts",
@@ -644,7 +654,7 @@ export const enMessages = {
   howItWorks: {
     title: "How It Works",
     subtitle:
-      "PrintShare connects customers with local 3D printers. Upload a model, pick a maker on the map, and track your order through delivery.",
+      "PrintShare connects customers with local 3D printers. Upload a model, pick a maker on the map, and coordinate in chat.",
     customerTitle: "For customers",
     makerTitle: "For makers",
     footer: "Ready to start? Try the map or register your workshop.",
@@ -663,7 +673,7 @@ export const enMessages = {
         "In the order detail you can follow print progress and message the maker.",
       step5Title: "Confirm receipt and review",
       step5Text:
-        "After delivery confirm receipt and leave a review. You can open a dispute if something is wrong.",
+        "After delivery confirm receipt and leave a review. Payment and complaints are handled directly with the maker.",
     },
     maker: {
       step1Title: "Register your workshop",
@@ -684,16 +694,25 @@ export const enMessages = {
     title: "Support",
     subtitle:
       "Questions about an order or the platform? Browse the FAQ or email us.",
+    donationTitle: "Support PrintShare",
+    donationText:
+      "PrintShare is free and connects customers with makers. A voluntary contribution helps cover servers, maps, and development.",
+    donationSuggested: "Suggested amount: 100 CZK — or any amount you choose.",
+    donationQrAlt: "ČSOB QR payment — support PrintShare",
+    donationHowTo:
+      "Scan the QR in your banking app (ČSOB, KB, Air Bank…). You enter the amount — it is not fixed in the code.",
+    donationLegal:
+      "This is a voluntary gift to run the project, not payment for a print. PrintShare is not a party to your agreement with the maker.",
     contactTitle: "Contact",
     contactText: "For order issues, disputes, or partnerships, reach us at:",
     contactEmail: "podpora@printshare.cz",
     faqTitle: "Frequently asked questions",
     faq1Question: "How do I pay for a print?",
     faq1Answer:
-      "Stripe payments are coming soon. In the MVP, orders are created without automatic payment — you arrange handoff and payment with the maker.",
+      "Arrange payment directly with the maker (cash, bank transfer, Revolut…). PrintShare does not process print payments yet — we connect you and provide chat.",
     faq2Question: "What if the print is defective?",
     faq2Answer:
-      "After delivery you can open a dispute with photos in the order detail. A moderator decides on refunds — the decision is stored; escrow payouts are not wired yet.",
+      "Contact the maker first in the order chat. PrintShare does not handle payment disputes yet — you have a direct relationship with the workshop.",
     faq3Question: "How do I become a maker?",
     faq3Answer:
       "Click Become a Maker, register your workshop, then add materials and prices in the dashboard. The same account can also order prints as a customer.",

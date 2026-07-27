@@ -5,10 +5,10 @@ import { getSiteUrl } from "@/lib/site";
 const siteName = "PrintShare";
 const defaultTitle = "PrintShare | 3D tisk v Česku bez starostí";
 const defaultDescription =
-  "První 3D tiskový marketplace v České republice. Najděte nejbližšího tiskaře, nahrajte STL model, spočítejte cenu a tiskněte bezpečně s Escrow platbou a doručením přes Zásilkovnu.";
+  "Najděte nejbližšího 3D tiskaře, nahrajte STL model a domluvte se v chatu. PrintShare propojuje zákazníky s místními dílnami — platba a předání mimo platformu.";
 
 const ogDescription =
-  "Spojujeme zákazníky s lokálními majiteli 3D tiskáren. Rychlý výpočet ceny, bezpečné escrow platby a doručení po celé ČR.";
+  "Mapa 3D tiskařů v ČR, odhad ceny tisku a chat s výrobcem. Bez provize platformy v MVP — domluvte platbu přímo s dílnou.";
 
 const keywords = [
   "3D tisk",
@@ -17,7 +17,6 @@ const keywords = [
   "Prusa",
   "3D marketplace",
   "Zásilkovna 3D tisk",
-  "Stripe platby Česko",
   "PrintShare",
   "3D tisk Praha",
 ];

@@ -7,6 +7,7 @@ import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
+import { isModerationNavVisible } from "@/lib/product/product-mode";
 import { isAdminUser, isModeratorUser } from "@/types/user";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +39,9 @@ export function AdminShell({
         { href: "/admin", label: t("admin.navOverview") },
         { href: "/admin/orders", label: t("admin.navOrders") },
         { href: "/admin/users", label: t("admin.navUsers") },
-        { href: "/moderation", label: t("admin.navDisputes") },
+        ...(isModerationNavVisible()
+          ? [{ href: "/moderation", label: t("admin.navDisputes") }]
+          : []),
       ]
     : [];
 
@@ -60,7 +63,7 @@ export function AdminShell({
             ? t("admin.moderatorNoAdminAccess")
             : t("admin.accessText")}
         </p>
-        {isModerator && !isAdmin ? (
+        {isModerator && !isAdmin && isModerationNavVisible() ? (
           <Button variant="brand" asChild>
             <Link href="/moderation">{t("auth.moderation")}</Link>
           </Button>

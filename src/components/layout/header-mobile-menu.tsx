@@ -23,6 +23,7 @@ import {
   isAdminUser,
   isModeratorUser,
 } from "@/types/user";
+import { isModerationNavVisible } from "@/lib/product/product-mode";
 import { cn } from "@/lib/utils";
 
 const PUBLIC_LINKS = [
@@ -141,7 +142,7 @@ export function HeaderMobileMenu() {
                 </Link>
               )}
 
-              {isModerator && (
+              {isModerator && isModerationNavVisible() && (
                 <Link
                   href="/moderation"
                   onClick={close}

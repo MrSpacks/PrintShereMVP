@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { AuthError } from "@/components/auth/auth-form";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
+import { isModerationNavVisible } from "@/lib/product/product-mode";
 import type { DisputeResolution, DisputeSummary } from "@/types/dispute";
 import type { OrderResponse } from "@/types/order";
 
@@ -53,6 +54,21 @@ export function DisputeDetailView({ disputeId }: DisputeDetailViewProps) {
   useEffect(() => {
     void loadDispute();
   }, [loadDispute]);
+
+  if (!isModerationNavVisible()) {
+    return (
+      <div className="space-y-4">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {t("common.backToMap")}
+        </Link>
+        <p className="text-sm text-muted-foreground">{t("moderation.disabledHint")}</p>
+      </div>
+    );
+  }
 
   const handleResolve = async (event: React.FormEvent) => {
     event.preventDefault();

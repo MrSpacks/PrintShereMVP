@@ -8,7 +8,11 @@ import {
   DEFAULT_PRINT_SETTINGS,
   DEFAULT_RESIN_DENSITY_G_CM3,
 } from "@/lib/model/constants";
-import { calculatePlatformFeeCzk, applyMinOrderFloorCzk } from "@/lib/orders/order-pricing";
+import {
+  applyMinOrderFloorCzk,
+  calculatePlatformFeeCzk,
+} from "@/lib/orders/order-pricing";
+import { isPlatformFeeEnabled } from "@/lib/product/product-mode";
 import type { Maker, PinPriceDisplay, PrinterType } from "@/types/maker";
 import type { PrintSettings } from "@/types/model";
 
@@ -122,9 +126,12 @@ export function getCustomerQuoteCzk(
   }
 
   const makerPrint = getPrintCostCzk(maker, weightGrams, printerType);
+  const customerPrintCzk = isPlatformFeeEnabled()
+    ? makerPrint + calculatePlatformFeeCzk(makerPrint)
+    : makerPrint;
   return {
     weightGrams,
-    customerPrintCzk: makerPrint + calculatePlatformFeeCzk(makerPrint),
+    customerPrintCzk,
   };
 }
 

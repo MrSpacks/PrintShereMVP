@@ -30,6 +30,11 @@ function isResolveBody(body: unknown): body is ResolveDisputePayload {
 }
 
 export async function GET(_request: Request, { params }: RouteParams) {
+  const { isModerationEnabled } = await import("@/lib/product/product-mode");
+  if (!isModerationEnabled()) {
+    return NextResponse.json({ error: "Moderation disabled" }, { status: 403 });
+  }
+
   const user = await requireModeratorUser();
   if (!user) return unauthorized();
 
@@ -52,6 +57,11 @@ export async function GET(_request: Request, { params }: RouteParams) {
 }
 
 export async function PATCH(request: Request, { params }: RouteParams) {
+  const { isModerationEnabled } = await import("@/lib/product/product-mode");
+  if (!isModerationEnabled()) {
+    return NextResponse.json({ error: "Moderation disabled" }, { status: 403 });
+  }
+
   const user = await requireModeratorUser();
   if (!user) return unauthorized();
 

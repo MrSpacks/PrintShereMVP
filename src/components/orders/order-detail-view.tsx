@@ -14,7 +14,8 @@ import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 import { getIntlLocale } from "@/i18n/translate";
 import { uploadOrderModelFile } from "@/lib/orders/create-order";
-import { canCancelOrder, canEditOrderTerms } from "@/lib/orders/order-workflow";
+import { canEditOrderTerms, canCancelOrder } from "@/lib/orders/order-workflow";
+import { isConnectionMode, isPaymentsEnabled } from "@/lib/product/product-mode";
 import { shouldShowModelRetentionNotice } from "@/lib/orders/order-model-retention";
 import { getModelFileInputAccept } from "@/lib/model/constants";
 import { isAcceptedModelFile } from "@/lib/model/parse-model-file";
@@ -190,7 +191,9 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
       await patchOrder({ action });
       const successKeys: Partial<Record<OrderAction, string>> = {
         propose_terms: "orderDetail.proposeSuccess",
-        accept_terms: "orderDetail.acceptSuccess",
+        accept_terms: isConnectionMode()
+          ? "orderDetail.acceptSuccessConnection"
+          : "orderDetail.acceptSuccess",
         pay: "orderDetail.paySuccess",
         start_printing: "orderDetail.printingSuccess",
         mark_shipped: "orderDetail.shippedSuccess",
@@ -592,7 +595,15 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
             )}
           </form>
 
-          {order.status === "awaiting_payment" && isCustomer && (
+          {isConnectionMode() && (
+            <p className="mt-4 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-900">
+              {t("orderDetail.connectionPaymentHint")}
+            </p>
+          )}
+
+          {isPaymentsEnabled() &&
+            order.status === "awaiting_payment" &&
+            isCustomer && (
             <div className="mt-4 rounded-md border border-violet-200 bg-violet-50 px-3 py-3 text-sm text-violet-900">
               <p>{t("orderDetail.payHint")}</p>
               <Button

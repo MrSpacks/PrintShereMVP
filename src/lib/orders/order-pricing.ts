@@ -3,6 +3,10 @@ import type { PrinterType } from "@/types/maker";
 
 import { getMakerPricePerGramCzk } from "@/lib/makers/maker-pricing";
 import { calculateCustomerChargeWithStripeFeeCzk } from "@/lib/payments/stripe-fees";
+import {
+  isPlatformFeeEnabled,
+  isStripeFeeInQuoteEnabled,
+} from "@/lib/product/product-mode";
 
 /** Platform commission on maker print only (not delivery). */
 const PLATFORM_FEE_RATE = 0.1;
@@ -64,7 +68,22 @@ export function recalculateOrderMoney(input: {
 }): OrderMoneyBreakdown {
   const printCostCzk = Math.max(0, Math.round(input.printCostCzk));
   const deliveryPriceCzk = Math.max(0, Math.round(input.deliveryPriceCzk));
-  const platformFeeCzk = calculatePlatformFeeCzk(printCostCzk);
+  const platformFeeCzk = isPlatformFeeEnabled()
+    ? calculatePlatformFeeCzk(printCostCzk)
+    : 0;
+
+  if (!isStripeFeeInQuoteEnabled()) {
+    const customerTotalCzk = printCostCzk + deliveryPriceCzk + platformFeeCzk;
+    return {
+      printCostCzk,
+      deliveryPriceCzk,
+      platformFeeCzk,
+      stripeFeeCzk: 0,
+      customerTotalCzk,
+      makerPayoutCzk: printCostCzk + deliveryPriceCzk,
+    };
+  }
+
   const netBeforeStripe = printCostCzk + deliveryPriceCzk + platformFeeCzk;
   const { customerTotalCzk, stripeFeeCzk } =
     calculateCustomerChargeWithStripeFeeCzk(netBeforeStripe);
@@ -118,11 +137,14 @@ export function calculateOrderPricing(
   };
 }
 
-/** Cena tisku zobrazená zákazníkovi (včetně skryté provize platformy, bez Stripe) */
+/** Cena tisku pro zákazníka — v connection mode jen cena výrobce */
 export function getCustomerPrintCzk(order: {
   printCostCzk: number;
   platformFeeCzk: number;
 }): number {
+  if (!isPlatformFeeEnabled()) {
+    return order.printCostCzk;
+  }
   return order.printCostCzk + order.platformFeeCzk;
 }
 
@@ -133,6 +155,10 @@ export function getCustomerTotalCzk(order: {
   stripeFeeCzk?: number;
   customerTotalCzk?: number;
 }): number {
+  if (!isPlatformFeeEnabled() && !isStripeFeeInQuoteEnabled()) {
+    return order.printCostCzk + order.deliveryPriceCzk;
+  }
+
   if (order.customerTotalCzk && order.customerTotalCzk > 0) {
     return order.customerTotalCzk;
   }

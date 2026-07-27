@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AppPage } from "@/components/layout/app-page";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
+import { isModerationNavVisible } from "@/lib/product/product-mode";
 import { isModeratorUser } from "@/types/user";
 import type { DisputeSummary } from "@/types/dispute";
 
@@ -68,6 +69,16 @@ export function ModerationDashboard() {
           <Link href="/login">{t("auth.logIn")}</Link>
         </Button>
       </div>
+    );
+  }
+
+  if (!isModerationNavVisible()) {
+    return (
+      <AppPage title={t("moderation.title")} subtitle={t("moderation.disabledHint")} width="xl">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/">{t("common.backToMap")}</Link>
+        </Button>
+      </AppPage>
     );
   }
 

@@ -336,6 +336,8 @@ export const csMessages = {
     calculating: "počítám…",
     quoteFailed: "Výpočet ceny se nezdařil",
     total: "Celkem",
+    priceEstimateNote:
+      "Orientační cena tisku a dopravy. Platbu si domluvíte přímo s výrobcem mimo PrintShare.",
     available: "Dostupný",
     busy: "Zaneprázdněný",
     busyShort: "Busy",
@@ -437,6 +439,10 @@ export const csMessages = {
     proposeSuccess: "Návrh odeslán zákazníkovi",
     acceptTerms: "Souhlasím s podmínkami",
     acceptSuccess: "Podmínky přijaty — nyní můžete zaplatit",
+    acceptSuccessConnection:
+      "Podmínky přijaty — domluvte platbu s výrobcem a můžete zahájit tisk",
+    connectionPaymentHint:
+      "PrintShare zatím nezpracovává platby. Domluvte si cenu a způsob platby přímo s výrobcem v chatu.",
     payOrder: "Zaplatit",
     paySuccess: "Platba zaznamenána (testovací režim)",
     payHint: "Platba přes Stripe bude brzy dostupná. Pro testování použijte tlačítko níže.",
@@ -521,6 +527,8 @@ export const csMessages = {
     resolveSuccess: "Spor vyřešen",
     resolveFailed: "Rozhodnutí se nepodařilo uložit",
     alreadyResolved: "Tento spor je již uzavřen",
+    disabledHint:
+      "Moderace sporů je v této verzi vypnutá. Problémy řešte přímo s výrobcem v chatu u objednávky.",
   },
   admin: {
     title: "Správa uživatelů",
@@ -587,7 +595,9 @@ export const csMessages = {
     stripeConnectedHint:
       "Po napojení Stripe zde uvidíte skutečné platby, escrow a výplaty výrobcům.",
     stripeNotConnectedHint:
-      "Platby zatím probíhají mimo platformu. Přidejte STRIPE_SECRET_KEY pro live data.",
+      "Platby přes Stripe budou dostupné po zapnutí marketplace režimu.",
+    financeConnectionModeHint:
+      "Connection MVP — PrintShare nezpracovává platby. Přehled provize a Stripe se zobrazí po zapnutí plateb na platformě.",
     stripeCaptured: "Přijaté platby",
     stripeEscrow: "V escrow",
     stripePayouts: "Čekající výplaty",
@@ -643,7 +653,7 @@ export const csMessages = {
   howItWorks: {
     title: "Jak to funguje",
     subtitle:
-      "PrintShare propojuje zákazníky s místními 3D tiskaři. Nahrajte model, vyberte výrobce na mapě a sledujte objednávku až po doručení.",
+      "PrintShare propojuje zákazníky s místními 3D tiskaři. Nahrajte model, vyberte výrobce na mapě a domluvte se v chatu.",
     customerTitle: "Pro zákazníky",
     makerTitle: "Pro výrobce",
     footer: "Připraveni začít? Vyzkoušejte mapu nebo zaregistrujte dílnu.",
@@ -662,7 +672,7 @@ export const csMessages = {
         "V detailu objednávky vidíte průběh tisku a můžete chatovat s výrobcem.",
       step5Title: "Potvrďte převzetí a hodnoťte",
       step5Text:
-        "Po doručení potvrďte převzetí a napište recenzi. Při problému lze otevřít spor.",
+        "Po doručení potvrďte převzetí a napište recenzi. Platbu a reklamace řešíte přímo s výrobcem.",
     },
     maker: {
       step1Title: "Zaregistrujte dílnu",
@@ -683,16 +693,25 @@ export const csMessages = {
     title: "Podpora",
     subtitle:
       "Máte dotaz k objednávce nebo platformě? Projděte časté dotazy nebo nám napište.",
+    donationTitle: "Podpořte PrintShare",
+    donationText:
+      "PrintShare je zdarma a propojuje zákazníky s tiskaři. Dobrovolný příspěvek pomůže pokrýt servery, mapy a vývoj.",
+    donationSuggested: "Doporučená částka: 100 Kč — nebo libovolná částka dle vašeho uvážení.",
+    donationQrAlt: "QR platba ČSOB — podpora PrintShare",
+    donationHowTo:
+      "Naskenujte QR v aplikaci vaší banky (ČSOB, KB, Air Bank…). Částku zadáte sami — v kódu není pevně nastavena.",
+    donationLegal:
+      "Jde o dobrovolný dar na provoz projektu, ne o platbu za tisk. PrintShare není smluvní stranou vaší dohody s výrobcem.",
     contactTitle: "Kontakt",
     contactText: "Pro dotazy k objednávkám, sporům nebo spolupráci nás kontaktujte e-mailem:",
     contactEmail: "podpora@printshare.cz",
     faqTitle: "Časté dotazy",
     faq1Question: "Jak zaplatím za tisk?",
     faq1Answer:
-      "Online platby přes Stripe zatím připravujeme. V MVP se objednávka vytvoří bez automatické platby — výrobce s vámi domluví předání a úhradu.",
+      "Platbu si domluvíte přímo s výrobcem (hotově, převod, Revolut…). PrintShare zatím nezpracovává platby za tisk — jen propojí strany a chat.",
     faq2Question: "Co když je tisk vadný nebo neodpovídá?",
     faq2Answer:
-      "V detailu objednávky můžete po doručení otevřít spor s fotografiemi. Moderátor rozhodne o vrácení peněz — rozhodnutí se uloží, platba z escrow zatím není napojená.",
+      "Nejdřív kontaktujte výrobce v chatu u objednávky. PrintShare zatím nevede platební spory — jste v přímém vztahu s dílnou.",
     faq3Question: "Jak se stát výrobcem?",
     faq3Answer:
       "Klikněte na „Stát se výrobcem“, zaregistrujte dílnu a v nástěnce doplňte materiály a ceny. Stejný účet může mít i roli zákazníka.",

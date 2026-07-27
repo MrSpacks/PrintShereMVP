@@ -46,6 +46,14 @@ export async function GET(_request: Request, { params }: RouteParams) {
 }
 
 export async function POST(request: Request, { params }: RouteParams) {
+  const { isModerationEnabled } = await import("@/lib/product/product-mode");
+  if (!isModerationEnabled()) {
+    return NextResponse.json(
+      { error: "Disputes are not available in this version" },
+      { status: 403 }
+    );
+  }
+
   const access = await getOrderAccess(params.id);
   if (!access) return unauthorized();
 
