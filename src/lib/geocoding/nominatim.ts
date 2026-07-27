@@ -27,7 +27,7 @@ export async function geocodeAddress(
 
   const response = await fetch(url.toString(), {
     headers: {
-      "User-Agent": "PrintShare/1.0 (podpora@printshare.cz)",
+      "User-Agent": "PrintShare/1.0 (web.mr.spacks@gmail.com)",
     },
     next: { revalidate: 0 },
   });

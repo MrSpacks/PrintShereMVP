@@ -704,7 +704,7 @@ export const csMessages = {
       "Jde o dobrovolný dar na provoz projektu, ne o platbu za tisk. PrintShare není smluvní stranou vaší dohody s výrobcem.",
     contactTitle: "Kontakt",
     contactText: "Pro dotazy k objednávkám, sporům nebo spolupráci nás kontaktujte e-mailem:",
-    contactEmail: "podpora@printshare.cz",
+    contactEmail: "web.mr.spacks@gmail.com",
     faqTitle: "Časté dotazy",
     faq1Question: "Jak zaplatím za tisk?",
     faq1Answer:
@@ -725,6 +725,7 @@ export const csMessages = {
     linksOrders: "stav objednávek a chat",
     linksLogin: "přístup k účtu",
     linksMaker: "registrace dílny na mapě",
+    linksComplaints: "reklamace vad výtisku",
     footer: "Nenašli jste odpověď? Napište nám nebo se vraťte na mapu.",
   },
   legal: {

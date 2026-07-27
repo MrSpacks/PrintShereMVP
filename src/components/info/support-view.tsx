@@ -5,6 +5,7 @@ import Link from "next/link";
 import { InfoFaq, InfoPage, InfoSection } from "@/components/info/info-page";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
+import { LEGAL_PATHS } from "@/lib/legal/constants";
 import { isSupportDonationsEnabled } from "@/lib/product/product-mode";
 
 const FAQ_KEYS = ["1", "2", "3", "4", "5"] as const;
@@ -86,6 +87,15 @@ export function SupportView() {
               {t("auth.logIn")}
             </Link>
             <span className="text-muted-foreground"> — {t("support.linksLogin")}</span>
+          </li>
+          <li>
+            <Link
+              href={LEGAL_PATHS.complaints}
+              className="font-medium text-brand hover:underline"
+            >
+              {t("legal.complaints")}
+            </Link>
+            <span className="text-muted-foreground"> — {t("support.linksComplaints")}</span>
           </li>
           <li>
             <Link

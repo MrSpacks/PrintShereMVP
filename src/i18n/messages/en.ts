@@ -705,7 +705,7 @@ export const enMessages = {
       "This is a voluntary gift to run the project, not payment for a print. PrintShare is not a party to your agreement with the maker.",
     contactTitle: "Contact",
     contactText: "For order issues, disputes, or partnerships, reach us at:",
-    contactEmail: "podpora@printshare.cz",
+    contactEmail: "web.mr.spacks@gmail.com",
     faqTitle: "Frequently asked questions",
     faq1Question: "How do I pay for a print?",
     faq1Answer:
@@ -726,6 +726,7 @@ export const enMessages = {
     linksOrders: "order status and chat",
     linksLogin: "account access",
     linksMaker: "register a workshop on the map",
+    linksComplaints: "print defect complaints",
     footer: "Didn't find an answer? Email us or return to the map.",
   },
   legal: {
