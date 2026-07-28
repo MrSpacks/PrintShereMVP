@@ -1,6 +1,19 @@
 # Настройка окружения PrintShere MVP
 
-Этот файл содержит инструкции по настройке переменных окружения для локальной разработки и production деплоя.
+Окружения: **локально** (`.env.local`), **dev на Vercel** (ветка `dev`), **production** (ветка `main`).
+
+## 🌿 Ветки и базы данных
+
+| Окружение | Git-ветка | Neon DB | Vercel env |
+|-----------|-----------|---------|------------|
+| Local | любая | **dev** (текущая тестовая) | — |
+| Dev (staging) | `dev` | **dev** (та же или отдельная) | Preview |
+| Production | `main` | **prod** (отдельный Neon-проект) | Production |
+
+⚠️ **Не используйте одну базу для dev и prod.**  
+`npm run db:seed` и `prisma migrate reset` — только на dev-базе.
+
+---
 
 ## 📋 Обязательные переменные
 
@@ -13,9 +26,10 @@ DATABASE_URL="postgresql://user:password@host.neon.tech/dbname?sslmode=require"
 
 **Как получить:**
 1. Зарегистрируйтесь на [Neon](https://neon.tech)
-2. Создайте новый проект
-3. Скопируйте "Pooled connection string"
-4. Добавьте в `.env.local` и Vercel Environment Variables
+2. Создайте проект **printshare-dev** (локал + Vercel dev) и **printshare-prod** (Vercel production)
+3. Скопируйте "Pooled connection string" для каждого
+4. Dev URL → `.env.local` и Vercel **Preview**
+5. Prod URL → Vercel **Production** только
 
 ### 2. AUTH_SECRET
 **Секрет для подписи JWT сессий**
@@ -71,7 +85,48 @@ npm run dev
 
 ---
 
-## ☁️ Production (Vercel)
+## 🌿 Dev на Vercel (ветка `dev`)
+
+Ветка **`dev`** уже в репозитории. Vercel деплоит её как **Preview** при каждом `git push origin dev`.
+
+### Шаг 1: Production Branch = `main`
+
+Vercel Dashboard → Project → **Settings → Git**:
+- **Production Branch:** `main`
+
+### Шаг 2: Env для Preview (dev)
+
+Settings → **Environment Variables** — для каждой переменной укажите окружение **Preview** (не Production):
+
+| Variable | Preview (dev) | Production (main) |
+|----------|---------------|-------------------|
+| `DATABASE_URL` | Neon **dev** | Neon **prod** |
+| `AUTH_SECRET` | dev secret | **другой** prod secret |
+| `BLOB_READ_WRITE_TOKEN` | dev Blob store | prod Blob store |
+| `CRON_SECRET` | dev | prod |
+| `NEXT_PUBLIC_SITE_URL` | URL preview-деплоя или `https://dev.printshare.cz` | `https://printshare.cz` |
+
+После смены env: **Deployments → Redeploy** ветки `dev`.
+
+### Шаг 3: Постоянный URL для dev (опционально)
+
+Settings → **Domains** → Add → например `dev.printshare.cz` → **Git Branch:** `dev`.
+
+### Шаг 4: Деплой dev
+
+```bash
+git checkout dev
+# ... изменения ...
+git push origin dev
+```
+
+Preview URL: `https://<project>-git-dev-<team>.vercel.app` или ваш `dev.printshare.cz`.
+
+Cron (`purge-order-files`) на Preview **не запускается** — только на Production.
+
+---
+
+## ☁️ Production (Vercel, ветка `main`)
 
 ### Шаг 1: Подключить проект к Vercel
 ```bash
@@ -89,10 +144,12 @@ vercel link
 
 | Variable | Value | Environments |
 |----------|-------|--------------|
-| `DATABASE_URL` | `postgresql://...` | Production, Preview, Development |
-| `AUTH_SECRET` | `<secret>` | Production, Preview, Development |
+| `DATABASE_URL` | Neon **prod** pooled URL | **Production** only |
+| `AUTH_SECRET` | prod secret | **Production** only |
+| `DATABASE_URL` | Neon **dev** pooled URL | **Preview** only |
+| `AUTH_SECRET` | dev secret | **Preview** only |
 | `NEXT_PUBLIC_SITE_URL` | `https://printshare.cz` | Production |
-| `NEXT_PUBLIC_SITE_URL` | `https://preview-url.vercel.app` | Preview (optional) |
+| `NEXT_PUBLIC_SITE_URL` | dev preview URL | Preview |
 
 **Через CLI:**
 ```bash
@@ -100,11 +157,14 @@ vercel env add DATABASE_URL production
 vercel env add AUTH_SECRET production
 ```
 
-### Шаг 3: Применить миграции на production
+### Шаг 3: Миграции на production
+
+Миграции применяются **автоматически** при `npm run build` на Vercel (`scripts/migrate-deploy.mjs`).
+
+Для первого подключения prod-базы вручную:
+
 ```bash
-# Подключитесь к production БД через Neon Dashboard SQL Editor
-# Или используйте Prisma Studio:
-npx prisma studio --browser none
+DATABASE_URL="postgresql://...prod..." npx prisma migrate deploy
 ```
 
 ### Шаг 4: Задеплоить
@@ -189,14 +249,9 @@ grep DATABASE_URL .env.local
 - Проверьте, что используется Pooled connection string
 
 ### Миграции не применяются на Vercel
-- Миграции нужно применять вручную через Prisma Studio или SQL Editor
-- Vercel не запускает `prisma migrate` автоматически
-- Альтернатива: добавьте в `package.json`:
-  ```json
-  "scripts": {
-    "vercel-build": "prisma generate && prisma migrate deploy && next build"
-  }
-  ```
+- Убедитесь, что `DATABASE_URL` задан для нужного окружения (Preview vs Production)
+- Build уже запускает `prisma migrate deploy` — смотрите логи деплоя
+- После добавления env нужен **redeploy**
 
 ### "Missing required environment variables" на Vercel
 - Убедитесь, что переменные добавлены для всех окружений (Production + Preview)

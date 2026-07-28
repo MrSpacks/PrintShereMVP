@@ -6,11 +6,17 @@ alwaysApply: false
 
 # Database (Prisma + Neon)
 
-## Одна база на всё
+## Окружения и базы
 
-**Локальный dev и Vercel используют одну и ту же Neon PostgreSQL** (`DATABASE_URL` в `.env.local` и в Vercel env).
+| Окружение | Git | Neon |
+|-----------|-----|------|
+| Local + Vercel Preview (`dev`) | ветка `dev` | **dev** DB |
+| Vercel Production | ветка `main` | **prod** DB (отдельный Neon-проект) |
 
-- **Никогда** не запускать `prisma migrate reset` на этой базе — потеряются прод-данные.
+**Локальный `.env.local`** → dev `DATABASE_URL` (та же база, что Preview на Vercel).
+
+- **Никогда** не запускать `prisma migrate reset` на prod.
+- **`npm run db:seed`** — только dev-база.
 - После изменения `schema.prisma` агент **сам** сразу применяет миграции: `npm run db:deploy`
 - Если `db:migrate` (migrate dev) просит reset — использовать только `npm run db:deploy`, не reset.
 - `npm run build` на Vercel тоже выполняет `prisma migrate deploy` (см. `package.json`).

@@ -11,12 +11,14 @@ A P2P 3D printing marketplace MVP. Customers upload an STL/OBJ, see makers on a 
 ## Quick start
 
 ```bash
-cp .env.example .env.local   # fill DATABASE_URL + AUTH_SECRET (same Neon URL as Vercel)
+cp .env.example .env.local   # DATABASE_URL = Neon dev (see ENV_SETUP.md)
 npm install
-npm run db:deploy            # apply migrations to shared Neon DB
-npm run db:seed              # optional test data
+npm run db:deploy            # apply migrations to dev Neon
+npm run db:seed              # dev DB only
 npm run dev
 ```
+
+**Branches:** `dev` → Vercel Preview (staging), `main` → Vercel Production. See [ENV_SETUP.md](./ENV_SETUP.md).
 
 Open http://localhost:3000
 
