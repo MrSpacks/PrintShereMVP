@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
@@ -25,20 +27,48 @@ export function AuthField({
   autoComplete,
   required = true,
 }: AuthFieldProps) {
+  const { t } = useTranslations();
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
+  const inputType = isPassword && showPassword ? "text" : type;
+
   return (
     <div className="space-y-2">
       <label htmlFor={id} className="text-sm font-medium text-foreground">
         {label}
       </label>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        autoComplete={autoComplete}
-        required={required}
-        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      />
+      <div className="relative">
+        <input
+          id={id}
+          type={inputType}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          autoComplete={autoComplete}
+          required={required}
+          className={cn(
+            "flex h-10 w-full rounded-md border border-input bg-background py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            isPassword ? "pr-10 pl-3" : "px-3"
+          )}
+        />
+        {isPassword ? (
+          <button
+            type="button"
+            tabIndex={-1}
+            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label={
+              showPassword ? t("common.hidePassword") : t("common.showPassword")
+            }
+            aria-pressed={showPassword}
+            onClick={() => setShowPassword((current) => !current)}
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" aria-hidden />
+            ) : (
+              <Eye className="h-4 w-4" aria-hidden />
+            )}
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

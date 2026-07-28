@@ -34,6 +34,10 @@ export function usePendingOrdersCount(enabled: boolean) {
 
     void loadCount();
 
+    const interval = setInterval(() => {
+      void loadCount();
+    }, 30000);
+
     const onVisible = () => {
       if (document.visibilityState === "visible") {
         void loadCount();
@@ -44,6 +48,7 @@ export function usePendingOrdersCount(enabled: boolean) {
 
     return () => {
       cancelled = true;
+      clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, [enabled, tick]);

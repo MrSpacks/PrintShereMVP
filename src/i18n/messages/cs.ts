@@ -22,6 +22,25 @@ export const csMessages = {
     updateAvailable: "Je k dispozici nová verze aplikace. Obnovte stránku.",
     reloadApp: "Obnovit",
     later: "Později",
+    showPassword: "Zobrazit heslo",
+    hidePassword: "Skrýt heslo",
+  },
+  pwa: {
+    installTitle: "Nainstalujte PrintShare",
+    installBody:
+      "Přidejte si aplikaci na plochu — rychlejší přístup a notifikace o zprávách a objednávkách.",
+    installButton: "Nainstalovat",
+    installIosTitle: "Přidat na plochu",
+    installIosStep1: "Klepněte na Sdílet v Safari",
+    installIosStep2: "Zvolte „Přidat na plochu“",
+    enableNotifications: "Zapnout notifikace",
+    dismiss: "Ne teď",
+  },
+  notifications: {
+    newMessageTitle: "Nová zpráva",
+    newMessageBody: "{name}: {preview}",
+    newOrderTitle: "Nová aktivita u objednávek",
+    newOrderBody: "Máte {count} aktivních objednávek k vyřízení",
   },
   header: {
     brand: "PrintShare",

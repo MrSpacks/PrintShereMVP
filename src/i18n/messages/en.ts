@@ -24,6 +24,25 @@ export const enMessages = {
     updateAvailable: "A new version is available. Reload to update.",
     reloadApp: "Reload",
     later: "Later",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
+  },
+  pwa: {
+    installTitle: "Install PrintShare",
+    installBody:
+      "Add the app to your home screen for faster access and notifications about messages and orders.",
+    installButton: "Install",
+    installIosTitle: "Add to Home Screen",
+    installIosStep1: "Tap Share in Safari",
+    installIosStep2: "Choose “Add to Home Screen”",
+    enableNotifications: "Enable notifications",
+    dismiss: "Not now",
+  },
+  notifications: {
+    newMessageTitle: "New message",
+    newMessageBody: "{name}: {preview}",
+    newOrderTitle: "Order activity",
+    newOrderBody: "You have {count} active orders to handle",
   },
   header: {
     brand: "PrintShare",

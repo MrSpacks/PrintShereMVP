@@ -3,7 +3,10 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { AppNotificationWatcher } from "@/components/layout/app-notification-watcher";
 import { AppUpdateNotifier } from "@/components/layout/app-update-notifier";
+import { PreventPinchZoom } from "@/components/layout/prevent-pinch-zoom";
+import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt";
 import { Header } from "@/components/layout/header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { CookieBanner } from "@/components/legal/cookie-banner";
@@ -22,7 +25,11 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
+  themeColor: "#f97316",
 };
 
 export default function RootLayout({
@@ -41,7 +48,10 @@ export default function RootLayout({
             </main>
             <SiteFooter />
             <CookieBanner />
+            <PwaInstallPrompt />
             <AppUpdateNotifier />
+            <AppNotificationWatcher />
+            <PreventPinchZoom />
           </AuthProvider>
         </LocaleProvider>
       </body>

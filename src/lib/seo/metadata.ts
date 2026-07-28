@@ -44,6 +44,14 @@ export function buildRootMetadata(): Metadata {
       icon: "/logo.png",
       apple: "/logo.png",
     },
+    appleWebApp: {
+      capable: true,
+      title: siteName,
+      statusBarStyle: "default",
+    },
+    formatDetection: {
+      telephone: false,
+    },
     openGraph: {
       title: defaultTitle,
       description: ogDescription,

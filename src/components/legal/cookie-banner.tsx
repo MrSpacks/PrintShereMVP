@@ -23,6 +23,7 @@ export function CookieBanner() {
   const choose = (choice: CookieConsentChoice) => {
     writeCookieConsent(choice);
     setVisible(false);
+    window.dispatchEvent(new Event("printshare-cookie-consent"));
   };
 
   if (!visible) return null;
