@@ -1,10 +1,10 @@
-# AGENTS.md — PrintShere MVP
+# AGENTS.md — PrintShare
 
 Guide for AI agents and contributors working in this repo.
 
 ## What this is
 
-A P2P 3D printing marketplace MVP. Customers upload an STL/OBJ, see makers on a map with prices, and place orders. Makers register workshops, manage materials in a dashboard, and receive orders.
+A P2P 3D printing marketplace. Customers upload an STL/OBJ, see makers on a map with prices, and place orders. Makers register workshops, manage materials in a dashboard, and receive orders.
 
 **Deploy target:** Vercel. **Region focus:** Prague (map defaults), but addresses are global.
 

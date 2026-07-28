@@ -1,9 +1,9 @@
 ---
-description: PrintShere MVP — stack, layout, and key conventions
+description: PrintShare — stack, layout, and key conventions
 alwaysApply: true
 ---
 
-# PrintShere MVP
+# PrintShare
 
 P2P 3D printing marketplace. Monolithic **Next.js 14 App Router** + **TypeScript**, deploy target **Vercel**.
 

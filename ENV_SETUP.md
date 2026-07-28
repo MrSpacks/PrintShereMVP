@@ -1,4 +1,4 @@
-# Настройка окружения PrintShere MVP
+# Настройка окружения PrintShare
 
 Окружения: **локально** (`.env.local`), **dev на Vercel** (ветка `dev`), **production** (ветка `main`).
 
@@ -138,7 +138,7 @@ vercel link
 
 **Через Vercel Dashboard:**
 1. Откройте https://vercel.com/dashboard
-2. Выберите проект `PrintShereMVP`
+2. Выберите свой проект на Vercel
 3. Settings → Environment Variables
 4. Добавьте по одной:
 

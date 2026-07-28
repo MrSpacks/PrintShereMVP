@@ -1,5 +1,5 @@
 /**
- * Режим продукта: connection MVP (без платежей на платформе) vs полный marketplace.
+ * Режим продукта: connection (без платежей на платформе) vs полный marketplace.
  * Код платежей/модерации остаётся — включается флагами или env на Vercel.
  */
 
@@ -40,7 +40,7 @@ export function isAdsEnabled(): boolean {
   return envFlag("NEXT_PUBLIC_ADS_ENABLED", false);
 }
 
-/** Connection MVP: оплата и доставка договариваются вне платформы */
+/** Connection mode: оплата и доставка договариваются вне платформы */
 export function isConnectionMode(): boolean {
   return !isPaymentsEnabled();
 }

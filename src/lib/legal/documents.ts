@@ -144,7 +144,7 @@ export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
       {
         heading: "2. Analytika a marketing",
         paragraphs: [
-          "Volitelné analytické a marketingové skripty se nenačítají, dokud aktivně nekliknete na „Přijmout“. V současné verzi MVP žádné takové skripty nenasazujeme.",
+          "Volitelné analytické a marketingové skripty se nenačítají, dokud aktivně nekliknete na „Přijmout“. Zatím žádné takové skripty nenasazujeme.",
         ],
       },
       {
@@ -222,7 +222,7 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
       {
         heading: "3. Purposes and legal bases",
         paragraphs: [
-          "Contract performance, legitimate interests (security, fraud prevention), legal obligations, and consent for optional analytics/marketing cookies if you click Accept (none are loaded in the current MVP).",
+          "Contract performance, legitimate interests (security, fraud prevention), legal obligations, and consent for optional analytics/marketing cookies if you click Accept (none are loaded at present).",
         ],
       },
       {
@@ -283,7 +283,7 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
       {
         heading: "2. Analytics and marketing",
         paragraphs: [
-          "Optional analytics/marketing scripts do not load until you click Accept. The current MVP does not ship such scripts.",
+          "Optional analytics/marketing scripts do not load until you click Accept. We do not ship such scripts at present.",
         ],
       },
       {

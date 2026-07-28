@@ -597,7 +597,7 @@ export const csMessages = {
     stripeNotConnectedHint:
       "Platby přes Stripe budou dostupné po zapnutí marketplace režimu.",
     financeConnectionModeHint:
-      "Connection MVP — PrintShare nezpracovává platby. Přehled provize a Stripe se zobrazí po zapnutí plateb na platformě.",
+      "PrintShare zatím nezpracovává platby. Přehled provize a Stripe se zobrazí po zapnutí plateb na platformě.",
     stripeCaptured: "Přijaté platby",
     stripeEscrow: "V escrow",
     stripePayouts: "Čekající výplaty",

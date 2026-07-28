@@ -8,7 +8,7 @@ const defaultDescription =
   "Najděte nejbližšího 3D tiskaře, nahrajte STL model a domluvte se v chatu. PrintShare propojuje zákazníky s místními dílnami — platba a předání mimo platformu.";
 
 const ogDescription =
-  "Mapa 3D tiskařů v ČR, odhad ceny tisku a chat s výrobcem. Bez provize platformy v MVP — domluvte platbu přímo s dílnou.";
+  "Mapa 3D tiskařů v ČR, odhad ceny tisku a chat s výrobcem. Bez provize platformy — domluvte platbu přímo s dílnou.";
 
 const keywords = [
   "3D tisk",

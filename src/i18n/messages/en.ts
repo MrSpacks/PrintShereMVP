@@ -598,7 +598,7 @@ export const enMessages = {
     stripeNotConnectedHint:
       "Stripe checkout will be available when marketplace payments are enabled.",
     financeConnectionModeHint:
-      "Connection MVP — PrintShare does not process payments. Revenue and Stripe stats appear when platform payments are enabled.",
+      "PrintShare does not process payments yet. Revenue and Stripe stats appear when platform payments are enabled.",
     stripeCaptured: "Captured payments",
     stripeEscrow: "In escrow",
     stripePayouts: "Pending payouts",
