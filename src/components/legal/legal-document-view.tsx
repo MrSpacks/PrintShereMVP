@@ -15,10 +15,7 @@ export function LegalDocumentView({ docId }: { docId: LegalDocId }) {
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-8 md:py-10">
-      <p className="rounded-md border border-amber-700/50 bg-amber-950/40 px-3 py-2 text-xs text-amber-100">
-        {doc.draftNotice}
-      </p>
-      <h1 className="mt-6 text-2xl font-semibold tracking-tight text-zinc-900">
+      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
         {doc.title}
       </h1>
       <p className="mt-1 text-sm text-zinc-500">

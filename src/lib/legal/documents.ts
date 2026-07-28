@@ -8,20 +8,13 @@ export interface LegalSection {
 export interface LegalDocument {
   title: string;
   effectiveFrom: string;
-  draftNotice: string;
   sections: LegalSection[];
 }
-
-const DRAFT_CS =
-  "Tento text je pracovní šablona pro MVP. Před ostrým provozem jej nechte zkontrolovat právníkem.";
-const DRAFT_EN =
-  "This text is a working MVP template. Have it reviewed by a lawyer before production use.";
 
 export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
   terms: {
     title: "Obchodní podmínky (VOP)",
     effectiveFrom: "2026-07-20",
-    draftNotice: DRAFT_CS,
     sections: [
       {
         heading: "1. Provozovatel",
@@ -68,7 +61,6 @@ export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
   privacy: {
     title: "Zásady ochrany osobních údajů",
     effectiveFrom: "2026-07-20",
-    draftNotice: DRAFT_CS,
     sections: [
       {
         heading: "1. Správce",
@@ -111,7 +103,6 @@ export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
   complaints: {
     title: "Reklamační řád",
     effectiveFrom: "2026-07-20",
-    draftNotice: DRAFT_CS,
     sections: [
       {
         heading: "1. Rozsah",
@@ -143,7 +134,6 @@ export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
   cookies: {
     title: "Zásady používání cookies",
     effectiveFrom: "2026-07-20",
-    draftNotice: DRAFT_CS,
     sections: [
       {
         heading: "1. Nezbytné cookies",
@@ -171,7 +161,6 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
   terms: {
     title: "Terms of Service",
     effectiveFrom: "2026-07-20",
-    draftNotice: DRAFT_EN,
     sections: [
       {
         heading: "1. Operator",
@@ -217,7 +206,6 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
   privacy: {
     title: "Privacy Policy",
     effectiveFrom: "2026-07-20",
-    draftNotice: DRAFT_EN,
     sections: [
       {
         heading: "1. Controller",
@@ -255,7 +243,6 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
   complaints: {
     title: "Complaints Policy",
     effectiveFrom: "2026-07-20",
-    draftNotice: DRAFT_EN,
     sections: [
       {
         heading: "1. Scope",
@@ -286,7 +273,6 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
   cookies: {
     title: "Cookie Policy",
     effectiveFrom: "2026-07-20",
-    draftNotice: DRAFT_EN,
     sections: [
       {
         heading: "1. Necessary cookies",
