@@ -120,6 +120,10 @@ export const csMessages = {
     title: "Stát se výrobcem",
     subtitle:
       "Vytvořte účet a umístěte dílnu na mapu. Materiály, ceny a limity nastavíte v nástěnce.",
+    subtitleExisting:
+      "Přidejte dílnu ke svému účtu ({name}) — objednávat tisk můžete dál jako zákazník.",
+    existingAccountHint:
+      "Přihlášen jako {email}. Dílna se připojí k tomuto účtu, nemusíte se odhlašovat.",
     footer: "Chcete jen něco vytisknout?",
     signUpCustomer: "Registrace jako zákazník",
     yourAccount: "Váš účet",
@@ -135,9 +139,6 @@ export const csMessages = {
     alreadyMakerText:
       "Vaše dílna je na mapě. Příchozí objednávky spravujte v nástěnce.",
     openDashboard: "Otevřít nástěnku",
-    logoutToRegisterTitle: "Pro registraci dílny se odhlaste",
-    logoutToRegisterText:
-      "Jste přihlášeni jako zákazník. Nejprve se odhlaste, nebo použijte jiný e-mail.",
   },
   dashboard: {
     title: "Nástěnka dílny",

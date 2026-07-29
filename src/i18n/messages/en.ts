@@ -122,6 +122,10 @@ export const enMessages = {
     title: "Become a Maker",
     subtitle:
       "Create your account and put your workshop on the map. Materials, prices and limits — in your dashboard.",
+    subtitleExisting:
+      "Add a workshop to your account ({name}) — you can still order prints as a customer.",
+    existingAccountHint:
+      "Signed in as {email}. The workshop will be linked to this account — no need to log out.",
     footer: "Just want to print something?",
     signUpCustomer: "Sign up as customer",
     yourAccount: "Your account",
@@ -137,9 +141,6 @@ export const enMessages = {
     alreadyMakerText:
       "Your workshop is on the map. Manage incoming orders from your dashboard.",
     openDashboard: "Open Dashboard",
-    logoutToRegisterTitle: "Log out to register a workshop",
-    logoutToRegisterText:
-      "You're signed in as a customer. Log out first, or use a different email.",
   },
   dashboard: {
     title: "Workshop dashboard",

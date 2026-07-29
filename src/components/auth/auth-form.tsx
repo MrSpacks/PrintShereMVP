@@ -77,7 +77,7 @@ interface AuthCardProps {
   title: string;
   subtitle: string;
   children: React.ReactNode;
-  footer: React.ReactNode;
+  footer?: React.ReactNode;
   size?: "md" | "lg" | "xl";
 }
 
@@ -103,9 +103,11 @@ export function AuthCard({
 
         {children}
 
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          {footer}
-        </div>
+        {footer ? (
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            {footer}
+          </div>
+        ) : null}
       </div>
     </div>
   );

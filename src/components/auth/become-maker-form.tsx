@@ -14,12 +14,14 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { PrinterPicker } from "@/components/maker/printer-picker";
 import { useTranslations } from "@/i18n/locale-provider";
 import type { MakerSignupPayload } from "@/types/auth";
+import type { User } from "@/types/user";
 import type { WorkshopPrinterInput } from "@/types/maker";
 
 export function BecomeMakerForm() {
   const router = useRouter();
-  const { signupMaker } = useAuth();
+  const { user, signupMaker, refetch } = useAuth();
   const { t } = useTranslations();
+  const isExistingAccount = Boolean(user);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -35,17 +37,32 @@ export function BecomeMakerForm() {
     setError(null);
     setIsSubmitting(true);
 
-    const payload: MakerSignupPayload = {
-      name,
-      email,
-      password,
-      workshopName,
-      address,
-      printers,
-    };
-
     try {
-      await signupMaker(payload);
+      if (isExistingAccount) {
+        const response = await fetch("/api/maker/workshops", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ workshopName, address, printers }),
+        });
+        const data = (await response.json()) as { error?: string; user?: User };
+
+        if (!response.ok) {
+          throw new Error(data.error ?? t("becomeMaker.registrationFailed"));
+        }
+
+        await refetch();
+      } else {
+        const payload: MakerSignupPayload = {
+          name,
+          email,
+          password,
+          workshopName,
+          address,
+          printers,
+        };
+        await signupMaker(payload);
+      }
+
       router.push("/dashboard");
       router.refresh();
     } catch (submitError) {
@@ -62,45 +79,59 @@ export function BecomeMakerForm() {
   return (
     <AuthCard
       title={t("becomeMaker.title")}
-      subtitle={t("becomeMaker.subtitle")}
+      subtitle={
+        isExistingAccount
+          ? t("becomeMaker.subtitleExisting", { name: user?.name ?? "" })
+          : t("becomeMaker.subtitle")
+      }
       size="xl"
       footer={
-        <>
-          {t("becomeMaker.footer")}{" "}
-          <AuthLink href="/signup">{t("becomeMaker.signUpCustomer")}</AuthLink>
-        </>
+        isExistingAccount ? null : (
+          <>
+            {t("becomeMaker.footer")}{" "}
+            <AuthLink href="/signup">{t("becomeMaker.signUpCustomer")}</AuthLink>
+          </>
+        )
       }
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <AuthError message={error} />
 
-        <fieldset className="space-y-4">
-          <legend className="text-sm font-semibold text-foreground">
-            {t("becomeMaker.yourAccount")}
-          </legend>
-          <div className="grid gap-4 sm:grid-cols-2">
+        {!isExistingAccount ? (
+          <fieldset className="space-y-4">
+            <legend className="text-sm font-semibold text-foreground">
+              {t("becomeMaker.yourAccount")}
+            </legend>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <AuthField
+                id="name"
+                label={t("common.fullName")}
+                value={name}
+                onChange={setName}
+              />
+              <AuthField
+                id="email"
+                label={t("common.email")}
+                type="email"
+                value={email}
+                onChange={setEmail}
+              />
+            </div>
             <AuthField
-              id="name"
-              label={t("common.fullName")}
-              value={name}
-              onChange={setName}
+              id="password"
+              label={t("common.password")}
+              type="password"
+              value={password}
+              onChange={setPassword}
             />
-            <AuthField
-              id="email"
-              label={t("common.email")}
-              type="email"
-              value={email}
-              onChange={setEmail}
-            />
-          </div>
-          <AuthField
-            id="password"
-            label={t("common.password")}
-            type="password"
-            value={password}
-            onChange={setPassword}
-          />
-        </fieldset>
+          </fieldset>
+        ) : (
+          <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+            {t("becomeMaker.existingAccountHint", {
+              email: user?.email ?? "",
+            })}
+          </p>
+        )}
 
         <fieldset className="space-y-4">
           <legend className="text-sm font-semibold text-foreground">

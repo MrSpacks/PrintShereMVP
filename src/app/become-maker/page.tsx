@@ -34,22 +34,6 @@ export default function BecomeMakerPage() {
     );
   }
 
-  if (user) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">
-          {t("becomeMaker.logoutToRegisterTitle")}
-        </h1>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          {t("becomeMaker.logoutToRegisterText")}
-        </p>
-        <Button variant="outline" asChild>
-          <Link href="/">{t("common.backToMap")}</Link>
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full flex-1">
       <BecomeMakerForm />
