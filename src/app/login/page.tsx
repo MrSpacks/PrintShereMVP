@@ -9,7 +9,6 @@ import {
   AuthField,
   AuthLink,
   AuthSubmitButton,
-  AuthTestHint,
 } from "@/components/auth/auth-form";
 import {
   GoogleOAuthButton,
@@ -101,7 +100,6 @@ function LoginForm() {
         />
 
         <AuthSubmitButton isSubmitting={isSubmitting} label={t("auth.logIn")} />
-        <AuthTestHint />
       </form>
     </AuthCard>
   );
