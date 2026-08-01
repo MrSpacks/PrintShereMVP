@@ -131,6 +131,12 @@ export const enMessages = {
     yourAccount: "Your account",
     workshop: "Workshop",
     workshopName: "Workshop name",
+    workshopAddress: "Workshop address",
+    street: "Street and number",
+    city: "City",
+    postalCode: "Postal code",
+    country: "Country",
+    detectLocation: "Detect my location",
     fullAddress: "Full address",
     addressPlaceholder: "Street, city, postal code, country",
     addressHint:

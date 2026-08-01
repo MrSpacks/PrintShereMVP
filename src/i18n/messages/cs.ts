@@ -129,6 +129,12 @@ export const csMessages = {
     yourAccount: "Váš účet",
     workshop: "Dílna",
     workshopName: "Název dílny",
+    workshopAddress: "Adresa dílny",
+    street: "Ulice a číslo",
+    city: "Město",
+    postalCode: "PSČ",
+    country: "Země",
+    detectLocation: "Určit moji polohu",
     fullAddress: "Celá adresa",
     addressPlaceholder: "Ulice, město, PSČ, země",
     addressHint:

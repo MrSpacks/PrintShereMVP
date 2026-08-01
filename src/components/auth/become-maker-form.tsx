@@ -28,7 +28,13 @@ export function BecomeMakerForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [workshopName, setWorkshopName] = useState("");
-  const [address, setAddress] = useState("");
+  
+  // Address fields
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [country, setCountry] = useState("");
+  
   const [printers, setPrinters] = useState<WorkshopPrinterInput[]>([
     {
       technology: "fdm",
@@ -44,16 +50,22 @@ export function BecomeMakerForm() {
     setIsSubmitting(true);
 
     try {
+      // Build full address from separate fields
+      const fullAddress = [street, city, postalCode, country]
+        .map(s => s.trim())
+        .filter(Boolean)
+        .join(", ");
+
       if (isExistingAccount) {
         const payload = { 
           workshopName: workshopName.trim(), 
-          address: address.trim(), 
+          address: fullAddress, 
           printers 
         };
         console.log("[BecomeMakerForm] Submitting workshop for existing account:", {
           payload,
           workshopName: workshopName.trim(),
-          address: address.trim(),
+          address: fullAddress,
           printers: JSON.parse(JSON.stringify(printers)),
         });
         
@@ -76,7 +88,7 @@ export function BecomeMakerForm() {
           email: email.trim(),
           password,
           workshopName: workshopName.trim(),
-          address: address.trim(),
+          address: fullAddress,
           printers,
         };
         await signupMaker(payload);
@@ -157,31 +169,63 @@ export function BecomeMakerForm() {
             {t("becomeMaker.workshop")}
           </legend>
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <AuthField
-              id="workshopName"
-              label={t("becomeMaker.workshopName")}
-              value={workshopName}
-              onChange={setWorkshopName}
-            />
+          <AuthField
+            id="workshopName"
+            label={t("becomeMaker.workshopName")}
+            value={workshopName}
+            onChange={setWorkshopName}
+          />
 
-            <div className="space-y-2">
-              <label htmlFor="address" className="text-sm font-medium">
-                {t("becomeMaker.fullAddress")}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">
+                {t("becomeMaker.workshopAddress")}
               </label>
-              <textarea
-                id="address"
-                value={address}
-                onChange={(event) => setAddress(event.target.value)}
-                required
-                rows={2}
-                placeholder={t("becomeMaker.addressPlaceholder")}
-                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              />
-              <p className="text-xs text-muted-foreground">
-                {t("becomeMaker.addressHint")}
-              </p>
+              <button
+                type="button"
+                className="text-xs text-brand hover:underline"
+                onClick={() => {
+                  // TODO: Add geolocation handler
+                  alert("Geolocation coming soon!");
+                }}
+              >
+                📍 {t("becomeMaker.detectLocation")}
+              </button>
             </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <AuthField
+                id="street"
+                label={t("becomeMaker.street")}
+                value={street}
+                onChange={setStreet}
+                placeholder="Ulice 123"
+              />
+              <AuthField
+                id="city"
+                label={t("becomeMaker.city")}
+                value={city}
+                onChange={setCity}
+                placeholder="Praha"
+              />
+              <AuthField
+                id="postalCode"
+                label={t("becomeMaker.postalCode")}
+                value={postalCode}
+                onChange={setPostalCode}
+                placeholder="110 00"
+              />
+              <AuthField
+                id="country"
+                label={t("becomeMaker.country")}
+                value={country}
+                onChange={setCountry}
+                placeholder="Česká republika"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("becomeMaker.addressHint")}
+            </p>
           </div>
 
           <div className="space-y-2">
