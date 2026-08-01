@@ -724,14 +724,14 @@ export function MakerDashboard() {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <FieldLabel>{t("workshop.registeredPrinters")}</FieldLabel>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAddPrinter(true)}
-                  className="gap-1.5"
+                  className="gap-1.5 whitespace-nowrap"
                 >
                   <Plus className="h-4 w-4" />
                   {t("workshop.addPrinter")}
