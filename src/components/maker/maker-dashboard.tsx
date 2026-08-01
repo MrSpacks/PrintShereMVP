@@ -734,18 +734,17 @@ export function MakerDashboard() {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <FieldLabel className="shrink-0">{t("workshop.registeredPrinters")}</FieldLabel>
+              <div className="flex flex-col items-start gap-2">
+                <FieldLabel>{t("workshop.registeredPrinters")}</FieldLabel>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAddPrinter(true)}
-                  className="gap-1.5 shrink-0"
+                  className="gap-1.5"
                 >
                   <Plus className="h-4 w-4" />
-                  <span className="hidden sm:inline">{t("workshop.addPrinter")}</span>
-                  <span className="sm:hidden">{t("common.add")}</span>
+                  {t("workshop.addPrinter")}
                 </Button>
               </div>
 
