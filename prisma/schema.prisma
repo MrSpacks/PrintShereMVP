@@ -154,8 +154,8 @@ model MakerFilament {
 
 model Order {
   id                String      @id @default(cuid())
-  makerId           String
-  maker             Maker       @relation(fields: [makerId], references: [id], onDelete: Restrict)
+  makerId           String?
+  maker             Maker?      @relation(fields: [makerId], references: [id], onDelete: SetNull)
   customerId        String?
   customer          User?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
   fileName          String

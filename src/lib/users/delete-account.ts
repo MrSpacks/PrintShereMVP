@@ -97,6 +97,14 @@ export async function deleteMakerWorkshop(
     throw new Error("WORKSHOP_HAS_ACTIVE_ORDERS");
   }
 
+  // Detach all orders from this workshop (preserves order history)
+  const ordersToDetach = await tx.order.updateMany({
+    where: { makerId },
+    data: { makerId: null },
+  });
+  
+  console.log("[deleteMakerWorkshop] Detached orders from workshop:", ordersToDetach.count);
+
   // Delete workshop data
   await tx.makerFilament.deleteMany({ where: { makerId } });
   await tx.makerPrinter.deleteMany({ where: { makerId } });
