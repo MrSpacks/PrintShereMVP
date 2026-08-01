@@ -77,7 +77,6 @@ export function buildPrinterCreateRows(
     );
 
     return {
-      makerId,
       technology: printer.technology,
       modelKey: resolved.modelKey,
       modelLabel: resolved.modelLabel,
