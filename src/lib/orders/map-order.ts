@@ -55,7 +55,7 @@ type DisputeWithRelations = Dispute & {
 };
 
 type OrderWithRelations = Order & {
-  maker: Maker;
+  maker: Maker | null;
   customer?: User | null;
   review?: OrderReview | null;
   dispute?: DisputeWithRelations | null;
@@ -70,7 +70,7 @@ export function mapOrder(order: OrderWithRelations): OrderResponse {
   return {
     id: order.id,
     makerId: order.makerId,
-    makerName: order.maker.name,
+    makerName: order.maker?.name ?? null,
     customerId: order.customerId,
     customerName: order.customer?.name ?? null,
     fileName: order.fileName,

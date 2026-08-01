@@ -7,8 +7,8 @@ export interface AdminOrderSummary {
   customerId: string | null;
   customerName: string | null;
   customerEmail: string | null;
-  makerId: string;
-  makerName: string;
+  makerId: string | null;
+  makerName: string | null;
   customerTotalCzk: number;
   platformFeeCzk: number;
   printCostCzk: number;

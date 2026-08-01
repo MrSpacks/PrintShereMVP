@@ -48,8 +48,8 @@ export interface CreateOrderPayload {
 
 export interface OrderResponse {
   id: string;
-  makerId: string;
-  makerName: string;
+  makerId: string | null;
+  makerName: string | null;
   customerId: string | null;
   customerName: string | null;
   fileName: string;

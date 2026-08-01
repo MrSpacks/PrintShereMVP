@@ -49,7 +49,7 @@ export async function GET(request: Request) {
       customerName: order.customer?.name ?? null,
       customerEmail: order.customer?.email ?? null,
       makerId: order.makerId,
-      makerName: order.maker.name,
+      makerName: order.maker?.name ?? null,
       customerTotalCzk: order.customerTotalCzk,
       platformFeeCzk: order.platformFeeCzk,
       printCostCzk: order.printCostCzk,
