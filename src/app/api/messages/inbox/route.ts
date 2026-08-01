@@ -79,7 +79,7 @@ export async function GET() {
       const counterpartyName =
         viewRole === "maker"
           ? (order.customer?.name ?? "Host")
-          : order.maker.name;
+          : (order.maker?.name ?? "Unknown Workshop");
 
       totalUnread += unreadMessages.length;
 

@@ -45,7 +45,7 @@ export async function GET() {
         order: {
           fileName: dispute.order.fileName,
           customerTotalCzk: dispute.order.customerTotalCzk,
-          makerName: dispute.order.maker.name,
+          makerName: dispute.order.maker?.name ?? "Unknown Workshop",
           customerName: dispute.order.customer?.name ?? "—",
         },
       })),

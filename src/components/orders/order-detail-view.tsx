@@ -347,7 +347,7 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
                 ? order.customerName
                   ? t("orderDetail.withCustomer", { name: order.customerName })
                   : t("orderDetail.guestCustomer")
-                : t("orderDetail.withMaker", { name: order.makerName })}
+                : t("orderDetail.withMaker", { name: order.makerName ?? "Unknown Workshop" })}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {t("orders.ordered", {

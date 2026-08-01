@@ -98,12 +98,11 @@ export async function deleteMakerWorkshop(
   }
 
   // Detach all orders from this workshop (preserves order history)
-  const ordersToDetach = await tx.order.updateMany({
-    where: { makerId },
-    data: { makerId: null },
-  });
+  const ordersToDetach = await tx.$executeRaw`
+    UPDATE "Order" SET "makerId" = NULL WHERE "makerId" = ${makerId}
+  `;
   
-  console.log("[deleteMakerWorkshop] Detached orders from workshop:", ordersToDetach.count);
+  console.log("[deleteMakerWorkshop] Detached orders from workshop:", ordersToDetach);
 
   // Delete workshop data
   await tx.makerFilament.deleteMany({ where: { makerId } });
