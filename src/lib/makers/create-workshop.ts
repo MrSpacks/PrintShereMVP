@@ -26,14 +26,29 @@ export async function createWorkshopForUser(
   tx: Tx,
   input: CreateWorkshopInput
 ) {
+  console.log("[createWorkshopForUser] Starting:", {
+    workshopName: input.workshopName,
+    address: input.address,
+    ownerUserId: input.ownerUserId,
+  });
+
   const location = await geocodeAddress(input.address);
   if (!location) {
+    console.error("[createWorkshopForUser] Geocoding failed");
     throw new Error("GEOCODE_FAILED");
   }
+
+  console.log("[createWorkshopForUser] Location found:", location);
 
   const makerId = `maker-${randomUUID()}`;
   const printerRows = buildPrinterCreateRows(makerId, input.printers);
   const printerTypes = derivePrinterTypes(printerRows) as PrinterType[];
+
+  console.log("[createWorkshopForUser] Creating maker:", {
+    makerId,
+    printerTypes,
+    printerCount: printerRows.length,
+  });
 
   const maker = await tx.maker.create({
     data: {
@@ -57,6 +72,8 @@ export async function createWorkshopForUser(
     },
   });
 
+  console.log("[createWorkshopForUser] Maker created, updating user...");
+
   if (input.setAsActive !== false) {
     await tx.user.update({
       where: { id: input.ownerUserId },
@@ -64,5 +81,6 @@ export async function createWorkshopForUser(
     });
   }
 
+  console.log("[createWorkshopForUser] Success!");
   return maker;
 }

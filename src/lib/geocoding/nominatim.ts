@@ -17,31 +17,43 @@ interface NominatimResult {
 export async function geocodeAddress(
   address: string
 ): Promise<GeocodedLocation | null> {
-  const query = address.trim();
-  if (query.length < 5) return null;
+  try {
+    const query = address.trim();
+    if (query.length < 5) return null;
 
-  const url = new URL("https://nominatim.openstreetmap.org/search");
-  url.searchParams.set("format", "json");
-  url.searchParams.set("q", query);
-  url.searchParams.set("limit", "1");
+    const url = new URL("https://nominatim.openstreetmap.org/search");
+    url.searchParams.set("format", "json");
+    url.searchParams.set("q", query);
+    url.searchParams.set("limit", "1");
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      "User-Agent": "PrintShare/1.0 (web.mr.spacks@gmail.com)",
-    },
-    next: { revalidate: 0 },
-  });
+    console.log("[geocodeAddress] Requesting:", { query, url: url.toString() });
 
-  if (!response.ok) return null;
+    const response = await fetch(url.toString(), {
+      headers: {
+        "User-Agent": "PrintShare/1.0 (web.mr.spacks@gmail.com)",
+      },
+      next: { revalidate: 0 },
+    });
 
-  const results = (await response.json()) as NominatimResult[];
-  const first = results[0];
+    if (!response.ok) {
+      console.error("[geocodeAddress] HTTP error:", response.status);
+      return null;
+    }
 
-  if (!first) return null;
+    const results = (await response.json()) as NominatimResult[];
+    console.log("[geocodeAddress] Results:", { count: results.length, first: results[0] });
+    
+    const first = results[0];
 
-  return {
-    latitude: Number(first.lat),
-    longitude: Number(first.lon),
-    displayName: first.display_name,
-  };
+    if (!first) return null;
+
+    return {
+      latitude: Number(first.lat),
+      longitude: Number(first.lon),
+      displayName: first.display_name,
+    };
+  } catch (error) {
+    console.error("[geocodeAddress] Exception:", error);
+    return null;
+  }
 }
