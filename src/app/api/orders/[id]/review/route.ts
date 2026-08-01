@@ -88,7 +88,9 @@ export async function POST(request: Request, { params }: RouteParams) {
       }),
     ]);
 
-    await recalculateMakerRating(order.makerId);
+    if (order.makerId) {
+      await recalculateMakerRating(order.makerId);
+    }
 
     const updated = await prisma.order.findUnique({
       where: { id: order.id },
