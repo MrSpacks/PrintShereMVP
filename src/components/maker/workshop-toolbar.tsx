@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Edit2 } from "lucide-react";
 import { useState } from "react";
 
 import { AuthError } from "@/components/auth/auth-form";
@@ -28,6 +28,7 @@ export function WorkshopToolbar({
   const { t } = useTranslations();
   const { refetch } = useAuth();
   const [showCreate, setShowCreate] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [workshopName, setWorkshopName] = useState("");
   const [address, setAddress] = useState("");
   const [printers, setPrinters] = useState<WorkshopPrinterInput[]>([]);
@@ -78,6 +79,45 @@ export function WorkshopToolbar({
         createError instanceof Error
           ? createError.message
           : t("workshop.createFailed")
+      );
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  function handleStartEdit() {
+    if (!activeWorkshop) return;
+    setWorkshopName(activeWorkshop.name);
+    setAddress(activeWorkshop.address || "");
+    setShowEdit(true);
+    setShowCreate(false);
+    setError(null);
+  }
+
+  async function handleEdit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!activeMakerId) return;
+
+    setIsBusy(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/maker/workshops/${activeMakerId}/edit`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workshopName, address }),
+      });
+      const data = (await response.json()) as { error?: string };
+      if (!response.ok) throw new Error(data.error ?? "Failed");
+
+      setShowEdit(false);
+      await refetch();
+      await onCreated(); // Refresh workshop list
+    } catch (editError) {
+      setError(
+        editError instanceof Error
+          ? editError.message
+          : t("workshop.editFailed")
       );
     } finally {
       setIsBusy(false);
@@ -152,19 +192,72 @@ export function WorkshopToolbar({
           ))}
 
           {activeWorkshop && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={isBusy}
-              onClick={() => void handleDelete()}
-              className="ml-auto gap-1.5 text-red-600 hover:text-red-700"
-            >
-              <Trash2 className="h-4 w-4" />
-              {t("workshop.deleteWorkshop")}
-            </Button>
+            <div className="ml-auto flex gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={isBusy}
+                onClick={handleStartEdit}
+                className="gap-1.5"
+              >
+                <Edit2 className="h-4 w-4" />
+                {t("workshop.editWorkshop")}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={isBusy}
+                onClick={() => void handleDelete()}
+                className="gap-1.5 text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="h-4 w-4" />
+                {t("workshop.deleteWorkshop")}
+              </Button>
+            </div>
           )}
         </div>
+      )}
+
+      {showEdit && (
+        <form onSubmit={(event) => void handleEdit(event)} className="space-y-4 border-t border-border pt-4">
+          <div>
+            <label className="text-sm font-medium">{t("becomeMaker.workshopName")}</label>
+            <input
+              value={workshopName}
+              onChange={(event) => setWorkshopName(event.target.value)}
+              placeholder={t("becomeMaker.workshopName")}
+              required
+              className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">{t("dashboard.address")}</label>
+            <textarea
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              placeholder={t("becomeMaker.addressPlaceholder")}
+              required
+              rows={3}
+              className="mt-1 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button type="submit" variant="brand" size="sm" disabled={isBusy}>
+              {isBusy ? t("common.saving") : t("common.save")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowEdit(false)}
+              disabled={isBusy}
+            >
+              {t("common.cancel")}
+            </Button>
+          </div>
+        </form>
       )}
 
       {showCreate && (

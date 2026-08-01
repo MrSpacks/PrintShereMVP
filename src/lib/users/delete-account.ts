@@ -71,17 +71,27 @@ export async function deleteMakerWorkshop(
   makerId: string,
   ownerUserId: string
 ): Promise<void> {
+  // Refund any active orders first
   await refundActiveOrders(tx, { makerId });
 
-  const orderCount = await tx.order.count({ where: { makerId } });
-  if (orderCount > 0) {
-    throw new Error("WORKSHOP_HAS_ORDERS");
+  // Check if there are still any active orders (should be 0 after refund)
+  const activeOrderCount = await tx.order.count({
+    where: {
+      makerId,
+      status: { notIn: TERMINAL_STATUSES },
+    },
+  });
+
+  if (activeOrderCount > 0) {
+    throw new Error("WORKSHOP_HAS_ACTIVE_ORDERS");
   }
 
+  // Delete workshop data
   await tx.makerFilament.deleteMany({ where: { makerId } });
   await tx.makerPrinter.deleteMany({ where: { makerId } });
   await tx.maker.delete({ where: { id: makerId } });
 
+  // Update user's active workshop if needed
   const user = await tx.user.findUnique({
     where: { id: ownerUserId },
     select: { makerId: true },

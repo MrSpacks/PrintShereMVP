@@ -57,9 +57,9 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
       workshopCount: user._count.ownedMakers,
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "WORKSHOP_HAS_ORDERS") {
+    if (error instanceof Error && error.message === "WORKSHOP_HAS_ACTIVE_ORDERS") {
       return NextResponse.json(
-        { error: "Workshop has order history and cannot be deleted" },
+        { error: "Workshop has active orders and cannot be deleted" },
         { status: 409 }
       );
     }

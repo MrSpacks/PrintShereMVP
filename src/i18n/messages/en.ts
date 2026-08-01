@@ -260,10 +260,12 @@ export const enMessages = {
     toolbarSubtitle: "Switch between locations or add another workshop.",
     addWorkshop: "Add workshop",
     createWorkshop: "Create workshop",
+    editWorkshop: "Edit",
     deleteWorkshop: "Delete workshop",
     deleteConfirm:
       "Delete this workshop? Active orders will be refunded first.",
     deleteFailed: "Failed to delete workshop",
+    editFailed: "Failed to edit workshop",
     createFailed: "Failed to create workshop",
     switchFailed: "Failed to switch workshop",
     printersTitle: "Printers",

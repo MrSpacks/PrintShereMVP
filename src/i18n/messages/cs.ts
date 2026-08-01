@@ -258,10 +258,12 @@ export const csMessages = {
     toolbarSubtitle: "Přepínejte mezi místy nebo přidejte další dílnu.",
     addWorkshop: "Přidat dílnu",
     createWorkshop: "Vytvořit dílnu",
+    editWorkshop: "Upravit",
     deleteWorkshop: "Smazat dílnu",
     deleteConfirm:
       "Smazat tuto dílnu? Nejprve budou vráceny aktivní objednávky.",
     deleteFailed: "Smazání dílny se nezdařilo",
+    editFailed: "Úprava dílny se nezdařila",
     createFailed: "Vytvoření dílny se nezdařilo",
     switchFailed: "Přepnutí dílny se nezdařilo",
     printersTitle: "Tiskárny",
