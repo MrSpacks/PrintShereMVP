@@ -45,11 +45,15 @@ export function BecomeMakerForm() {
 
     try {
       if (isExistingAccount) {
-        const payload = { workshopName, address, printers };
+        const payload = { 
+          workshopName: workshopName.trim(), 
+          address: address.trim(), 
+          printers 
+        };
         console.log("[BecomeMakerForm] Submitting workshop for existing account:", {
           payload,
-          workshopName,
-          address,
+          workshopName: workshopName.trim(),
+          address: address.trim(),
           printers: JSON.parse(JSON.stringify(printers)),
         });
         
@@ -68,11 +72,11 @@ export function BecomeMakerForm() {
         await refetch();
       } else {
         const payload: MakerSignupPayload = {
-          name,
-          email,
+          name: name.trim(),
+          email: email.trim(),
           password,
-          workshopName,
-          address,
+          workshopName: workshopName.trim(),
+          address: address.trim(),
           printers,
         };
         await signupMaker(payload);
