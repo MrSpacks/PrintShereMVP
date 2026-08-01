@@ -134,12 +134,20 @@ export function WorkshopToolbar({
       const response = await fetch(`/api/maker/workshops/${activeMakerId}`, {
         method: "DELETE",
       });
-      const data = (await response.json()) as { error?: string };
-      if (!response.ok) throw new Error(data.error ?? "Failed");
+      const data = (await response.json()) as { error?: string; details?: string };
+      
+      if (!response.ok) {
+        const errorMsg = data.details 
+          ? `${data.error ?? "Failed"}\n\nDetails: ${data.details}`
+          : data.error ?? "Failed";
+        console.error("[Workshop Delete] Error:", { status: response.status, data });
+        throw new Error(errorMsg);
+      }
 
       await refetch();
       await onDeleted();
     } catch (deleteError) {
+      console.error("[Workshop Delete] Exception:", deleteError);
       setError(
         deleteError instanceof Error
           ? deleteError.message
