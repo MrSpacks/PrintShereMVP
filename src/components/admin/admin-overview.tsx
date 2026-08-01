@@ -21,6 +21,7 @@ interface MakerSummary {
   address: string;
   status: string;
   rating: number;
+  reviewsCount: number;
   printerTypes: string[];
   ordersCount: number;
   filamentsCount: number;
@@ -343,8 +344,8 @@ export function AdminOverview() {
                           <td className="px-4 py-3 tabular-nums">
                             {maker.ordersCount}
                           </td>
-                          <td className="px-4 py-3 tabular-nums">
-                            {maker.rating.toFixed(1)}
+                          <td className="px-4 py-3 tabular-nums text-muted-foreground">
+                            {maker.reviewsCount > 0 ? maker.rating.toFixed(1) : "—"}
                           </td>
                         </tr>
                       ))

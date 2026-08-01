@@ -77,6 +77,7 @@ function MapViewport({
 function createPinIcon(
   priceLabel: string,
   rating: number,
+  reviewsCount: number,
   deliveryTitle: string,
   variant: "default" | "hidden" | "busy" | "own" = "default"
 ): L.DivIcon {
@@ -110,6 +111,11 @@ function createPinIcon(
       ? `<span class="${styles.deliveryIcon}" title="${deliveryTitle}" aria-hidden="true">🚗</span>`
       : "";
 
+  const ratingHtml =
+    reviewsCount > 0
+      ? `<span class="${styles.pinRating} ${ratingClass}">★ ${rating.toFixed(1)}</span>`
+      : "";
+
   return L.divIcon({
     className: styles.pinRoot,
     html: `
@@ -117,7 +123,7 @@ function createPinIcon(
         <div class="${bubbleClass}">
           <span class="${styles.pinPrice}">${priceLabel}</span>
           <span class="${styles.pinMeta}">
-            <span class="${styles.pinRating} ${ratingClass}">★ ${rating.toFixed(1)}</span>
+            ${ratingHtml}
             ${metaIcon}
           </span>
         </div>
@@ -200,6 +206,7 @@ export function Map({
       return createPinIcon(
         pinLabel,
         maker.rating,
+        maker.reviewsCount ?? 0,
         t("map.deliveryAvailable"),
         variant
       );

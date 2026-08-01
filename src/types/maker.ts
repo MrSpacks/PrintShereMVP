@@ -24,6 +24,7 @@ export interface Maker {
   latitude: number;
   longitude: number;
   rating: number;
+  reviewsCount?: number;
   pricePerGramFdmCzk: number;
   pricePerGramResinCzk: number;
   minOrderPriceCzk: number;

@@ -22,6 +22,16 @@ export async function GET() {
             printers: true,
           },
         },
+        orders: {
+          where: {
+            review: {
+              isNot: null,
+            },
+          },
+          select: {
+            id: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -32,6 +42,7 @@ export async function GET() {
       address: maker.address,
       status: maker.status,
       rating: maker.rating,
+      reviewsCount: maker.orders.length,
       printerTypes: maker.printerTypes,
       ordersCount: maker._count.orders,
       filamentsCount: maker._count.filaments,

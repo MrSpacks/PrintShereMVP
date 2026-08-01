@@ -353,7 +353,8 @@ export function MakerDashboard() {
       infillPercent: Number(infillPercent),
       wallThicknessMm: Number(wallThicknessMm),
       supportCoefficient: Number(supportCoefficient),
-      companyId: companyId.trim() === "" ? null : companyId.trim(),
+      // companyId временно скрыт до интеграции Stripe
+      // companyId: companyId.trim() === "" ? null : companyId.trim(),
       printerTypes,
       status,
     };
@@ -554,6 +555,7 @@ export function MakerDashboard() {
               />
             </div>
 
+            {/* IČO секция скрыта до интеграции Stripe
             <div className="space-y-2">
               <label htmlFor="company-id" className="text-sm font-medium">
                 {t("dashboard.companyId")}
@@ -596,6 +598,7 @@ export function MakerDashboard() {
                   </div>
                 )}
             </div>
+            */}
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {printerTypes.includes("fdm") && (

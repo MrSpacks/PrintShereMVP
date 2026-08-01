@@ -9,6 +9,17 @@ export async function GET() {
     const records = await prisma.maker.findMany({
       include: {
         filaments: { orderBy: [{ printerType: "asc" }, { material: "asc" }] },
+        _count: {
+          select: {
+            orders: {
+              where: {
+                review: {
+                  isNot: null,
+                },
+              },
+            },
+          },
+        },
       },
       orderBy: { rating: "desc" },
     });
@@ -18,7 +29,13 @@ export async function GET() {
       ids: records.map((m) => m.id),
     });
 
-    const mapped = records.map(mapPrismaMaker);
+    const mapped = records.map((maker) => {
+      const base = mapPrismaMaker(maker);
+      return {
+        ...base,
+        reviewsCount: maker._count.orders,
+      };
+    });
     console.log("[GET /api/makers] Returning:", mapped.length);
 
     return NextResponse.json(mapped);
