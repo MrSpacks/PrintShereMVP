@@ -46,11 +46,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  let address = "";
+  
   try {
     const body = (await request.json()) as Record<string, unknown>;
     const workshopName =
       typeof body.workshopName === "string" ? body.workshopName.trim() : "";
-    const address = typeof body.address === "string" ? body.address.trim() : "";
+    address = typeof body.address === "string" ? body.address.trim() : "";
     const printers = parseWorkshopPrinters(body.printers);
 
     if (workshopName.length < 2) {
