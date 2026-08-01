@@ -46,7 +46,7 @@ export async function getOrderAccess(orderId: string) {
 
   if (!order) return null;
 
-  if (hasMakerAccess(user) && (await userOwnsMaker(user.id, order.makerId))) {
+  if (hasMakerAccess(user) && order.makerId && (await userOwnsMaker(user.id, order.makerId))) {
     return {
       user,
       order: order as OrderWithCustomer,
