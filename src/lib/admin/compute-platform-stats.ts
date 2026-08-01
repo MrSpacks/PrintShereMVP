@@ -36,6 +36,7 @@ export async function computePlatformStats(): Promise<AdminPlatformStats> {
     openDisputes,
     uniqueCustomers,
     makersWithOrders,
+    totalMakers,
     ordersLast7Days,
     ordersLast30Days,
     statusGroups,
@@ -62,6 +63,7 @@ export async function computePlatformStats(): Promise<AdminPlatformStats> {
     prisma.dispute.count({ where: { status: "open" } }),
     prisma.user.count({ where: { orders: { some: {} } } }),
     prisma.maker.count({ where: { orders: { some: {} } } }),
+    prisma.maker.count(),
     prisma.order.count({ where: { createdAt: { gte: last7Days } } }),
     prisma.order.count({ where: { createdAt: { gte: last30Days } } }),
     prisma.order.groupBy({
@@ -125,6 +127,7 @@ export async function computePlatformStats(): Promise<AdminPlatformStats> {
     openDisputes,
     uniqueCustomers,
     makersWithOrders,
+    totalMakers,
     ordersLast7Days,
     ordersLast30Days,
     revenue: {

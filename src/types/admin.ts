@@ -39,6 +39,7 @@ export interface AdminPlatformStats {
   openDisputes: number;
   uniqueCustomers: number;
   makersWithOrders: number;
+  totalMakers: number;
   ordersLast7Days: number;
   ordersLast30Days: number;
   revenue: {

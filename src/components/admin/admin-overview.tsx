@@ -15,21 +15,43 @@ import type { OrderStatus } from "@/types/order";
 import { isAdminFinanceVisible } from "@/lib/product/product-mode";
 import { cn } from "@/lib/utils";
 
+interface MakerSummary {
+  id: string;
+  name: string;
+  address: string;
+  status: string;
+  rating: number;
+  printerTypes: string[];
+  ordersCount: number;
+  filamentsCount: number;
+  printersCount: number;
+  createdAt: string;
+}
+
 export function AdminOverview() {
   const { t } = useTranslations();
   const [stats, setStats] = useState<AdminPlatformStats | null>(null);
+  const [makers, setMakers] = useState<MakerSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isFetching, setIsFetching] = useState(true);
 
-  const loadStats = useCallback(async () => {
+  const loadData = useCallback(async () => {
     setIsFetching(true);
     setError(null);
 
     try {
-      const response = await fetch("/api/admin/stats");
-      if (!response.ok) throw new Error("Failed");
-      const data = (await response.json()) as { stats: AdminPlatformStats };
-      setStats(data.stats);
+      const [statsRes, makersRes] = await Promise.all([
+        fetch("/api/admin/stats"),
+        fetch("/api/admin/makers"),
+      ]);
+
+      if (!statsRes.ok || !makersRes.ok) throw new Error("Failed");
+
+      const statsData = (await statsRes.json()) as { stats: AdminPlatformStats };
+      const makersData = (await makersRes.json()) as { makers: MakerSummary[] };
+
+      setStats(statsData.stats);
+      setMakers(makersData.makers);
     } catch {
       setError(t("admin.statsLoadFailed"));
     } finally {
@@ -38,8 +60,8 @@ export function AdminOverview() {
   }, [t]);
 
   useEffect(() => {
-    void loadStats();
-  }, [loadStats]);
+    void loadData();
+  }, [loadData]);
 
   return (
     <AdminShell
@@ -50,7 +72,7 @@ export function AdminOverview() {
           variant="outline"
           size="sm"
           disabled={isFetching}
-          onClick={() => void loadStats()}
+          onClick={() => void loadData()}
         >
           {t("common.refresh")}
         </Button>
@@ -92,7 +114,11 @@ export function AdminOverview() {
             <AdminStatCard
               label={t("admin.statCustomers")}
               value={String(stats.uniqueCustomers)}
-              hint={t("admin.statMakers", { count: stats.makersWithOrders })}
+            />
+            <AdminStatCard
+              label={t("admin.statMakers")}
+              value={String(stats.totalMakers)}
+              hint={t("admin.statMakersWithOrders", { count: stats.makersWithOrders })}
             />
           </section>
 
@@ -262,6 +288,67 @@ export function AdminOverview() {
                           </td>
                         </tr>
                       ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-base font-semibold">
+              {t("admin.workshopsTitle")}
+            </h2>
+            <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-left text-sm">
+                  <thead className="border-b border-border bg-muted/40">
+                    <tr>
+                      <th className="px-4 py-3 font-medium text-muted-foreground">
+                        {t("admin.columnName")}
+                      </th>
+                      <th className="px-4 py-3 font-medium text-muted-foreground">
+                        {t("admin.columnAddress")}
+                      </th>
+                      <th className="px-4 py-3 font-medium text-muted-foreground">
+                        {t("admin.columnPrinters")}
+                      </th>
+                      <th className="px-4 py-3 font-medium text-muted-foreground">
+                        {t("admin.columnOrders")}
+                      </th>
+                      <th className="px-4 py-3 font-medium text-muted-foreground">
+                        {t("admin.columnRating")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {makers.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                          {t("admin.noWorkshops")}
+                        </td>
+                      </tr>
+                    ) : (
+                      makers.map((maker) => (
+                        <tr
+                          key={maker.id}
+                          className="border-b border-border last:border-0"
+                        >
+                          <td className="px-4 py-3 font-medium">{maker.name}</td>
+                          <td className="px-4 py-3 text-muted-foreground">
+                            {maker.address}
+                          </td>
+                          <td className="px-4 py-3 tabular-nums">
+                            {maker.printersCount}
+                          </td>
+                          <td className="px-4 py-3 tabular-nums">
+                            {maker.ordersCount}
+                          </td>
+                          <td className="px-4 py-3 tabular-nums">
+                            {maker.rating.toFixed(1)}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
