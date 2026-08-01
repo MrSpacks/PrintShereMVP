@@ -33,8 +33,18 @@ import {
 } from "@/lib/makers/workshop-status";
 import { cn } from "@/lib/utils";
 
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <span className="text-sm font-medium text-foreground">{children}</span>;
+function FieldLabel({ 
+  children, 
+  className 
+}: { 
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <span className={cn("text-sm font-medium text-foreground", className)}>
+      {children}
+    </span>
+  );
 }
 
 function DashboardInput({
@@ -724,17 +734,18 @@ export function MakerDashboard() {
             </div>
 
             <div className="space-y-2">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <FieldLabel>{t("workshop.registeredPrinters")}</FieldLabel>
+              <div className="flex items-center justify-between gap-2">
+                <FieldLabel className="shrink-0">{t("workshop.registeredPrinters")}</FieldLabel>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAddPrinter(true)}
-                  className="gap-1.5 whitespace-nowrap"
+                  className="gap-1.5 shrink-0"
                 >
                   <Plus className="h-4 w-4" />
-                  {t("workshop.addPrinter")}
+                  <span className="hidden sm:inline">{t("workshop.addPrinter")}</span>
+                  <span className="sm:hidden">{t("common.add")}</span>
                 </Button>
               </div>
 
