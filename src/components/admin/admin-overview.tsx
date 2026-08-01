@@ -304,19 +304,19 @@ export function AdminOverview() {
                   <thead className="border-b border-border bg-muted/40">
                     <tr>
                       <th className="px-4 py-3 font-medium text-muted-foreground">
-                        {t("admin.columnName")}
+                        {t("admin.workshopColumnName")}
                       </th>
                       <th className="px-4 py-3 font-medium text-muted-foreground">
-                        {t("admin.columnAddress")}
+                        {t("admin.workshopColumnAddress")}
                       </th>
                       <th className="px-4 py-3 font-medium text-muted-foreground">
-                        {t("admin.columnPrinters")}
+                        {t("admin.workshopColumnPrinters")}
                       </th>
                       <th className="px-4 py-3 font-medium text-muted-foreground">
                         {t("admin.columnOrders")}
                       </th>
                       <th className="px-4 py-3 font-medium text-muted-foreground">
-                        {t("admin.columnRating")}
+                        {t("admin.workshopColumnRating")}
                       </th>
                     </tr>
                   </thead>
