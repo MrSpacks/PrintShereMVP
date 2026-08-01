@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/components/auth/auth-provider";
 import { PrinterPicker } from "@/components/maker/printer-picker";
 import { useTranslations } from "@/i18n/locale-provider";
+import { PRINTER_MODEL_CATALOG } from "@/lib/makers/printer-catalog";
 import type { MakerSignupPayload } from "@/types/auth";
 import type { User } from "@/types/user";
 import type { WorkshopPrinterInput } from "@/types/maker";
@@ -28,7 +29,12 @@ export function BecomeMakerForm() {
   const [password, setPassword] = useState("");
   const [workshopName, setWorkshopName] = useState("");
   const [address, setAddress] = useState("");
-  const [printers, setPrinters] = useState<WorkshopPrinterInput[]>([]);
+  const [printers, setPrinters] = useState<WorkshopPrinterInput[]>([
+    {
+      technology: "fdm",
+      modelKey: PRINTER_MODEL_CATALOG.fdm[0]?.key ?? "generic-fdm",
+    },
+  ]);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
