@@ -26,7 +26,7 @@ export function Header({ className }: HeaderProps) {
   const { t } = useTranslations();
   const { user } = useAuth();
   const isMaker = user ? hasMakerAccess(user) : false;
-  const showBecomeMaker = user && !isMaker;
+  const showBecomeMaker = !isMaker;
 
   return (
     <header
