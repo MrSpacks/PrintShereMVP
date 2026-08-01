@@ -25,8 +25,17 @@ function isValidPayload(body: unknown): body is AddPrinterPayload {
 
 export async function POST(request: Request) {
   const session = await getSession();
-  if (!session || !session.makerId) {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { makerId: true },
+  });
+
+  if (!user?.makerId) {
+    return NextResponse.json({ error: "Not a maker" }, { status: 403 });
   }
 
   const body: unknown = await request.json();
@@ -53,7 +62,7 @@ export async function POST(request: Request) {
 
   const printer = await prisma.makerPrinter.create({
     data: {
-      makerId: session.makerId,
+      makerId: user.makerId,
       technology: body.technology,
       modelKey: resolved.modelKey,
       modelLabel: resolved.modelLabel,
@@ -63,7 +72,7 @@ export async function POST(request: Request) {
 
   // Update printerTypes array on Maker
   const maker = await prisma.maker.findUnique({
-    where: { id: session.makerId },
+    where: { id: user.makerId },
     select: { printerTypes: true },
   });
 
@@ -71,7 +80,7 @@ export async function POST(request: Request) {
   currentTypes.add(body.technology);
 
   await prisma.maker.update({
-    where: { id: session.makerId },
+    where: { id: user.makerId },
     data: { printerTypes: Array.from(currentTypes) },
   });
 

@@ -11,15 +11,24 @@ interface RouteParams {
 
 export async function DELETE(_request: Request, { params }: RouteParams) {
   const session = await getSession();
-  if (!session || !session.makerId) {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { makerId: true },
+  });
+
+  if (!user?.makerId) {
+    return NextResponse.json({ error: "Not a maker" }, { status: 403 });
   }
 
   const printer = await prisma.makerPrinter.findUnique({
     where: { id: params.id },
   });
 
-  if (!printer || printer.makerId !== session.makerId) {
+  if (!printer || printer.makerId !== user.makerId) {
     return NextResponse.json({ error: "Printer not found" }, { status: 404 });
   }
 
@@ -29,14 +38,14 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
 
   // Check if we need to update printerTypes
   const remainingPrinters = await prisma.makerPrinter.findMany({
-    where: { makerId: session.makerId },
+    where: { makerId: user.makerId },
     select: { technology: true },
   });
 
   const types = new Set(remainingPrinters.map((p) => p.technology));
 
   await prisma.maker.update({
-    where: { id: session.makerId },
+    where: { id: user.makerId },
     data: { printerTypes: Array.from(types) },
   });
 
