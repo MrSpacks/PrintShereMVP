@@ -13,9 +13,17 @@ export async function GET() {
       orderBy: { rating: "desc" },
     });
 
-    return NextResponse.json(records.map(mapPrismaMaker));
+    console.log("[GET /api/makers] Found makers:", {
+      count: records.length,
+      ids: records.map((m) => m.id),
+    });
+
+    const mapped = records.map(mapPrismaMaker);
+    console.log("[GET /api/makers] Returning:", mapped.length);
+
+    return NextResponse.json(mapped);
   } catch (error) {
-    console.error("[GET /api/makers]", error);
+    console.error("[GET /api/makers] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch makers" },
       { status: 500 }
