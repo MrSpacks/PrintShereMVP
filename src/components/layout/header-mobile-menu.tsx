@@ -83,7 +83,7 @@ export function HeaderMobileMenu() {
             </Link>
           ))}
 
-          {!isMaker && (
+          {user && !isMaker && (
             <Link
               href="/become-maker"
               onClick={close}
