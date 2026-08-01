@@ -102,13 +102,18 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     if (error instanceof Error && error.message === "GEOCODE_FAILED") {
+      console.error("[POST /api/maker/workshops] GEOCODE_FAILED:", { address });
       return NextResponse.json(
         { error: "Could not locate this address. Check spelling." },
         { status: 422 }
       );
     }
 
-    console.error("[POST /api/maker/workshops]", error);
+    console.error("[POST /api/maker/workshops] Unexpected error:", {
+      error,
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
       { error: "Failed to create workshop" },
       { status: 500 }

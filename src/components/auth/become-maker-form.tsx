@@ -39,14 +39,18 @@ export function BecomeMakerForm() {
 
     try {
       if (isExistingAccount) {
+        const payload = { workshopName, address, printers };
+        console.log("[BecomeMakerForm] Submitting workshop for existing account:", payload);
+        
         const response = await fetch("/api/maker/workshops", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ workshopName, address, printers }),
+          body: JSON.stringify(payload),
         });
         const data = (await response.json()) as { error?: string; user?: User };
 
         if (!response.ok) {
+          console.error("[BecomeMakerForm] Workshop creation failed:", data);
           throw new Error(data.error ?? t("becomeMaker.registrationFailed"));
         }
 
