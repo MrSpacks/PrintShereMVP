@@ -80,12 +80,13 @@ export function mapPrismaMakerProfile(
 }
 
 export function mapWorkshopSummary(
-  record: Pick<PrismaMaker, "id" | "name" | "status">,
+  record: Pick<PrismaMaker, "id" | "name" | "address" | "status">,
   activeMakerId: string | null
 ): MakerWorkshopSummary {
   return {
     id: record.id,
     name: record.name,
+    address: record.address,
     status: toMakerStatus(record.status),
     isActive: record.id === activeMakerId,
   };

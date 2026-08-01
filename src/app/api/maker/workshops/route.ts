@@ -30,7 +30,7 @@ export async function GET() {
   const workshops = await prisma.maker.findMany({
     where: { ownerUserId: user.id },
     orderBy: { createdAt: "asc" },
-    select: { id: true, name: true, status: true },
+    select: { id: true, name: true, address: true, status: true },
   });
 
   return NextResponse.json({

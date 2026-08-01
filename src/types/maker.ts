@@ -51,6 +51,7 @@ export interface MakerProfile extends Maker {
 export interface MakerWorkshopSummary {
   id: string;
   name: string;
+  address: string;
   status: MakerStatus;
   isActive: boolean;
 }
