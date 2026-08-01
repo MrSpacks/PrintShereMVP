@@ -137,6 +137,10 @@ export const enMessages = {
     postalCode: "Postal code",
     country: "Country",
     detectLocation: "Detect my location",
+    geolocationNotSupported: "Your browser doesn't support geolocation",
+    locationPermissionDenied: "Location access was denied. Please enable it in your browser settings.",
+    locationTimeout: "Location detection timed out. Please try again.",
+    locationDetectionFailed: "Could not detect your location. Please enter the address manually.",
     fullAddress: "Full address",
     addressPlaceholder: "Street, city, postal code, country",
     addressHint:

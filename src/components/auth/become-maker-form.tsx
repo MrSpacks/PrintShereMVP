@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { MapPin } from "lucide-react";
 
 import {
   AuthCard,
@@ -14,6 +15,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { PrinterPicker } from "@/components/maker/printer-picker";
 import { useTranslations } from "@/i18n/locale-provider";
 import { PRINTER_MODEL_CATALOG } from "@/lib/makers/printer-catalog";
+import { reverseGeocode } from "@/lib/geocoding/reverse-geocode";
 import type { MakerSignupPayload } from "@/types/auth";
 import type { User } from "@/types/user";
 import type { WorkshopPrinterInput } from "@/types/maker";
@@ -43,6 +45,54 @@ export function BecomeMakerForm() {
   ]);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+
+  const handleDetectLocation = async () => {
+    if (!navigator.geolocation) {
+      setError(t("becomeMaker.geolocationNotSupported"));
+      return;
+    }
+
+    setIsDetectingLocation(true);
+    setError(null);
+
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+      
+      const result = await reverseGeocode(latitude, longitude);
+
+      if (result) {
+        if (result.street) setStreet(result.street);
+        if (result.city) setCity(result.city);
+        if (result.postalCode) setPostalCode(result.postalCode);
+        if (result.country) setCountry(result.country);
+      } else {
+        setError(t("becomeMaker.locationDetectionFailed"));
+      }
+    } catch (error) {
+      console.error("[handleDetectLocation] Error:", error);
+      if (error instanceof GeolocationPositionError) {
+        if (error.code === error.PERMISSION_DENIED) {
+          setError(t("becomeMaker.locationPermissionDenied"));
+        } else if (error.code === error.TIMEOUT) {
+          setError(t("becomeMaker.locationTimeout"));
+        } else {
+          setError(t("becomeMaker.locationDetectionFailed"));
+        }
+      } else {
+        setError(t("becomeMaker.locationDetectionFailed"));
+      }
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -183,13 +233,15 @@ export function BecomeMakerForm() {
               </label>
               <button
                 type="button"
-                className="text-xs text-brand hover:underline"
-                onClick={() => {
-                  // TODO: Add geolocation handler
-                  alert("Geolocation coming soon!");
-                }}
+                disabled={isDetectingLocation}
+                className="flex items-center gap-1 text-xs text-brand hover:underline disabled:opacity-50"
+                onClick={handleDetectLocation}
               >
-                📍 {t("becomeMaker.detectLocation")}
+                <MapPin className="h-3 w-3" />
+                {isDetectingLocation 
+                  ? t("common.loading")
+                  : t("becomeMaker.detectLocation")
+                }
               </button>
             </div>
 

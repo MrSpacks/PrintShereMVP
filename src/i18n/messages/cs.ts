@@ -135,6 +135,10 @@ export const csMessages = {
     postalCode: "PSČ",
     country: "Země",
     detectLocation: "Určit moji polohu",
+    geolocationNotSupported: "Váš prohlížeč nepodporuje geolokaci",
+    locationPermissionDenied: "Přístup k poloze byl zamítnut. Povolte ho v nastavení prohlížeče.",
+    locationTimeout: "Časový limit určení polohy vypršel. Zkuste to znovu.",
+    locationDetectionFailed: "Nepodařilo se určit vaši polohu. Zadejte adresu ručně.",
     fullAddress: "Celá adresa",
     addressPlaceholder: "Ulice, město, PSČ, země",
     addressHint:
