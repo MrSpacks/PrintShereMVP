@@ -16,18 +16,6 @@ import { isPlatformFeeEnabled } from "@/lib/product/product-mode";
 import type { Maker, PinPriceDisplay, PrinterType } from "@/types/maker";
 import type { PrintSettings } from "@/types/model";
 
-function resolveMakerPrintSettings(
-  maker: Pick<Maker, "infillPercent" | "wallThicknessMm" | "supportCoefficient">
-): PrintSettings {
-  return {
-    infillPercent: maker.infillPercent ?? DEFAULT_PRINT_SETTINGS.infillPercent,
-    wallThicknessMm:
-      maker.wallThicknessMm ?? DEFAULT_PRINT_SETTINGS.wallThicknessMm,
-    supportCoefficient:
-      maker.supportCoefficient ?? DEFAULT_PRINT_SETTINGS.supportCoefficient,
-  };
-}
-
 /**
  * Форматирует цену на пине карты.
  * Без модели — цена за грамм; с моделью — итог печати (вес × CZK/g).
@@ -59,25 +47,23 @@ export function getPinPriceDisplay(
 }
 
 /**
- * Пересчитывает вес модели с учетом настроек печати конкретного мейкера.
+ * Пересчитывает вес модели с дефолтными настройками печати.
  * volumeCm3 - объем модели, printerType - тип принтера (FDM/resin).
  */
 export function recalculateWeightForMaker(
   volumeCm3: number,
-  maker: Maker,
+  _maker: Maker,
   printerType: PrinterType
 ): { totalWeight: number; modelWeight: number; supportWeight: number } {
-  const printSettings = resolveMakerPrintSettings(maker);
-
   const density =
     printerType === "resin"
       ? DEFAULT_RESIN_DENSITY_G_CM3
       : DEFAULT_PLA_DENSITY_G_CM3;
 
-  return calculatePrintWeight(volumeCm3, density, printSettings);
+  return calculatePrintWeight(volumeCm3, density, DEFAULT_PRINT_SETTINGS);
 }
 
-/** Вес модели для прайсинга конкретного мейкера на карте */
+/** Вес модели для прайсинга на карте с дефолтными настройками */
 export function getMakerQuoteWeightGrams(
   volumeCm3: number,
   maker: Maker,

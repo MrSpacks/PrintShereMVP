@@ -37,6 +37,9 @@ export interface CreateOrderPayload {
   zasilkovnaPointId?: string;
   zasilkovnaPointLabel?: string;
   printerType: "fdm" | "resin";
+  infillPercent?: number;
+  wallThicknessMm?: number;
+  supportCoefficient?: number;
   acceptedTerms: boolean;
   acceptedPrivacy: boolean;
   acceptedCustomManufacture: boolean;
@@ -66,6 +69,9 @@ export interface OrderResponse {
   /** Omitted for maker viewers */
   customerTotalCzk?: number;
   printQuality: PrintQuality;
+  infillPercent: number;
+  wallThicknessMm: number;
+  supportCoefficient: number;
   deliveryMethod: DeliveryMethod | null;
   /** Delivery fee the maker receives (with print) when shipping is selected */
   deliveryPriceCzk?: number;

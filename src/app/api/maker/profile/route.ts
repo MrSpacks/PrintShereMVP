@@ -29,9 +29,6 @@ function isUpdateBody(body: unknown): body is UpdateMakerProfilePayload {
     typeof p.deliveryPriceCzk === "number" &&
     Array.isArray(p.printerTypes) &&
     typeof p.status === "string" &&
-    (p.infillPercent === undefined || typeof p.infillPercent === "number") &&
-    (p.wallThicknessMm === undefined || typeof p.wallThicknessMm === "number") &&
-    (p.supportCoefficient === undefined || typeof p.supportCoefficient === "number") &&
     (p.companyId === undefined ||
       p.companyId === null ||
       typeof p.companyId === "string")
@@ -40,23 +37,6 @@ function isUpdateBody(body: unknown): body is UpdateMakerProfilePayload {
 
 function validatePricePerGram(value: number): boolean {
   return value > 0 && value <= 50;
-}
-
-function validatePrintSettings(
-  infillPercent?: number,
-  wallThicknessMm?: number,
-  supportCoefficient?: number
-): string | null {
-  if (infillPercent !== undefined && (infillPercent < 0 || infillPercent > 100)) {
-    return "Infill must be between 0% and 100%";
-  }
-  if (wallThicknessMm !== undefined && (wallThicknessMm < 0.4 || wallThicknessMm > 5.0)) {
-    return "Wall thickness must be between 0.4mm and 5.0mm";
-  }
-  if (supportCoefficient !== undefined && (supportCoefficient < 1.0 || supportCoefficient > 2.0)) {
-    return "Support coefficient must be between 1.0 and 2.0";
-  }
-  return null;
 }
 
 export async function GET() {
@@ -145,15 +125,6 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
-    const printSettingsError = validatePrintSettings(
-      body.infillPercent,
-      body.wallThicknessMm,
-      body.supportCoefficient
-    );
-    if (printSettingsError) {
-      return NextResponse.json({ error: printSettingsError }, { status: 400 });
-    }
-
     if (body.companyId !== undefined) {
       const icoError = validateMakerIcoInput(body.companyId);
       if (icoError) {
@@ -183,9 +154,6 @@ export async function PATCH(request: Request) {
         deliveryPriceCzk: body.offersDelivery ? body.deliveryPriceCzk : 0,
         printerTypes,
         status: body.status,
-        ...(body.infillPercent !== undefined && { infillPercent: body.infillPercent }),
-        ...(body.wallThicknessMm !== undefined && { wallThicknessMm: body.wallThicknessMm }),
-        ...(body.supportCoefficient !== undefined && { supportCoefficient: body.supportCoefficient }),
         ...(body.companyId !== undefined && {
           companyId: normalizeMakerIco(body.companyId),
         }),

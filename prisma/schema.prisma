@@ -113,9 +113,6 @@ model Maker {
   deliveryPriceCzk Int              @default(0)
   printerTypes     String[]
   status           MakerStatus      @default(available)
-  infillPercent    Int              @default(20)
-  wallThicknessMm  Float            @default(1.2)
-  supportCoefficient Float          @default(1.15)
   /** IČO podnikatele; bez IČO platí roční limit příležitostného příjmu 50 000 Kč */
   companyId        String?
   filaments        MakerFilament[]
@@ -182,6 +179,9 @@ model Order {
   /** После завершения заказа — дата автоудаления файла модели */
   modelRetainUntil  DateTime?
   printQuality      PrintQuality  @default(standard)
+  infillPercent     Int           @default(20)
+  wallThicknessMm   Float         @default(1.2)
+  supportCoefficient Float        @default(1.15)
   status            OrderStatus   @default(pending)
   /** Souhlas s VOP při vytvoření objednávky */
   acceptedTermsAt   DateTime?

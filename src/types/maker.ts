@@ -38,9 +38,6 @@ export interface Maker {
   status: MakerStatus;
   /** IČO — without it, annual occasional-income limit applies */
   companyId: string | null;
-  infillPercent: number;
-  wallThicknessMm: number;
-  supportCoefficient: number;
 }
 
 export interface MakerProfile extends Maker {
@@ -81,9 +78,6 @@ export interface UpdateMakerProfilePayload {
   deliveryPriceCzk: number;
   printerTypes: PrinterType[];
   status: MakerStatus;
-  infillPercent?: number;
-  wallThicknessMm?: number;
-  supportCoefficient?: number;
   /** Empty string or omit to clear; 8 digits to set */
   companyId?: string | null;
 }

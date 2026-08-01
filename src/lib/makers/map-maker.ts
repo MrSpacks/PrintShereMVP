@@ -67,9 +67,6 @@ export function mapPrismaMaker(
     filaments: (record.filaments ?? []).map(mapFilament),
     status: toMakerStatus(record.status),
     companyId: record.companyId ?? null,
-    infillPercent: record.infillPercent ?? 20,
-    wallThicknessMm: record.wallThicknessMm ?? 1.2,
-    supportCoefficient: record.supportCoefficient ?? 1.15,
   };
 }
 
