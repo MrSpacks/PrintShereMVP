@@ -16,6 +16,7 @@ interface AuthFieldProps {
   onChange: (value: string) => void;
   autoComplete?: string;
   required?: boolean;
+  placeholder?: string;
 }
 
 export function AuthField({
@@ -26,6 +27,7 @@ export function AuthField({
   onChange,
   autoComplete,
   required = true,
+  placeholder,
 }: AuthFieldProps) {
   const { t } = useTranslations();
   const [showPassword, setShowPassword] = useState(false);
@@ -45,6 +47,7 @@ export function AuthField({
           onChange={(event) => onChange(event.target.value)}
           autoComplete={autoComplete}
           required={required}
+          placeholder={placeholder}
           className={cn(
             "flex h-10 w-full rounded-md border border-input bg-background py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             isPassword ? "pr-10 pl-3" : "px-3"
