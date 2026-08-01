@@ -276,6 +276,7 @@ export const enMessages = {
     customPrinterPlaceholder: "e.g. Prusa MK3S+ modded",
     addPrinter: "Add another printer",
     registeredPrinters: "Registered printers",
+    noPrinters: "No printers. Add your first printer.",
     customBadge: "Custom",
   },
   printer: {

@@ -72,7 +72,8 @@ export async function deleteMakerWorkshop(
   ownerUserId: string
 ): Promise<void> {
   // Refund any active orders first
-  await refundActiveOrders(tx, { makerId });
+  const refundedCount = await refundActiveOrders(tx, { makerId });
+  console.log("[deleteMakerWorkshop] Refunded orders:", refundedCount);
 
   // Check if there are still any active orders (should be 0 after refund)
   const activeOrderCount = await tx.order.count({
@@ -82,7 +83,17 @@ export async function deleteMakerWorkshop(
     },
   });
 
+  console.log("[deleteMakerWorkshop] Active orders after refund:", activeOrderCount);
+
   if (activeOrderCount > 0) {
+    const activeOrders = await tx.order.findMany({
+      where: {
+        makerId,
+        status: { notIn: TERMINAL_STATUSES },
+      },
+      select: { id: true, status: true },
+    });
+    console.error("[deleteMakerWorkshop] Blocking orders:", activeOrders);
     throw new Error("WORKSHOP_HAS_ACTIVE_ORDERS");
   }
 

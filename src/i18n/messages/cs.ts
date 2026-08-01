@@ -274,6 +274,7 @@ export const csMessages = {
     customPrinterPlaceholder: "např. Prusa MK3S+ upravená",
     addPrinter: "Přidat další tiskárnu",
     registeredPrinters: "Registrované tiskárny",
+    noPrinters: "Žádné tiskárny. Přidejte první tiskárnu.",
     customBadge: "Vlastní",
   },
   printer: {

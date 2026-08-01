@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AuthError } from "@/components/auth/auth-form";
 import { Button } from "@/components/ui/button";
 import { WorkshopToolbar } from "@/components/maker/workshop-toolbar";
+import { PrinterPicker } from "@/components/maker/printer-picker";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
 import { PRINTER_TYPES } from "@/lib/makers/capabilities";
@@ -19,6 +20,7 @@ import {
 } from "@/components/maker/filament-color-picker";
 import type {
   MakerFilament,
+  MakerPrinter,
   MakerProfile,
   MakerStatus,
   MakerWorkshopSummary,
@@ -261,7 +263,9 @@ export function MakerDashboard() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [showAddFilament, setShowAddFilament] = useState(false);
+  const [showAddPrinter, setShowAddPrinter] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingPrinterId, setDeletingPrinterId] = useState<string | null>(null);
 
   const applyProfile = useCallback((next: MakerProfile) => {
     setProfile(next);
@@ -409,6 +413,52 @@ export function MakerDashboard() {
           )
         ),
       });
+    }
+  };
+
+  const handleAddPrinter = async (
+    technology: PrinterType,
+    modelKey: string,
+    customModelLabel?: string
+  ) => {
+    const response = await fetch("/api/maker/printers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ technology, modelKey, customModelLabel }),
+    });
+
+    const data = (await response.json()) as {
+      printer?: MakerPrinter;
+      error?: string;
+    };
+
+    if (!response.ok) {
+      throw new Error(data.error ?? t("dashboard.addFailed"));
+    }
+
+    if (data.printer && profile) {
+      await loadProfile();
+    }
+  };
+
+  const handleDeletePrinter = async (id: string) => {
+    setDeletingPrinterId(id);
+
+    try {
+      const response = await fetch(`/api/maker/printers/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        throw new Error(data.error ?? t("dashboard.deleteFailed"));
+      }
+
+      await loadProfile();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : t("dashboard.deleteFailed"));
+    } finally {
+      setDeletingPrinterId(null);
     }
   };
 
@@ -673,30 +723,78 @@ export function MakerDashboard() {
               </div>
             </div>
 
-            {profile.printers.length > 0 && (
-              <div className="space-y-2">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
                 <FieldLabel>{t("workshop.registeredPrinters")}</FieldLabel>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAddPrinter(true)}
+                  className="gap-1.5"
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("workshop.addPrinter")}
+                </Button>
+              </div>
+
+              {showAddPrinter && (
+                <PrinterPicker
+                  printers={[]}
+                  onChange={(newPrinters) => {
+                    if (newPrinters.length > 0) {
+                      const printer = newPrinters[0];
+                      void handleAddPrinter(
+                        printer.technology,
+                        printer.modelKey,
+                        printer.customModelLabel
+                      ).then(() => {
+                        setShowAddPrinter(false);
+                      });
+                    }
+                  }}
+                />
+              )}
+
+              {profile.printers.length > 0 && (
                 <ul className="space-y-2">
                   {profile.printers.map((printer) => (
                     <li
                       key={printer.id}
-                      className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm"
+                      className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm"
                     >
-                      <span className="font-medium">{printer.modelLabel}</span>
-                      <span className="text-muted-foreground">
-                        {" "}
-                        · {t(`printer.${printer.technology}`)}
-                      </span>
-                      {printer.isCustom && (
-                        <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                          {t("workshop.customBadge")}
+                      <div>
+                        <span className="font-medium">{printer.modelLabel}</span>
+                        <span className="text-muted-foreground">
+                          {" "}
+                          · {t(`printer.${printer.technology}`)}
                         </span>
-                      )}
+                        {printer.isCustom && (
+                          <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                            {t("workshop.customBadge")}
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleDeletePrinter(printer.id)}
+                        disabled={deletingPrinterId === printer.id}
+                        className="text-red-600 hover:text-red-700 disabled:opacity-50"
+                        title={t("common.delete")}
+                      >
+                        ×
+                      </button>
                     </li>
                   ))}
                 </ul>
-              </div>
-            )}
+              )}
+
+              {profile.printers.length === 0 && !showAddPrinter && (
+                <p className="rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+                  {t("workshop.noPrinters")}
+                </p>
+              )}
+            </div>
             </div>
           </div>
 
