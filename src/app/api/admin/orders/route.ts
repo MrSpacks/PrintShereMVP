@@ -8,6 +8,8 @@ import {
   adminUnauthorized,
   requireAdminUser,
 } from "@/lib/admin/require-admin";
+
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import type { AdminOrderSummary } from "@/types/admin";
 import type { OrderStatus } from "@/types/order";

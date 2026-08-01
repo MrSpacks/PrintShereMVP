@@ -7,6 +7,8 @@ import {
 import { mapPrismaUser } from "@/lib/users/map-user";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 /** Список пользователей — только для admin. */
 export async function GET() {
   try {

@@ -10,6 +10,8 @@ import {
 import { mapPrismaUser } from "@/lib/users/map-user";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const session = await getSession();
   if (!session) {

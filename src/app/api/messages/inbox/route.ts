@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import type { InboxMessageItem, InboxResponse } from "@/types/inbox";
 import { getOrdersViewRole } from "@/types/user";
 
+export const dynamic = "force-dynamic";
+
 function truncate(text: string, max = 80): string {
   const trimmed = text.trim();
   if (trimmed.length <= max) return trimmed;

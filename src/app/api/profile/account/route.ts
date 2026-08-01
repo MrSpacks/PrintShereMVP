@@ -9,6 +9,8 @@ import { verifyPassword } from "@/lib/auth/password";
 import { prisma } from "@/lib/prisma";
 import { isAdminUser } from "@/types/user";
 
+export const dynamic = "force-dynamic";
+
 export async function DELETE(request: Request) {
   const session = await getSession();
   if (!session) {

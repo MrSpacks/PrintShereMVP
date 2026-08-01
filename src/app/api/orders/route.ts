@@ -10,6 +10,9 @@ import { calculateOrderPricing } from "@/lib/orders/order-pricing";
 import { prisma } from "@/lib/prisma";
 import type { CreateOrderPayload } from "@/types/order";
 import type { DeliveryMethod } from "@/types/delivery";
+
+export const dynamic = "force-dynamic";
+
 import {
   canAccessOrdersListView,
   parseOrdersListView,

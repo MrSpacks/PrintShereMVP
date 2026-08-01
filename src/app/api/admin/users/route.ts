@@ -9,6 +9,8 @@ import {
   adminUnauthorized,
   requireAdminUser,
 } from "@/lib/admin/require-admin";
+
+export const dynamic = "force-dynamic";
 import { mapPrismaUser } from "@/lib/users/map-user";
 import { prisma } from "@/lib/prisma";
 

@@ -5,6 +5,8 @@ import { mapPrismaUser } from "@/lib/users/map-user";
 import { isUserCurrentlyBlocked } from "@/lib/users/user-block";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 /** Текущий авторизованный пользователь */
 export async function GET() {
   try {

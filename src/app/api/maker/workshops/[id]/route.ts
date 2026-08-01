@@ -5,6 +5,8 @@ import { requireOwnedMaker } from "@/lib/maker/require-maker";
 import { deleteMakerWorkshop } from "@/lib/users/delete-account";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 interface RouteParams {
   params: { id: string };
 }

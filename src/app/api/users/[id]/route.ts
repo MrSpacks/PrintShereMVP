@@ -9,6 +9,8 @@ import { mapPublicUserProfile } from "@/lib/users/map-public-profile";
 import { prisma } from "@/lib/prisma";
 import { isModeratorRole } from "@/types/user";
 
+export const dynamic = "force-dynamic";
+
 interface RouteParams {
   params: { id: string };
 }

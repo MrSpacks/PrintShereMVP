@@ -5,6 +5,8 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { hasMakerAccess } from "@/types/user";
 
+export const dynamic = "force-dynamic";
+
 /** Počet aktivních objednávek pro výrobce (badge v hlavičce). */
 export async function GET() {
   try {
