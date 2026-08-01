@@ -10,5 +10,5 @@ export function getSiteUrl(): string {
     return `https://${vercel.replace(/\/$/, "")}`;
   }
 
-  return "https://printshare.cz";
+  return "https://3dprintshare.xyz";
 }

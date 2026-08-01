@@ -17,6 +17,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   ...buildRootMetadata(),
+  manifest: "/manifest.json",
   other: {
     "app-version": getAppVersion(),
   },

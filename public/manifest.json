@@ -1,0 +1,28 @@
+{
+  "name": "PrintShare — 3D Print Marketplace",
+  "short_name": "PrintShare",
+  "description": "Najděte nejbližšího 3D tiskaře, nahrajte STL model a domluvte se v chatu",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "651x712",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["marketplace", "business", "productivity"],
+  "lang": "cs",
+  "dir": "ltr"
+}
