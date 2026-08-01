@@ -42,9 +42,13 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
   }
 
   try {
+    console.log("[DELETE /api/maker/workshops/[id]] Starting deletion for maker:", maker.id);
+    
     await prisma.$transaction((tx) =>
       deleteMakerWorkshop(tx, maker.id, session.userId)
     );
+
+    console.log("[DELETE /api/maker/workshops/[id]] Workshop deleted successfully");
 
     const user = await prisma.user.findUniqueOrThrow({
       where: { id: session.userId },
@@ -58,15 +62,26 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
     });
   } catch (error) {
     if (error instanceof Error && error.message === "WORKSHOP_HAS_ACTIVE_ORDERS") {
+      console.error("[DELETE /api/maker/workshops/[id]] Active orders blocking deletion");
       return NextResponse.json(
         { error: "Workshop has active orders and cannot be deleted" },
         { status: 409 }
       );
     }
 
-    console.error("[DELETE /api/maker/workshops/[id]]", error);
+    console.error("[DELETE /api/maker/workshops/[id]] Unexpected error:", {
+      error,
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      makerId: maker.id,
+      userId: session.userId,
+    });
+    
     return NextResponse.json(
-      { error: "Failed to delete workshop" },
+      { 
+        error: "Failed to delete workshop",
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }
