@@ -47,13 +47,21 @@ export async function POST(request: Request) {
   }
 
   let address = "";
+  let workshopName = "";
   
   try {
     const body = (await request.json()) as Record<string, unknown>;
-    const workshopName =
+    workshopName =
       typeof body.workshopName === "string" ? body.workshopName.trim() : "";
     address = typeof body.address === "string" ? body.address.trim() : "";
     const printers = parseWorkshopPrinters(body.printers);
+
+    console.log("[POST /api/maker/workshops] Input:", {
+      workshopName,
+      address,
+      printers,
+      userId: session.userId,
+    });
 
     if (workshopName.length < 2) {
       return NextResponse.json(
@@ -112,6 +120,9 @@ export async function POST(request: Request) {
     }
 
     console.error("[POST /api/maker/workshops] Unexpected error:", {
+      workshopName,
+      address,
+      userId: session.userId,
       error,
       message: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,

@@ -40,7 +40,12 @@ export function BecomeMakerForm() {
     try {
       if (isExistingAccount) {
         const payload = { workshopName, address, printers };
-        console.log("[BecomeMakerForm] Submitting workshop for existing account:", payload);
+        console.log("[BecomeMakerForm] Submitting workshop for existing account:", {
+          payload,
+          workshopName,
+          address,
+          printers: JSON.parse(JSON.stringify(printers)),
+        });
         
         const response = await fetch("/api/maker/workshops", {
           method: "POST",
