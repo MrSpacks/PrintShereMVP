@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { mapPrismaMaker } from "@/lib/makers/map-maker";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 /** Список всех печатников для карты */
 export async function GET() {
   try {
