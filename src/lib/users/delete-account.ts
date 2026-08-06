@@ -163,14 +163,17 @@ export async function deleteUserAccount(userId: string): Promise<{
       throw new Error("ACTIVE_ORDERS_REMAIN");
     }
 
+    // Delete all owned workshops (orders are already detached via SET NULL)
     for (const maker of ownedMakers) {
-      await tx.maker.update({
-        where: { id: maker.id },
-        data: {
-          ownerUserId: ARCHIVE_USER_ID,
-          status: "hidden",
-        },
-      });
+      // Detach all orders from this workshop
+      await tx.$executeRaw`
+        UPDATE "Order" SET "makerId" = NULL WHERE "makerId" = ${maker.id}
+      `;
+      
+      // Delete workshop data
+      await tx.makerFilament.deleteMany({ where: { makerId: maker.id } });
+      await tx.makerPrinter.deleteMany({ where: { makerId: maker.id } });
+      await tx.maker.delete({ where: { id: maker.id } });
     }
 
     await tx.user.delete({ where: { id: userId } });
