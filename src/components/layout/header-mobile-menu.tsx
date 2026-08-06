@@ -57,7 +57,7 @@ export function HeaderMobileMenu() {
         type="button"
         variant="outline"
         size="icon"
-        className="h-10 w-10 shrink-0 md:hidden"
+        className="h-10 w-10 shrink-0"
         onClick={() => setOpen(true)}
         aria-label={t("header.openMenu")}
       >
