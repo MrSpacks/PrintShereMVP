@@ -52,7 +52,7 @@ export function Header({ className }: HeaderProps) {
         </Link>
 
         <nav
-          className="hidden items-center gap-1 md:flex"
+          className="hidden items-center gap-1 lg:flex"
           aria-label={t("header.mainNav")}
         >
           {NAV_LINKS.map((link) => (
@@ -65,7 +65,7 @@ export function Header({ className }: HeaderProps) {
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
 
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-2 lg:flex">
             {showBecomeMaker && (
               <Button variant="brand" size="sm" asChild>
                 <Link href="/become-maker">{t("header.becomeMaker")}</Link>
@@ -75,7 +75,7 @@ export function Header({ className }: HeaderProps) {
             <HeaderAuth />
           </div>
 
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
             <MessageInbox />
             <HeaderMobileMenu />
           </div>
