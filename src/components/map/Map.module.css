@@ -115,30 +115,30 @@
 
 .pinBubbleBusy {
   composes: pinBubble;
-  border-color: #fdba74;
-  background: #fff7ed;
-  color: #c2410c;
-  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.15);
+  border-color: #d4d4d8;
+  background: #fafafa;
+  color: #52525b;
+  box-shadow: 0 4px 14px rgba(113, 113, 122, 0.12);
 }
 
 .pinTipBusy {
   width: 10px;
   height: 10px;
   margin-top: -1px;
-  background: #fff7ed;
-  border-right: 1px solid #fdba74;
-  border-bottom: 1px solid #fdba74;
+  background: #fafafa;
+  border-right: 1px solid #d4d4d8;
+  border-bottom: 1px solid #d4d4d8;
   transform: rotate(45deg);
 }
 
 .pinBubbleBusy .pinPrice {
-  color: #c2410c;
+  color: #52525b;
 }
 
 .pinWrapper:hover .pinBubbleBusy {
   transform: scale(1.04);
-  border-color: #fb923c;
-  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.22);
+  border-color: #a1a1aa;
+  box-shadow: 0 6px 18px rgba(113, 113, 122, 0.18);
 }
 
 .pinPrice {

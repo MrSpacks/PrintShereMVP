@@ -565,12 +565,18 @@ export function MakerDashboard() {
                 onChange={setName}
               />
 
-              {/* Доступность на карте: два состояния вместо busy/hidden/pause */}
+              {/* Доступность на карте: три состояния */}
               <div className="space-y-2">
                 <FieldLabel>{t("dashboard.statusLabel")}</FieldLabel>
                 <div className="flex flex-wrap gap-2">
                   {WORKSHOP_UI_STATUSES.map((value) => {
                     const isSelected = status === value;
+                    const label = 
+                      value === "available" 
+                        ? t("dashboard.statusAvailable")
+                        : value === "busy"
+                        ? t("dashboard.statusBusy")
+                        : t("dashboard.statusHidden");
                     return (
                       <button
                         key={value}
@@ -583,13 +589,16 @@ export function MakerDashboard() {
                             : "border-input bg-background hover:bg-muted"
                         )}
                       >
-                        {value === "available"
-                          ? t("dashboard.statusWorking")
-                          : t("dashboard.statusNotWorking")}
+                        {label}
                       </button>
                     );
                   })}
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  {status === "available" && t("dashboard.statusAvailableHelp")}
+                  {status === "busy" && t("dashboard.statusBusyHelp")}
+                  {status === "hidden" && t("dashboard.statusHiddenHelp")}
+                </p>
               </div>
             </div>
 

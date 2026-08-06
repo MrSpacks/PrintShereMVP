@@ -2,19 +2,17 @@ import type { MakerStatus } from "@/types/maker";
 
 /**
  * Статусы, которые мастер видит в дашборде.
- * В БД по-прежнему хранятся available | busy | hidden,
- * но в UI оставляем только «работаю» и «не работаю».
+ * Все 3 статуса из БД теперь доступны в UI.
  */
-export const WORKSHOP_UI_STATUSES = ["available", "hidden"] as const;
+export const WORKSHOP_UI_STATUSES = ["available", "busy", "hidden"] as const;
 
 export type WorkshopUiStatus = (typeof WORKSHOP_UI_STATUSES)[number];
 
 /**
- * Приводит статус из БД к одному из двух значений UI.
- * `busy` и `hidden` считаются «не работаю» — пин на карте неактивен.
+ * Статус из БД напрямую используется в UI.
  */
 export function normalizeWorkshopUiStatus(status: MakerStatus): WorkshopUiStatus {
-  return status === "available" ? "available" : "hidden";
+  return status;
 }
 
 /** Мастерская принимает новые заказы и видна как активная на карте. */
