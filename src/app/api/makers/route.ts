@@ -9,6 +9,11 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const records = await prisma.maker.findMany({
+      where: {
+        status: {
+          in: ["available", "busy"],
+        },
+      },
       include: {
         filaments: { orderBy: [{ printerType: "asc" }, { material: "asc" }] },
         _count: {
