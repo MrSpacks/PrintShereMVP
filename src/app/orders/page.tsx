@@ -8,6 +8,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { AppPage } from "@/components/layout/app-page";
 import { Button } from "@/components/ui/button";
 import { useOrders } from "@/hooks/use-orders";
+import { usePendingOrdersCount } from "@/hooks/use-pending-orders-count";
 import { useTranslations } from "@/i18n/locale-provider";
 import { cn } from "@/lib/utils";
 import { hasMakerAccess, type OrdersListView } from "@/types/user";
@@ -22,6 +23,7 @@ export default function OrdersPage() {
     Boolean(user),
     listView
   );
+  const { count: pendingOrdersCount } = usePendingOrdersCount(canViewMaker);
   const { t } = useTranslations();
 
   const activeView = view ?? listView;
@@ -83,25 +85,33 @@ export default function OrdersPage() {
           role="tablist"
           aria-label={t("orders.title")}
         >
-          {LIST_VIEWS.map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              role="tab"
-              aria-selected={listView === tab}
-              onClick={() => setListView(tab)}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-                listView === tab
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {tab === "customer"
-                ? t("orders.tabCustomer")
-                : t("orders.tabMaker")}
-            </button>
-          ))}
+          {LIST_VIEWS.map((tab) => {
+            const showBadge = tab === "maker" && pendingOrdersCount > 0;
+            return (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={listView === tab}
+                onClick={() => setListView(tab)}
+                className={cn(
+                  "relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  listView === tab
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {tab === "customer"
+                  ? t("orders.tabCustomer")
+                  : t("orders.tabMaker")}
+                {showBadge && (
+                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-[10px] font-bold text-brand-foreground">
+                    {pendingOrdersCount > 99 ? "99+" : pendingOrdersCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 
