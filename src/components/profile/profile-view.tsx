@@ -12,7 +12,10 @@ import {
 import { useAuth } from "@/components/auth/auth-provider";
 import { AppPage, AppPageCard } from "@/components/layout/app-page";
 import { AvatarPicker } from "@/components/profile/avatar-picker";
-import { LinkedAccounts } from "@/components/profile/linked-accounts";
+import {
+  getLinkedProviderLabel,
+  LinkedAccounts,
+} from "@/components/profile/linked-accounts";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 import { getUserCapabilityLabels, hasMakerAccess, type User } from "@/types/user";
@@ -82,10 +85,12 @@ export function ProfileView() {
   }, [user]);
 
   useEffect(() => {
-    if (searchParams.get("linked") === "google") {
-      setSuccess(t("auth.linkSuccess"));
+    const linked = searchParams.get("linked");
+    const linkedLabel = getLinkedProviderLabel(linked);
+    if (linked && linkedLabel) {
+      setSuccess(t("auth.linkSuccess", { provider: linkedLabel }));
       setLinkedProviders((current) =>
-        current.includes("google") ? current : [...current, "google"]
+        current.includes(linked) ? current : [...current, linked]
       );
       return;
     }

@@ -4,11 +4,11 @@ import { UserRole } from "@prisma/client";
 import type { User } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
-import type { OAuthMode } from "@/types/oauth";
+import type { OAuthMode, OAuthProvider } from "@/types/oauth";
 
 export type OAuthResolveError =
   | "EMAIL_MISMATCH"
-  | "GOOGLE_ALREADY_LINKED"
+  | "PROVIDER_ALREADY_LINKED"
   | "ACCOUNT_BLOCKED"
   | "LINK_SESSION_MISMATCH"
   | "USER_NOT_FOUND";
@@ -19,8 +19,9 @@ export class OAuthResolveFailure extends Error {
   }
 }
 
-interface ResolveGoogleSignInParams {
-  googleId: string;
+interface ResolveOAuthSignInParams {
+  provider: OAuthProvider;
+  providerAccountId: string;
   email: string;
   name?: string;
   picture?: string;
@@ -45,18 +46,19 @@ async function assertUserNotBlocked(user: User): Promise<void> {
   }
 }
 
-async function upsertGoogleAccount(userId: string, googleId: string) {
+async function upsertProviderAccount(
+  userId: string,
+  provider: OAuthProvider,
+  providerAccountId: string
+) {
   const existing = await prisma.account.findUnique({
     where: {
-      provider_providerAccountId: {
-        provider: "google",
-        providerAccountId: googleId,
-      },
+      provider_providerAccountId: { provider, providerAccountId },
     },
   });
 
   if (existing && existing.userId !== userId) {
-    throw new OAuthResolveFailure("GOOGLE_ALREADY_LINKED");
+    throw new OAuthResolveFailure("PROVIDER_ALREADY_LINKED");
   }
 
   if (existing) {
@@ -67,8 +69,8 @@ async function upsertGoogleAccount(userId: string, googleId: string) {
     data: {
       id: `account-${randomUUID()}`,
       userId,
-      provider: "google",
-      providerAccountId: googleId,
+      provider,
+      providerAccountId,
     },
   });
 }
@@ -82,8 +84,8 @@ async function maybeUpdateAvatar(user: User, picture?: string) {
   });
 }
 
-export async function resolveGoogleSignIn(
-  params: ResolveGoogleSignInParams
+export async function resolveOAuthSignIn(
+  params: ResolveOAuthSignInParams
 ): Promise<User> {
   const email = normalizeEmail(params.email);
   const displayName = params.name?.trim() || email.split("@")[0] || "User";
@@ -101,18 +103,22 @@ export async function resolveGoogleSignIn(
       throw new OAuthResolveFailure("USER_NOT_FOUND");
     }
 
-    // Logged-in user explicitly links Google — email need not match account email
+    // Logged-in user explicitly links a provider — email need not match account email
     // (e.g. Seznam registration + personal Gmail). Login-mode auto-link still requires match.
     await assertUserNotBlocked(user);
-    await upsertGoogleAccount(user.id, params.googleId);
+    await upsertProviderAccount(
+      user.id,
+      params.provider,
+      params.providerAccountId
+    );
     return maybeUpdateAvatar(user, params.picture);
   }
 
   const linkedAccount = await prisma.account.findUnique({
     where: {
       provider_providerAccountId: {
-        provider: "google",
-        providerAccountId: params.googleId,
+        provider: params.provider,
+        providerAccountId: params.providerAccountId,
       },
     },
     include: { user: true },
@@ -129,7 +135,11 @@ export async function resolveGoogleSignIn(
 
   if (existingUser) {
     await assertUserNotBlocked(existingUser);
-    await upsertGoogleAccount(existingUser.id, params.googleId);
+    await upsertProviderAccount(
+      existingUser.id,
+      params.provider,
+      params.providerAccountId
+    );
     return maybeUpdateAvatar(existingUser, params.picture);
   }
 
@@ -144,7 +154,11 @@ export async function resolveGoogleSignIn(
     },
   });
 
-  await upsertGoogleAccount(created.id, params.googleId);
+  await upsertProviderAccount(
+    created.id,
+    params.provider,
+    params.providerAccountId
+  );
   return created;
 }
 

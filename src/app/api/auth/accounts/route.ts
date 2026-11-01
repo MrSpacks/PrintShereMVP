@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import {
   listLinkedProviders,
   unlinkOAuthProvider,
-} from "@/lib/auth/oauth/resolve-google-sign-in";
+} from "@/lib/auth/oauth/resolve-oauth-sign-in";
 import { getSession } from "@/lib/auth/session";
 import { isOAuthProvider } from "@/types/oauth";
 

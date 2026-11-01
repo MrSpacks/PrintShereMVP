@@ -11,9 +11,8 @@ import {
   AuthSubmitButton,
 } from "@/components/auth/auth-form";
 import {
-  GoogleOAuthButton,
+  OAuthButtons,
   mapOAuthError,
-  OAuthDivider,
 } from "@/components/auth/oauth-buttons";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "@/i18n/locale-provider";
@@ -78,8 +77,7 @@ function LoginForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <AuthError message={error} />
 
-        <GoogleOAuthButton next={redirectTo} />
-        <OAuthDivider />
+        <OAuthButtons next={redirectTo} />
 
         <AuthField
           id="email"

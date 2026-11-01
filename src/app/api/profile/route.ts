@@ -12,7 +12,7 @@ import {
   getSession,
 } from "@/lib/auth/session";
 import { geocodeAddress } from "@/lib/geocoding/nominatim";
-import { listLinkedProviders } from "@/lib/auth/oauth/resolve-google-sign-in";
+import { listLinkedProviders } from "@/lib/auth/oauth/resolve-oauth-sign-in";
 
 export const dynamic = "force-dynamic";
 import { mapPrismaUser } from "@/lib/users/map-user";

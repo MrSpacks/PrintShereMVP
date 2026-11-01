@@ -3,24 +3,23 @@
 import { useState } from "react";
 
 import {
-  GoogleOAuthButton,
-  isGoogleOAuthEnabled,
+  OAUTH_PROVIDER_LABELS,
+  OAuthProviderButton,
+  isOAuthProviderEnabled,
 } from "@/components/auth/oauth-buttons";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
-import type { OAuthProvider } from "@/types/oauth";
+import {
+  OAUTH_PROVIDERS,
+  isOAuthProvider,
+  type OAuthProvider,
+} from "@/types/oauth";
 
 interface LinkedAccountsProps {
   providers: string[];
   onChange: (providers: string[]) => void;
   onError: (message: string) => void;
   onSuccess: (message: string) => void;
-}
-
-function providerLabel(provider: OAuthProvider, t: (key: string) => string) {
-  if (provider === "google") return "Google";
-  if (provider === "github") return "GitHub";
-  return provider;
 }
 
 export function LinkedAccounts({
@@ -32,10 +31,12 @@ export function LinkedAccounts({
   const { t } = useTranslations();
   const [unlinking, setUnlinking] = useState<string | null>(null);
 
-  const googleLinked = providers.includes("google");
-  const showSection = isGoogleOAuthEnabled() || providers.length > 0;
+  // Configured providers, plus any already-linked one whose button was later disabled
+  const visibleProviders = OAUTH_PROVIDERS.filter(
+    (provider) => isOAuthProviderEnabled(provider) || providers.includes(provider)
+  );
 
-  if (!showSection) return null;
+  if (visibleProviders.length === 0) return null;
 
   const handleUnlink = async (provider: OAuthProvider) => {
     if (!window.confirm(t("auth.unlinkConfirm"))) return;
@@ -86,54 +87,41 @@ export function LinkedAccounts({
         </p>
       </div>
 
-      {googleLinked ? (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/40 px-3 py-2">
-          <div className="text-sm">
-            <span className="font-medium">Google</span>
-            <span className="ml-2 text-muted-foreground">
-              {t("auth.linked")}
-            </span>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={unlinking === "google"}
-            onClick={() => void handleUnlink("google")}
-          >
-            {unlinking === "google" ? t("common.loading") : t("auth.unlink")}
-          </Button>
-        </div>
-      ) : (
-        <GoogleOAuthButton mode="link" />
-      )}
-
-      {providers
-        .filter((provider) => provider !== "google")
-        .map((provider) => (
-          <div
-            key={provider}
-            className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/40 px-3 py-2"
-          >
-            <div className="text-sm">
-              <span className="font-medium">
-                {providerLabel(provider as OAuthProvider, t)}
-              </span>
-              <span className="ml-2 text-muted-foreground">
-                {t("auth.linked")}
-              </span>
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={unlinking === provider}
-              onClick={() => void handleUnlink(provider as OAuthProvider)}
+      <div className="space-y-2">
+        {visibleProviders.map((provider) =>
+          providers.includes(provider) ? (
+            <div
+              key={provider}
+              className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/40 px-3 py-2"
             >
-              {unlinking === provider ? t("common.loading") : t("auth.unlink")}
-            </Button>
-          </div>
-        ))}
+              <div className="text-sm">
+                <span className="font-medium">
+                  {OAUTH_PROVIDER_LABELS[provider]}
+                </span>
+                <span className="ml-2 text-muted-foreground">
+                  {t("auth.linked")}
+                </span>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={unlinking === provider}
+                onClick={() => void handleUnlink(provider)}
+              >
+                {unlinking === provider ? t("common.loading") : t("auth.unlink")}
+              </Button>
+            </div>
+          ) : (
+            <OAuthProviderButton key={provider} provider={provider} mode="link" />
+          )
+        )}
+      </div>
     </section>
   );
+}
+
+export function getLinkedProviderLabel(value: string | null): string | null {
+  if (!value || !isOAuthProvider(value)) return null;
+  return OAUTH_PROVIDER_LABELS[value];
 }
