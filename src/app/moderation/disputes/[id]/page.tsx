@@ -2,10 +2,11 @@ import { DisputeDetailView } from "@/components/moderation/dispute-detail-view";
 import { cn } from "@/lib/utils";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function ModerationDisputePage({ params }: PageProps) {
+export default async function ModerationDisputePage(props: PageProps) {
+  const params = await props.params;
   return (
     <div
       className={cn(

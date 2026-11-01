@@ -18,7 +18,7 @@ import type { StaffRole } from "@/types/user";
 import { isAdminUser } from "@/types/user";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 interface AdminUserPatchBody {
@@ -50,7 +50,8 @@ function parsePatchBody(body: unknown): AdminUserPatchBody | null {
   };
 }
 
-export async function PATCH(request: Request, { params }: RouteParams) {
+export async function PATCH(request: Request, props: RouteParams) {
+  const params = await props.params;
   try {
     const admin = await requireAdminUser();
     if (!admin) return adminUnauthorized();
@@ -114,7 +115,8 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(_request: Request, { params }: RouteParams) {
+export async function DELETE(_request: Request, props: RouteParams) {
+  const params = await props.params;
   try {
     const admin = await requireAdminUser();
     if (!admin) return adminUnauthorized();

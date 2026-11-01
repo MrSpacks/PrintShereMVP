@@ -20,10 +20,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export async function POST(request: Request, { params }: RouteParams) {
+export async function POST(request: Request, props: RouteParams) {
+  const params = await props.params;
   const blobToken = getBlobReadWriteToken();
   if (!isClientBlobUploadEnabled() || !blobToken) {
     return NextResponse.json(

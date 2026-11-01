@@ -8,10 +8,11 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export async function PATCH(_request: Request, { params }: RouteParams) {
+export async function PATCH(_request: Request, props: RouteParams) {
+  const params = await props.params;
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -30,7 +31,8 @@ export async function PATCH(_request: Request, { params }: RouteParams) {
   return NextResponse.json({ success: true, activeMakerId: maker.id });
 }
 
-export async function DELETE(_request: Request, { params }: RouteParams) {
+export async function DELETE(_request: Request, props: RouteParams) {
+  const params = await props.params;
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

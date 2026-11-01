@@ -7,10 +7,11 @@ import {
 import { prisma } from "@/lib/prisma";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export async function POST(_request: Request, { params }: RouteParams) {
+export async function POST(_request: Request, props: RouteParams) {
+  const params = await props.params;
   const access = await getOrderAccess(params.id);
   if (!access) return unauthorized();
 

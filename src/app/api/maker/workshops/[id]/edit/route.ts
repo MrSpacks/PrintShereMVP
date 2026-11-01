@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 interface UpdateWorkshopPayload {
@@ -26,7 +26,8 @@ function isValidPayload(body: unknown): body is UpdateWorkshopPayload {
   return hasWorkshopName && hasAddress;
 }
 
-export async function PATCH(request: Request, { params }: RouteParams) {
+export async function PATCH(request: Request, props: RouteParams) {
+  const params = await props.params;
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -38,7 +39,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   }
 
   const body: unknown = await request.json();
-  
+
   if (!isValidPayload(body)) {
     return NextResponse.json(
       { error: "Invalid request payload" },
