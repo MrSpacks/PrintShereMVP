@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 import type { OrderMessage } from "@/types/order";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function mapMessage(
@@ -35,7 +35,8 @@ function mapMessage(
   };
 }
 
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(_request: Request, props: RouteParams) {
+  const params = await props.params;
   const access = await getOrderAccess(params.id);
   if (!access) return unauthorized();
 
@@ -52,7 +53,8 @@ export async function GET(_request: Request, { params }: RouteParams) {
   });
 }
 
-export async function POST(request: Request, { params }: RouteParams) {
+export async function POST(request: Request, props: RouteParams) {
+  const params = await props.params;
   const access = await getOrderAccess(params.id);
   if (!access) return unauthorized();
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import Link from "next/link";
 
 import { OrderDetailView } from "@/components/orders/order-detail-view";
@@ -9,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 
 interface OrderDetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function OrderDetailPage({ params }: OrderDetailPageProps) {
+export default function OrderDetailPage(props: OrderDetailPageProps) {
+  const params = use(props.params);
   const { user, isLoading } = useAuth();
   const { t } = useTranslations();
 

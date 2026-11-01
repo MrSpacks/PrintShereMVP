@@ -70,7 +70,7 @@ export async function verifySessionToken(
 
 /** Читает текущую сессию из cookie (server-side) */
 export async function getSession(): Promise<SessionPayload | null> {
-  const token = cookies().get(SESSION_COOKIE_NAME)?.value;
+  const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
   return verifySessionToken(token);
 }

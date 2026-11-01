@@ -31,6 +31,13 @@ import type { CheckoutConsentsValue } from "@/components/legal/checkout-consents
 
 import styles from "./Map.module.css";
 
+const MAP_TILE_URL =
+  process.env.NEXT_PUBLIC_MAP_TILE_URL ||
+  "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const MAP_TILE_ATTRIBUTION =
+  process.env.NEXT_PUBLIC_MAP_TILE_ATTRIBUTION ||
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
 export interface MapProps {
   isModelLoaded: boolean;
   modelVolumeCm3: number;
@@ -236,11 +243,11 @@ export function Map({
         <MapTouchSettings />
         <MapInvalidator active={mapActive} />
 
+        {/* CARTO basemaps now require an API key; override via env when one is set */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-          subdomains="abcd"
-          maxZoom={20}
+          attribution={MAP_TILE_ATTRIBUTION}
+          url={MAP_TILE_URL}
+          maxZoom={19}
         />
 
         {userLocation && (

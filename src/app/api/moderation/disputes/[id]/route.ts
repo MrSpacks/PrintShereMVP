@@ -15,7 +15,7 @@ function notFoundResponse() {
 }
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function isResolveBody(body: unknown): body is ResolveDisputePayload {
@@ -29,7 +29,8 @@ function isResolveBody(body: unknown): body is ResolveDisputePayload {
   );
 }
 
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(_request: Request, props: RouteParams) {
+  const params = await props.params;
   const { isModerationEnabled } = await import("@/lib/product/product-mode");
   if (!isModerationEnabled()) {
     return NextResponse.json({ error: "Moderation disabled" }, { status: 403 });
@@ -56,7 +57,8 @@ export async function GET(_request: Request, { params }: RouteParams) {
   });
 }
 
-export async function PATCH(request: Request, { params }: RouteParams) {
+export async function PATCH(request: Request, props: RouteParams) {
+  const params = await props.params;
   const { isModerationEnabled } = await import("@/lib/product/product-mode");
   if (!isModerationEnabled()) {
     return NextResponse.json({ error: "Moderation disabled" }, { status: 403 });

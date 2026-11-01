@@ -14,7 +14,7 @@ import { prisma } from "@/lib/prisma";
 import type { SubmitReviewPayload } from "@/types/review";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function isReviewBody(body: unknown): body is SubmitReviewPayload {
@@ -26,7 +26,8 @@ function isReviewBody(body: unknown): body is SubmitReviewPayload {
   );
 }
 
-export async function POST(request: Request, { params }: RouteParams) {
+export async function POST(request: Request, props: RouteParams) {
+  const params = await props.params;
   const access = await getOrderAccess(params.id);
   if (!access) return unauthorized();
 

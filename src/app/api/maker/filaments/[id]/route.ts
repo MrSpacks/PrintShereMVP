@@ -7,10 +7,11 @@ import {
 import { prisma } from "@/lib/prisma";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export async function DELETE(_request: Request, { params }: RouteParams) {
+export async function DELETE(_request: Request, props: RouteParams) {
+  const params = await props.params;
   const user = await requireMakerUser();
   if (!user) return unauthorized();
 

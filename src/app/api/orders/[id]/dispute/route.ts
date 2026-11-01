@@ -13,7 +13,7 @@ import { prisma } from "@/lib/prisma";
 import type { OpenDisputePayload } from "@/types/dispute";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function isOpenDisputeBody(body: unknown): body is OpenDisputePayload {
@@ -25,7 +25,8 @@ function isOpenDisputeBody(body: unknown): body is OpenDisputePayload {
   );
 }
 
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(_request: Request, props: RouteParams) {
+  const params = await props.params;
   const access = await getOrderAccess(params.id);
   if (!access) return unauthorized();
 
@@ -45,7 +46,8 @@ export async function GET(_request: Request, { params }: RouteParams) {
   return NextResponse.json({ dispute: mapDispute(dispute) });
 }
 
-export async function POST(request: Request, { params }: RouteParams) {
+export async function POST(request: Request, props: RouteParams) {
+  const params = await props.params;
   const { isModerationEnabled } = await import("@/lib/product/product-mode");
   if (!isModerationEnabled()) {
     return NextResponse.json(

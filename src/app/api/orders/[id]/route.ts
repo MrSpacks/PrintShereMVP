@@ -39,14 +39,15 @@ const ORDER_ACTIONS = new Set<string>([
 ]);
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function isOrderAction(value: string): value is OrderAction {
   return ORDER_ACTIONS.has(value);
 }
 
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(_request: Request, props: RouteParams) {
+  const params = await props.params;
   const access = await getOrderAccess(params.id);
   if (!access) return unauthorized();
 
@@ -63,7 +64,8 @@ export async function GET(_request: Request, { params }: RouteParams) {
   });
 }
 
-export async function PATCH(request: Request, { params }: RouteParams) {
+export async function PATCH(request: Request, props: RouteParams) {
+  const params = await props.params;
   const access = await getOrderAccess(params.id);
   if (!access) return unauthorized();
 
