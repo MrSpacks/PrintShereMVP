@@ -7,6 +7,7 @@ import {
   saveOrderModelFile,
   toOrderFileDownloadUrl,
 } from "@/lib/orders/order-file-storage";
+import { attachmentContentDisposition } from "@/lib/http/content-disposition";
 import { isModelFileAvailable } from "@/lib/orders/order-model-retention";
 import { mapOrder, ORDER_DETAIL_INCLUDE } from "@/lib/orders/map-order";
 import {
@@ -58,7 +59,7 @@ export async function GET(_request: Request, props: RouteParams) {
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": contentType,
-        "Content-Disposition": `attachment; filename="${order.fileName}"`,
+        "Content-Disposition": attachmentContentDisposition(order.fileName),
       },
     });
   } catch {

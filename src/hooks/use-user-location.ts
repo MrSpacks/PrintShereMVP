@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 import {
   clearStoredUserLocation,
@@ -10,6 +10,11 @@ import {
 import { useMapStore } from "@/store/map-store";
 import type { UserLocation } from "@/types/map";
 
+const subscribeNoop = () => () => {};
+const getGeolocationSupport = () => Boolean(navigator.geolocation);
+// Server render has no navigator; reporting false there keeps hydration consistent
+const getServerGeolocationSupport = () => false;
+
 function toLocationErrorMessage(code: number): string {
   if (code === 1) return "denied";
   if (code === 2) return "unavailable";
@@ -18,6 +23,11 @@ function toLocationErrorMessage(code: number): string {
 }
 
 export function useUserLocation() {
+  const isLocationSupported = useSyncExternalStore(
+    subscribeNoop,
+    getGeolocationSupport,
+    getServerGeolocationSupport
+  );
   const userLocation = useMapStore((state) => state.userLocation);
   const locationStatus = useMapStore((state) => state.locationStatus);
   const locationError = useMapStore((state) => state.locationError);
@@ -87,7 +97,6 @@ export function useUserLocation() {
     locationError,
     requestLocation,
     clearLocation,
-    isLocationSupported:
-      typeof window !== "undefined" && Boolean(navigator.geolocation),
+    isLocationSupported,
   };
 }

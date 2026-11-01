@@ -94,7 +94,11 @@ export async function PATCH(request: Request, props: RouteParams) {
     }
 
     if (payload.weightGrams !== undefined) {
-      if (payload.weightGrams <= 0) {
+      if (
+        typeof payload.weightGrams !== "number" ||
+        !Number.isFinite(payload.weightGrams) ||
+        payload.weightGrams <= 0
+      ) {
         return NextResponse.json({ error: "Invalid weight" }, { status: 400 });
       }
       data.weightGrams = payload.weightGrams;
@@ -103,7 +107,11 @@ export async function PATCH(request: Request, props: RouteParams) {
     let nextPrintCost = order.printCostCzk;
 
     if (payload.printCostCzk !== undefined) {
-      if (payload.printCostCzk < 0) {
+      if (
+        typeof payload.printCostCzk !== "number" ||
+        !Number.isFinite(payload.printCostCzk) ||
+        payload.printCostCzk < 0
+      ) {
         return NextResponse.json({ error: "Invalid price" }, { status: 400 });
       }
       if (access.viewerRole !== "maker" && access.viewerRole !== "admin") {
