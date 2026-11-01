@@ -71,7 +71,7 @@ export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
       {
         heading: "2. Jaké údaje zpracováváme",
         paragraphs: [
-          "Účet: jméno, e-mail, heslo (hash) nebo údaje z Google OAuth.",
+          "Účet: jméno, e-mail, heslo (hash) nebo údaje z přihlášení přes Google, GitHub nebo Apple (identifikátor účtu, e-mail, jméno, avatar).",
           "Objednávky: údaje o modelu (metadata), adresa doručení / výdejní místo, komunikace v chatu, platební a stavové údaje.",
           "Maker profil: adresa dílny, ceny, materiály, volitelně IČO.",
         ],
@@ -88,7 +88,7 @@ export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
       {
         heading: "4. Příjemci a zpracovatelé",
         paragraphs: [
-          "Hosting a databáze (např. Vercel, Neon), úložiště souborů (Vercel Blob), e-mail / OAuth (Google), budoucí platební poskytovatel (Stripe), dopravci (např. Zásilkovna).",
+          "Hosting a databáze (např. Vercel, Neon), úložiště souborů (Vercel Blob), přihlášení / OAuth (Google, GitHub, Apple), budoucí platební poskytovatel (Stripe), dopravci (např. Zásilkovna).",
         ],
       },
       {
@@ -228,7 +228,7 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
       {
         heading: "4. Recipients",
         paragraphs: [
-          "Infrastructure providers (e.g. Vercel, Neon, Blob storage), Google OAuth, future payment processors (Stripe), and delivery partners (e.g. Packeta/Zásilkovna).",
+          "Infrastructure providers (e.g. Vercel, Neon, Blob storage), sign-in providers (Google, GitHub, Apple OAuth), future payment processors (Stripe), and delivery partners (e.g. Packeta/Zásilkovna).",
         ],
       },
       {

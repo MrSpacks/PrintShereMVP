@@ -1,4 +1,5 @@
 import { getSiteUrl } from "@/lib/site";
+import type { OAuthProfile } from "@/types/oauth";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -51,7 +52,7 @@ export function buildGoogleAuthUrl(state: string): string {
 
 export async function exchangeGoogleCode(
   code: string
-): Promise<GoogleUserInfo> {
+): Promise<OAuthProfile> {
   const config = getGoogleOAuthConfig();
   if (!config) {
     throw new Error("Google OAuth is not configured");
@@ -96,5 +97,10 @@ export async function exchangeGoogleCode(
     throw new Error("Google email is not verified");
   }
 
-  return profile;
+  return {
+    providerAccountId: profile.sub,
+    email: profile.email,
+    name: profile.name,
+    picture: profile.picture,
+  };
 }
