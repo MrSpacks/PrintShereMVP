@@ -28,8 +28,9 @@ function ViewerFallback() {
  * Рендер только на клиенте (импортируется через dynamic ssr:false).
  */
 export function ModelViewer({ objectUrl, fileType }: ModelViewerProps) {
+  // touch-none: pinch/drag rotates the model instead of zooming the page
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full touch-none">
       <Canvas
         camera={{ position: [0, 0, 120], fov: 45, near: 0.1, far: 10000 }}
         gl={{ antialias: true, alpha: false }}

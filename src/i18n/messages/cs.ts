@@ -340,6 +340,7 @@ export const csMessages = {
     },
   },
   mobile: {
+    pageHeading: "3D tisk v Česku — nahrajte model a najděte tiskaře na mapě",
     stepModel: "1. Model",
     stepMap: "2. Mapa",
     continueToMap: "Pokračovat na mapu",
