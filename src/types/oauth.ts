@@ -13,6 +13,8 @@ export interface OAuthStatePayload {
   mode: OAuthMode;
   next: string;
   userId?: string;
+  /** Also stored in an httpOnly cookie; the callback requires both to match (login CSRF) */
+  nonce: string;
 }
 
 /** Normalized identity returned by every provider after code exchange */

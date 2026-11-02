@@ -1,57 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { createSharedPoll } from "@/lib/polling/create-shared-poll";
+
+const usePendingCountPoll = createSharedPoll<number>({
+  url: "/api/orders/pending-count",
+  intervalMs: 30000,
+  empty: 0,
+  parse: (json) => (json as { count?: number }).count ?? 0,
+});
 
 export function usePendingOrdersCount(enabled: boolean) {
-  const [count, setCount] = useState(0);
-  const [tick, setTick] = useState(0);
-
-  const refetch = useCallback(() => {
-    setTick((value) => value + 1);
-  }, []);
-
-  useEffect(() => {
-    if (!enabled) {
-      setCount(0);
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadCount() {
-      try {
-        const response = await fetch("/api/orders/pending-count");
-        if (!response.ok) return;
-
-        const data = (await response.json()) as { count?: number };
-        if (!cancelled) {
-          setCount(data.count ?? 0);
-        }
-      } catch {
-        if (!cancelled) setCount(0);
-      }
-    }
-
-    void loadCount();
-
-    const interval = setInterval(() => {
-      void loadCount();
-    }, 30000);
-
-    const onVisible = () => {
-      if (document.visibilityState === "visible") {
-        void loadCount();
-      }
-    };
-
-    document.addEventListener("visibilitychange", onVisible);
-
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-      document.removeEventListener("visibilitychange", onVisible);
-    };
-  }, [enabled, tick]);
-
+  const { data: count, refetch } = usePendingCountPoll(enabled);
   return { count, refetch };
 }

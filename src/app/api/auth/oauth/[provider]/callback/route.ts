@@ -9,7 +9,12 @@ import {
   OAuthResolveFailure,
   resolveOAuthSignIn,
 } from "@/lib/auth/oauth/resolve-oauth-sign-in";
-import { verifyOAuthState } from "@/lib/auth/oauth/state";
+import {
+  clearOAuthNonceCookie,
+  isOAuthNonceValid,
+  readOAuthNonceCookie,
+  verifyOAuthState,
+} from "@/lib/auth/oauth/state";
 import {
   attachSessionCookie,
   createSessionToken,
@@ -40,6 +45,14 @@ function mapResolveError(code: string): string {
 }
 
 export async function GET(request: NextRequest, props: RouteParams) {
+  // The nonce is single-use: drop it whatever the outcome
+  return clearOAuthNonceCookie(await handleCallback(request, props));
+}
+
+async function handleCallback(
+  request: NextRequest,
+  props: RouteParams
+): Promise<NextResponse> {
   const { provider } = await props.params;
   if (!isOAuthProvider(provider)) {
     return oauthErrorRedirect("oauth_failed");
@@ -61,6 +74,11 @@ export async function GET(request: NextRequest, props: RouteParams) {
   // State must come from this provider's start route, not be replayed from another
   if (!state || state.provider !== provider) {
     return oauthErrorRedirect("oauth_failed");
+  }
+
+  // ...and from this browser, not one where an attacker started the flow
+  if (!isOAuthNonceValid(state, readOAuthNonceCookie(request.cookies))) {
+    return oauthErrorRedirect("oauth_failed", state.next);
   }
 
   if (state.mode === "link") {
