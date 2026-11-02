@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { createAppleClientSecret, parseAppleUserName } from "./apple";
 import { pickVerifiedPrimaryEmail } from "./github";
-import { createOAuthState, verifyOAuthState } from "./state";
+import { createOAuthState, isOAuthNonceValid, verifyOAuthState } from "./state";
 
 beforeAll(() => {
   process.env.AUTH_SECRET = "test-secret-for-oauth-state-0123456789";
@@ -73,13 +73,23 @@ describe("OAuth state", () => {
       provider: "github",
       mode: "login",
       next: "/\\evil.example",
+      nonce: "nonce-1",
     });
     expect(await verifyOAuthState(token)).toEqual({
       provider: "github",
       mode: "login",
       next: "/",
       userId: undefined,
+      nonce: "nonce-1",
     });
+  });
+
+  it("требует совпадения nonce из state и cookie", () => {
+    const state = { provider: "google", mode: "login", next: "/", nonce: "abc-123" } as const;
+    expect(isOAuthNonceValid(state, "abc-123")).toBe(true);
+    expect(isOAuthNonceValid(state, "abc-124")).toBe(false);
+    expect(isOAuthNonceValid(state, "abc")).toBe(false);
+    expect(isOAuthNonceValid(state, null)).toBe(false);
   });
 
   it("отклоняет подделанный state", async () => {

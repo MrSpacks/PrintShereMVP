@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getOAuthAdapter } from "@/lib/auth/oauth/providers";
-import { createOAuthState } from "@/lib/auth/oauth/state";
+import {
+  attachOAuthNonceCookie,
+  createOAuthNonce,
+  createOAuthState,
+} from "@/lib/auth/oauth/state";
 import { getSession } from "@/lib/auth/session";
 import { getSafeRedirectPath } from "@/lib/auth/safe-redirect";
 import { isOAuthProvider } from "@/types/oauth";
@@ -30,6 +34,8 @@ export async function GET(request: NextRequest, props: RouteParams) {
   const mode = request.nextUrl.searchParams.get("mode") === "link" ? "link" : "login";
   const next = getSafeRedirectPath(request.nextUrl.searchParams.get("next"));
 
+  const nonce = createOAuthNonce();
+
   if (mode === "link") {
     const session = await getSession();
     if (!session) {
@@ -43,11 +49,18 @@ export async function GET(request: NextRequest, props: RouteParams) {
       mode: "link",
       next: "/profile",
       userId: session.userId,
+      nonce,
     });
 
-    return NextResponse.redirect(adapter.buildAuthUrl(state));
+    return attachOAuthNonceCookie(
+      NextResponse.redirect(adapter.buildAuthUrl(state)),
+      nonce
+    );
   }
 
-  const state = await createOAuthState({ provider, mode: "login", next });
-  return NextResponse.redirect(adapter.buildAuthUrl(state));
+  const state = await createOAuthState({ provider, mode: "login", next, nonce });
+  return attachOAuthNonceCookie(
+    NextResponse.redirect(adapter.buildAuthUrl(state)),
+    nonce
+  );
 }
