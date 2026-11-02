@@ -5,7 +5,6 @@ import { GeistMono } from "geist/font/mono";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppNotificationWatcher } from "@/components/layout/app-notification-watcher";
 import { AppUpdateNotifier } from "@/components/layout/app-update-notifier";
-import { PreventPinchZoom } from "@/components/layout/prevent-pinch-zoom";
 import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt";
 import { Header } from "@/components/layout/header";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -26,9 +25,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  minimumScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Page zoom stays allowed (WCAG 1.4.4); map and 3D viewer block pinch themselves via touch-action
   viewportFit: "cover",
   themeColor: "#f97316",
 };
@@ -52,7 +49,6 @@ export default function RootLayout({
             <PwaInstallPrompt />
             <AppUpdateNotifier />
             <AppNotificationWatcher />
-            <PreventPinchZoom />
           </AuthProvider>
         </LocaleProvider>
       </body>

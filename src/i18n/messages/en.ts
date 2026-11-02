@@ -342,6 +342,7 @@ export const enMessages = {
     },
   },
   mobile: {
+    pageHeading: "3D printing in Czechia — upload a model and find a maker on the map",
     stepModel: "1. Model",
     stepMap: "2. Map",
     continueToMap: "Continue to map",

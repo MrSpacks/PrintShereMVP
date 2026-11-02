@@ -1,8 +1,10 @@
 "use client";
 
 import { Download, Share, Smartphone, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 import { readCookieConsent } from "@/lib/legal/cookie-consent";
@@ -18,9 +20,14 @@ import {
 /**
  * Bottom sheet: instalace PWA + volitelně notifikace.
  * Nezobrazí se ve standalone režimu ani po „Ne teď“ (14 dní).
+ * Jen pro přihlášené v sekci objednávek — tam mají notifikace smysl a
+ * nepřekrývá cenu na úvodní stránce hned po nahrání modelu.
  */
 export function PwaInstallPrompt() {
   const { t } = useTranslations();
+  const { user } = useAuth();
+  const pathname = usePathname();
+  const isEligibleContext = Boolean(user) && pathname.startsWith("/orders");
   const [visible, setVisible] = useState(false);
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
@@ -105,7 +112,7 @@ export function PwaInstallPrompt() {
     await requestBrowserNotificationPermission();
   };
 
-  if (!visible || !cookieResolved) return null;
+  if (!visible || !cookieResolved || !isEligibleContext) return null;
 
   const canNativeInstall = Boolean(deferredPrompt);
   const showIosHelp = iosMode && !canNativeInstall;

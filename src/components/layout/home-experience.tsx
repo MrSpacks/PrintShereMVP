@@ -20,17 +20,24 @@ export function HomeExperience() {
   const model = useModelStore((state) => state.model);
   const [mobileStep, setMobileStep] = useState<MobileStep>("model");
 
+  // The app-like layout has no visible title; keep one h1 for screen readers and SEO
+  const heading = <h1 className="sr-only">{t("mobile.pageHeading")}</h1>;
+
   if (isLg) {
     return (
-      <SplitScreenLayout
-        leftPanel={<ModelPanel />}
-        rightPanel={<MapPanel />}
-      />
+      <>
+        {heading}
+        <SplitScreenLayout
+          leftPanel={<ModelPanel />}
+          rightPanel={<MapPanel />}
+        />
+      </>
     );
   }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      {heading}
       <div className="flex shrink-0 items-center gap-2 border-b border-border bg-background px-3 py-2">
         {(["model", "map"] as const).map((step) => {
           const isActive = mobileStep === step;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import L from "leaflet";
 import {
   MapContainer,
@@ -68,15 +68,49 @@ function createUserLocationIcon(): L.DivIcon {
 function MapViewport({
   center,
   userLocation,
+  makers,
 }: {
   center: [number, number];
   userLocation?: UserLocation | null;
+  makers: Maker[];
 }) {
   const map = useMap();
+  const fittedToMakers = useRef(false);
 
   useEffect(() => {
     map.setView(center, userLocation ? 13 : map.getZoom(), { animate: true });
   }, [center, map, userLocation]);
+
+  // Without the user's location the default Prague view can miss every maker
+  // (e.g. the only one is in Kralupy) — show them all once when they load.
+  useEffect(() => {
+    if (userLocation || fittedToMakers.current || makers.length === 0) return;
+
+    const bounds = L.latLngBounds(
+      makers.map((maker) => [maker.latitude, maker.longitude] as [number, number])
+    );
+    const fit = () => {
+      map.invalidateSize();
+      // Pins are anchored at their bottom with the price label above, so leave more room on top
+      map.fitBounds(bounds, {
+        paddingTopLeft: [40, 80],
+        paddingBottomRight: [40, 24],
+        maxZoom: 13,
+        animate: false,
+      });
+    };
+
+    // The container size is final only after MapInvalidator's passes (up to 400ms)
+    const frame = requestAnimationFrame(fit);
+    const timeout = window.setTimeout(() => {
+      fit();
+      fittedToMakers.current = true;
+    }, 450);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+    };
+  }, [makers, map, userLocation]);
 
   return null;
 }
@@ -239,7 +273,7 @@ export function Map({
         scrollWheelZoom
         className={styles.mapContainer}
       >
-        <MapViewport center={center} userLocation={userLocation} />
+        <MapViewport center={center} userLocation={userLocation} makers={makers} />
         <MapTouchSettings />
         <MapInvalidator active={mapActive} />
 
