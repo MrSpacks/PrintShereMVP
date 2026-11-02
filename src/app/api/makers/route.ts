@@ -31,11 +31,6 @@ export async function GET() {
       orderBy: { rating: "desc" },
     });
 
-    console.log("[GET /api/makers] Found makers:", {
-      count: records.length,
-      ids: records.map((m) => m.id),
-    });
-
     const mapped = records.map((maker) => {
       const base = mapPrismaMaker(maker);
       return {
@@ -43,7 +38,6 @@ export async function GET() {
         reviewsCount: maker._count.orders,
       };
     });
-    console.log("[GET /api/makers] Returning:", mapped.length);
 
     return NextResponse.json(mapped);
   } catch (error) {

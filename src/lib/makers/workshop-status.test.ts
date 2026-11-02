@@ -13,8 +13,8 @@ describe("workshop-status", () => {
       expect(normalizeWorkshopUiStatus("available")).toBe("available");
     });
 
-    it("busy сворачивается в «не работаю»", () => {
-      expect(normalizeWorkshopUiStatus("busy")).toBe("hidden");
+    it("busy остаётся «занят» (виден на карте, без заказов)", () => {
+      expect(normalizeWorkshopUiStatus("busy")).toBe("busy");
     });
 
     it("hidden остаётся «не работаю»", () => {
@@ -39,8 +39,8 @@ describe("workshop-status", () => {
   });
 
   describe("WORKSHOP_UI_STATUSES", () => {
-    it("в UI ровно два варианта", () => {
-      expect(WORKSHOP_UI_STATUSES).toEqual(["available", "hidden"]);
+    it("в UI три варианта", () => {
+      expect(WORKSHOP_UI_STATUSES).toEqual(["available", "busy", "hidden"]);
     });
   });
 });

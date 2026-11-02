@@ -2,6 +2,8 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+import { prisma } from "@/lib/prisma";
+import { isUserCurrentlyBlocked } from "@/lib/users/user-block";
 import type { UserRole } from "@/types/user";
 
 export const SESSION_COOKIE_NAME = "printlocal_session";
@@ -68,11 +70,29 @@ export async function verifySessionToken(
   }
 }
 
-/** Читает текущую сессию из cookie (server-side) */
-export async function getSession(): Promise<SessionPayload | null> {
+/** Только подпись JWT, без проверки пользователя в БД — для /api/auth/me */
+export async function getSessionPayload(): Promise<SessionPayload | null> {
   const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
   return verifySessionToken(token);
+}
+
+/**
+ * Текущая сессия (server-side). JWT живёт 7 дней, поэтому блокировка и
+ * удаление аккаунта проверяются в БД на каждом запросе, а не только при входе.
+ */
+export async function getSession(): Promise<SessionPayload | null> {
+  const session = await getSessionPayload();
+  if (!session) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { blockedUntil: true },
+  });
+
+  if (!user || isUserCurrentlyBlocked(user.blockedUntil)) return null;
+
+  return session;
 }
 
 export function attachSessionCookie(

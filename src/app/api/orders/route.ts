@@ -21,6 +21,19 @@ import {
 
 const DELIVERY_METHODS = new Set<string>(["pickup", "delivery"]);
 
+const MAX_FILE_NAME_LENGTH = 255;
+const MAX_WEIGHT_GRAMS = 50_000;
+const MAX_DIMENSION_MM = 10_000;
+
+function isNumberInRange(value: unknown, min: number, max: number): boolean {
+  return typeof value === "number" && Number.isFinite(value) && value >= min && value <= max;
+}
+
+/** Print settings are optional (server defaults apply), but must be sane if sent */
+function isOptionalNumberInRange(value: unknown, min: number, max: number): boolean {
+  return value === undefined || isNumberInRange(value, min, max);
+}
+
 function isValidOrderPayload(body: unknown): body is CreateOrderPayload {
   if (!body || typeof body !== "object") return false;
 
@@ -29,11 +42,15 @@ function isValidOrderPayload(body: unknown): body is CreateOrderPayload {
   return (
     typeof payload.makerId === "string" &&
     typeof payload.fileName === "string" &&
-    typeof payload.weightGrams === "number" &&
-    payload.weightGrams > 0 &&
-    typeof payload.widthMm === "number" &&
-    typeof payload.heightMm === "number" &&
-    typeof payload.depthMm === "number" &&
+    payload.fileName.trim().length > 0 &&
+    payload.fileName.length <= MAX_FILE_NAME_LENGTH &&
+    isNumberInRange(payload.weightGrams, Number.MIN_VALUE, MAX_WEIGHT_GRAMS) &&
+    isNumberInRange(payload.widthMm, Number.MIN_VALUE, MAX_DIMENSION_MM) &&
+    isNumberInRange(payload.heightMm, Number.MIN_VALUE, MAX_DIMENSION_MM) &&
+    isNumberInRange(payload.depthMm, Number.MIN_VALUE, MAX_DIMENSION_MM) &&
+    isOptionalNumberInRange(payload.infillPercent, 0, 100) &&
+    isOptionalNumberInRange(payload.wallThicknessMm, 0.1, 10) &&
+    isOptionalNumberInRange(payload.supportCoefficient, 1, 3) &&
     typeof payload.deliveryMethod === "string" &&
     DELIVERY_METHODS.has(payload.deliveryMethod) &&
     (payload.zasilkovnaPointId === undefined ||

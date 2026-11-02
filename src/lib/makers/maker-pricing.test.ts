@@ -6,11 +6,12 @@ import {
   makerSupportsPrinterType,
   resolvePricingPrinterType,
 } from "./maker-pricing";
+import type { PrinterType } from "@/types/maker";
 
 const maker = {
   pricePerGramFdmCzk: 5,
   pricePerGramResinCzk: 12,
-  printerTypes: ["fdm", "resin"] as const,
+  printerTypes: ["fdm", "resin"] as PrinterType[],
 };
 
 describe("maker-pricing", () => {

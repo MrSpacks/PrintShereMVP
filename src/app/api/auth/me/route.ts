@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { clearSessionCookie, getSession } from "@/lib/auth/session";
+import { clearSessionCookie, getSessionPayload } from "@/lib/auth/session";
 import { mapPrismaUser } from "@/lib/users/map-user";
 import { isUserCurrentlyBlocked } from "@/lib/users/user-block";
 import { prisma } from "@/lib/prisma";
@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 /** Текущий авторизованный пользователь */
 export async function GET() {
   try {
-    const session = await getSession();
+    // Raw token on purpose: this route reports `blocked` and clears the cookie itself
+    const session = await getSessionPayload();
 
     if (!session) {
       return NextResponse.json({ user: null });
