@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth/session";
 import { LEGAL_DOCS_VERSION } from "@/lib/legal/constants";
@@ -7,6 +7,7 @@ import { assertMakerCanAcceptPrintOrder } from "@/lib/makers/maker-income-gate";
 import { isWorkshopAcceptingOrders } from "@/lib/makers/workshop-status";
 import { mapOrder, mapOrderForViewer } from "@/lib/orders/map-order";
 import { calculateOrderPricing } from "@/lib/orders/order-pricing";
+import { notifyMakerAboutNewOrder } from "@/lib/notifications/order-emails";
 import { prisma } from "@/lib/prisma";
 import type { CreateOrderPayload } from "@/types/order";
 import type { DeliveryMethod } from "@/types/delivery";
@@ -232,6 +233,8 @@ export async function POST(request: Request) {
       },
       include: { maker: true, customer: true },
     });
+
+    after(() => notifyMakerAboutNewOrder(order.id));
 
     return NextResponse.json(mapOrder(order), { status: 201 });
   } catch (error) {
