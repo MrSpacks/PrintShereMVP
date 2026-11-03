@@ -455,6 +455,7 @@ export const enMessages = {
     statusAwaitingCustomer: "Awaiting customer",
     statusAwaitingPayment: "Awaiting payment",
     statusPaid: "Paid",
+    statusAgreed: "Agreed",
     statusPrinting: "Printing",
     statusShipped: "Shipped",
     statusDelivered: "Delivered",

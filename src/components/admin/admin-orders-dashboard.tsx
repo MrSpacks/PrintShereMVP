@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
 import { getIntlLocale } from "@/i18n/translate";
 import {
-  ORDER_STATUS_KEYS,
+  getOrderStatusKey,
   ORDER_STATUS_STYLES,
 } from "@/components/orders/order-status-labels";
 import type { AdminOrderSummary } from "@/types/admin";
@@ -159,7 +159,7 @@ export function AdminOrdersDashboard() {
             <option key={status} value={status}>
               {status === "all"
                 ? t("admin.statusAll")
-                : t(ORDER_STATUS_KEYS[status])}
+                : t(getOrderStatusKey(status))}
             </option>
           ))}
         </select>
@@ -252,7 +252,7 @@ export function AdminOrdersDashboard() {
                           ORDER_STATUS_STYLES[order.status]
                         )}
                       >
-                        {t(ORDER_STATUS_KEYS[order.status])}
+                        {t(getOrderStatusKey(order.status))}
                       </span>
                       {order.disputeOpen ? (
                         <span className="mt-1 block text-xs font-medium text-red-600">

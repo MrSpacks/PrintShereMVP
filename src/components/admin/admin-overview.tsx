@@ -9,7 +9,7 @@ import {
 } from "@/components/admin/admin-shell";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/locale-provider";
-import { ORDER_STATUS_KEYS, ORDER_STATUS_STYLES } from "@/components/orders/order-status-labels";
+import { getOrderStatusKey, ORDER_STATUS_STYLES } from "@/components/orders/order-status-labels";
 import type { AdminPlatformStats } from "@/types/admin";
 import type { OrderStatus } from "@/types/order";
 import { isAdminFinanceVisible } from "@/lib/product/product-mode";
@@ -280,7 +280,7 @@ export function AdminOverview() {
                                 ORDER_STATUS_STYLES[row.status as OrderStatus]
                               )}
                             >
-                              {t(ORDER_STATUS_KEYS[row.status as OrderStatus])}
+                              {t(getOrderStatusKey(row.status as OrderStatus))}
                             </span>
                           </td>
                           <td className="px-4 py-3 tabular-nums">{row.count}</td>

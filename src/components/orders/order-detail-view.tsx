@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AuthError } from "@/components/auth/auth-form";
 import {
-  ORDER_STATUS_KEYS,
+  getOrderStatusKey,
   ORDER_STATUS_STYLES,
 } from "@/components/orders/order-status-labels";
 import { OrderCustomerActions } from "@/components/orders/order-customer-actions";
@@ -362,7 +362,7 @@ export function OrderDetailView({ orderId }: OrderDetailViewProps) {
               ORDER_STATUS_STYLES[order.status]
             )}
           >
-            {t(ORDER_STATUS_KEYS[order.status])}
+            {t(getOrderStatusKey(order.status))}
           </span>
         </div>
 

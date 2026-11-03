@@ -1,3 +1,4 @@
+import { isConnectionMode } from "@/lib/product/product-mode";
 import type { OrderStatus } from "@/types/order";
 
 export const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
@@ -27,3 +28,12 @@ export const ORDER_STATUS_KEYS: Record<OrderStatus, string> = {
   refunded: "orders.statusRefunded",
   cancelled: "orders.statusCancelled",
 };
+
+/**
+ * Ключ перевода статуса. В режиме «без оплаты» статус paid означает
+ * «договорились» — платежа на сайте не было, поэтому не пишем «Оплачено».
+ */
+export function getOrderStatusKey(status: OrderStatus): string {
+  if (status === "paid" && isConnectionMode()) return "orders.statusAgreed";
+  return ORDER_STATUS_KEYS[status];
+}

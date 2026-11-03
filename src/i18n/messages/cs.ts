@@ -453,6 +453,7 @@ export const csMessages = {
     statusAwaitingCustomer: "Čeká na zákazníka",
     statusAwaitingPayment: "Čeká na platbu",
     statusPaid: "Zaplaceno",
+    statusAgreed: "Domluveno",
     statusPrinting: "Tiskne se",
     statusShipped: "Odesláno",
     statusDelivered: "Doručeno",

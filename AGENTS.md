@@ -82,7 +82,8 @@ prisma/
 pending ──propose_terms (maker)──▶ awaiting_customer ──accept_terms (customer)──▶ paid*
 paid ──start_printing (maker)──▶ printing ──mark_shipped (maker)──▶ shipped
 shipped ──confirm_receipt (customer)──▶ delivered ──review (customer)──▶ completed
-cancel: allowed only before payment (pending / awaiting_customer / awaiting_payment)
+cancel: before printing starts — pending / awaiting_customer / paid (connection mode; shown as "Domluveno/Agreed")
+        or pending / awaiting_customer / awaiting_payment (payments on)
 ```
 \* In connection mode `accept_terms` jumps straight to `paid`; with payments on it goes to `awaiting_payment` → `pay`.
 
