@@ -97,6 +97,12 @@ function LoginForm() {
           autoComplete="current-password"
         />
 
+        <div className="-mt-2 text-right text-sm">
+          <AuthLink href="/forgot-password">
+            {t("auth.forgotPasswordLink")}
+          </AuthLink>
+        </div>
+
         <AuthSubmitButton isSubmitting={isSubmitting} label={t("auth.logIn")} />
       </form>
     </AuthCard>

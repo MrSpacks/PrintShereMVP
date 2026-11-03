@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Package } from "lucide-react";
 
 import {
-  ORDER_STATUS_KEYS,
+  getOrderStatusKey,
   ORDER_STATUS_STYLES,
 } from "@/components/orders/order-status-labels";
 import { getMakerPayoutCzk } from "@/lib/orders/map-order";
@@ -72,7 +72,7 @@ export function OrderCard({ order, view }: OrderCardProps) {
               ORDER_STATUS_STYLES[order.status]
             )}
           >
-            {t(ORDER_STATUS_KEYS[order.status])}
+            {t(getOrderStatusKey(order.status))}
           </span>
         </div>
 

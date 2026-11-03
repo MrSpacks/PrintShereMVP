@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 import {
   mapOrderForViewer,
@@ -24,6 +24,7 @@ import {
   notFound,
   unauthorized,
 } from "@/lib/orders/require-order-access";
+import { notifyOrderStatusChange } from "@/lib/notifications/order-emails";
 import { prisma } from "@/lib/prisma";
 import type { OrderAction, UpdateOrderPayload } from "@/types/order";
 
@@ -209,6 +210,15 @@ export async function PATCH(request: Request, props: RouteParams) {
       data,
       include: ORDER_DETAIL_INCLUDE,
     });
+
+    const action = payload.action;
+    if (action !== undefined && isOrderAction(action)) {
+      const actor =
+        access.viewerRole === "customer" || access.viewerRole === "maker"
+          ? access.viewerRole
+          : "admin";
+      after(() => notifyOrderStatusChange(updated.id, action, actor));
+    }
 
     return NextResponse.json({
       order: mapOrderForViewer(updated, access.viewerRole),

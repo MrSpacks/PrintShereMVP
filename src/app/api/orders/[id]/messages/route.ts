@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 import {
   getOrderAccess,
   notFound,
   unauthorized,
 } from "@/lib/orders/require-order-access";
+import { notifyNewChatMessage } from "@/lib/notifications/order-emails";
 import { prisma } from "@/lib/prisma";
 import type { OrderMessage } from "@/types/order";
 
@@ -88,6 +89,8 @@ export async function POST(request: Request, props: RouteParams) {
       },
       include: { sender: { select: { name: true, role: true } } },
     });
+
+    after(() => notifyNewChatMessage(params.id, message.id));
 
     return NextResponse.json(
       { message: mapMessage(message, access.user.id) },
