@@ -750,7 +750,7 @@ export const csMessages = {
       "Jde o dobrovolný dar na provoz projektu, ne o platbu za tisk. PrintShare není smluvní stranou vaší dohody s výrobcem.",
     contactTitle: "Kontakt",
     contactText: "Pro dotazy k objednávkám, sporům nebo spolupráci nás kontaktujte e-mailem:",
-    contactEmail: "web.mr.spacks@gmail.com",
+    contactEmail: "support@3dprintshare.xyz",
     faqTitle: "Časté dotazy",
     faq1Question: "Jak zaplatím za tisk?",
     faq1Answer:

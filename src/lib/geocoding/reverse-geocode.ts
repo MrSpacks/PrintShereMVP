@@ -36,7 +36,7 @@ export async function reverseGeocode(
 
     const response = await fetch(url.toString(), {
       headers: {
-        "User-Agent": "PrintShare/1.0 (web.mr.spacks@gmail.com)",
+        "User-Agent": "PrintShare/1.0 (support@3dprintshare.xyz)",
       },
     });
 

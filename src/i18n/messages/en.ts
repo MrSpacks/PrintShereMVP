@@ -751,7 +751,7 @@ export const enMessages = {
       "This is a voluntary gift to run the project, not payment for a print. PrintShare is not a party to your agreement with the maker.",
     contactTitle: "Contact",
     contactText: "For order issues, disputes, or partnerships, reach us at:",
-    contactEmail: "web.mr.spacks@gmail.com",
+    contactEmail: "support@3dprintshare.xyz",
     faqTitle: "Frequently asked questions",
     faq1Question: "How do I pay for a print?",
     faq1Answer:
