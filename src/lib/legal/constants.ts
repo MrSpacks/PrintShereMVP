@@ -8,7 +8,7 @@ export const PLATFORM_OPERATOR = {
   addressLine: "Radčina 492/20",
   cityLine: "161 00 Praha 6 - Liboc",
   country: "Česká republika",
-  email: "web.mr.spacks@gmail.com",
+  email: "support@3dprintshare.xyz",
   /** Optional — omitted from public Impressum unless required */
   phone: "+420773947784",
   showPhoneInFooter: false,

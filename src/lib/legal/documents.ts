@@ -19,7 +19,7 @@ export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
       {
         heading: "1. Provozovatel",
         paragraphs: [
-          "Provozovatelem platformy PrintShare je Sergei Petukhov, IČO 19618492, sídlo Radčina 492/20, 161 00 Praha 6 - Liboc, e-mail web.mr.spacks@gmail.com (dále jen „Provozovatel“).",
+          "Provozovatelem platformy PrintShare je Sergei Petukhov, IČO 19618492, sídlo Radčina 492/20, 161 00 Praha 6 - Liboc, e-mail support@3dprintshare.xyz (dále jen „Provozovatel“).",
         ],
       },
       {
@@ -65,7 +65,7 @@ export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
       {
         heading: "1. Správce",
         paragraphs: [
-          "Správcem osobních údajů je Sergei Petukhov, IČO 19618492, sídlo Radčina 492/20, 161 00 Praha 6 - Liboc, e-mail web.mr.spacks@gmail.com.",
+          "Správcem osobních údajů je Sergei Petukhov, IČO 19618492, sídlo Radčina 492/20, 161 00 Praha 6 - Liboc, e-mail support@3dprintshare.xyz.",
         ],
       },
       {
@@ -113,7 +113,7 @@ export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
       {
         heading: "2. Jak reklamovat",
         paragraphs: [
-          "Reklamaci uplatněte bez zbytečného odkladu u makera přes chat objednávky a/nebo e-mailem na web.mr.spacks@gmail.com s číslem objednávky, popisem vady a fotografiemi.",
+          "Reklamaci uplatněte bez zbytečného odkladu u makera přes chat objednávky a/nebo e-mailem na support@3dprintshare.xyz s číslem objednávky, popisem vady a fotografiemi.",
         ],
       },
       {
@@ -150,7 +150,7 @@ export const legalDocumentsCs: Record<LegalDocId, LegalDocument> = {
       {
         heading: "3. Změna volby",
         paragraphs: [
-          "Svou volbu můžete změnit smazáním údaji v prohlížeči (localStorage klíč printshare_cookie_consent) nebo kontaktováním web.mr.spacks@gmail.com.",
+          "Svou volbu můžete změnit smazáním údaji v prohlížeči (localStorage klíč printshare_cookie_consent) nebo kontaktováním support@3dprintshare.xyz.",
         ],
       },
     ],
@@ -165,7 +165,7 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
       {
         heading: "1. Operator",
         paragraphs: [
-          "The PrintShare platform is operated by Sergei Petukhov, Company ID (IČO) 19618492, registered address Radčina 492/20, 161 00 Prague 6 - Liboc, Czech Republic, email web.mr.spacks@gmail.com (the “Operator”).",
+          "The PrintShare platform is operated by Sergei Petukhov, Company ID (IČO) 19618492, registered address Radčina 492/20, 161 00 Prague 6 - Liboc, Czech Republic, email support@3dprintshare.xyz (the “Operator”).",
         ],
       },
       {
@@ -210,7 +210,7 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
       {
         heading: "1. Controller",
         paragraphs: [
-          "The data controller is Sergei Petukhov, IČO 19618492, Radčina 492/20, 161 00 Prague 6 - Liboc, email web.mr.spacks@gmail.com.",
+          "The data controller is Sergei Petukhov, IČO 19618492, Radčina 492/20, 161 00 Prague 6 - Liboc, email support@3dprintshare.xyz.",
         ],
       },
       {
@@ -253,7 +253,7 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
       {
         heading: "2. How to complain",
         paragraphs: [
-          "Contact the maker via order chat and/or email web.mr.spacks@gmail.com with the order ID, defect description, and photos without undue delay.",
+          "Contact the maker via order chat and/or email support@3dprintshare.xyz with the order ID, defect description, and photos without undue delay.",
         ],
       },
       {
@@ -289,7 +289,7 @@ export const legalDocumentsEn: Record<LegalDocId, LegalDocument> = {
       {
         heading: "3. Changing your choice",
         paragraphs: [
-          "Clear localStorage key printshare_cookie_consent or email web.mr.spacks@gmail.com.",
+          "Clear localStorage key printshare_cookie_consent or email support@3dprintshare.xyz.",
         ],
       },
     ],
