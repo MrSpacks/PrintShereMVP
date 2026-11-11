@@ -28,7 +28,14 @@ export function useMakers(): UseMakersResult {
       setError(null);
 
       try {
-        const response = await fetch("/api/makers");
+        let response = await fetch("/api/makers");
+
+        // 5xx обычно значит, что Neon ещё просыпается — один повтор через паузу
+        if (response.status >= 500 && !cancelled) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          if (cancelled) return;
+          response = await fetch("/api/makers");
+        }
 
         if (!response.ok) {
           throw new Error("Failed to load makers");
